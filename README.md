@@ -1,6 +1,6 @@
 # hidden_hiding_app
 
-A new Flutter project.
+My Graduation project.
 
 ## Getting Started
 
