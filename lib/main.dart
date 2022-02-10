@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      initialRoute: '/BirthdayReminderScreen',
+      initialRoute: '/CalculatorScreen',
       routes: {
         '/CalculatorScreen': (context) => const CalculatorScreen(),
         '/FlashLightScreen': (context) => const FlashLightScreen(),
