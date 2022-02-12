@@ -14,12 +14,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Hidden Hide App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      initialRoute: '/CalculatorScreen',
+      initialRoute: '/FlashLightScreen',
       routes: {
         '/CalculatorScreen': (context) => const CalculatorScreen(),
         '/FlashLightScreen': (context) => const FlashLightScreen(),
