@@ -16,10 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hidden Hide App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
-      initialRoute: '/FlashLightScreen',
+      initialRoute: '/BirthdayReminderScreen',
       routes: {
         '/CalculatorScreen': (context) => const CalculatorScreen(),
         '/FlashLightScreen': (context) => const FlashLightScreen(),

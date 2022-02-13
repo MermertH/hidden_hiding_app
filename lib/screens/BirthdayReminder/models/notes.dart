@@ -1,11 +1,13 @@
 class Notes {
   String? title;
-  String? userNote;
+  String? description;
+  DateTime? birthdayDate;
   int? noteId;
 
   Notes({
     this.title,
-    this.userNote,
+    this.description,
+    this.birthdayDate,
     this.noteId,
   });
 }
