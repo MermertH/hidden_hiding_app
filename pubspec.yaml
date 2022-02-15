@@ -67,6 +67,9 @@ flutter:
   assets:
      - assets/flashlight/images/torch.png
      - assets/flashlight/images/flame.gif
+     - assets/birthday_reminder/images/cake.png
+     - assets/birthday_reminder/images/candle.png
+     - assets/birthday_reminder/images/candle_flame.gif
      
      
 

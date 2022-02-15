@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hidden_hiding_app/screens/BirthdayReminder/birthday_list_screen.dart';
 import 'package:hidden_hiding_app/screens/BirthdayReminder/birthday_reminder_screen.dart';
 import 'package:hidden_hiding_app/screens/Calculator/calculator_screen.dart';
 import 'package:hidden_hiding_app/screens/FlashLight/flashlight_screen.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
         '/CalculatorScreen': (context) => const CalculatorScreen(),
         '/FlashLightScreen': (context) => const FlashLightScreen(),
         '/BirthdayReminderScreen': (context) => const BirthdayReminderScreen(),
+        '/BirthdayListScreen': (context) => const BirthdayList(),
       },
     );
   }
