@@ -75,14 +75,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 margin:
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 decoration: BoxDecoration(
-                  // boxShadow: const [
-                  //   BoxShadow(
-                  //     offset: Offset(0, 0),
-                  //     blurRadius: 1,
-                  //     color: Colors.black12,
-                  //     spreadRadius: 1,
-                  //   ),
-                  // ],
                   border: Border.all(
                     width: 5,
                     color: Colors.grey[300]!,

@@ -37,9 +37,10 @@ dependencies:
   flutter_secure_storage: ^5.0.2
   image_picker: ^0.8.4+5
   math_expressions: ^2.3.0
-  torch_light: ^0.4.0
+  # torch_light: ^0.4.0
   google_fonts: ^2.3.1
   intl: ^0.17.0
+  file_picker: ^3.0.4
 
 dev_dependencies:
   flutter_test:

@@ -292,6 +292,7 @@ class _BirthdayListState extends State<BirthdayList> {
             colorScheme: ColorScheme.light(
               primary: Colors.brown[600]!, // header background color
               onPrimary: Colors.white, // header text color
+              background: Colors.orange[50]!,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(

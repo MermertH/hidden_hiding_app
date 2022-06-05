@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/screens/BirthdayReminder/birthday_list_screen.dart';
 import 'package:hidden_hiding_app/screens/BirthdayReminder/birthday_reminder_screen.dart';
 import 'package:hidden_hiding_app/screens/Calculator/calculator_screen.dart';
-import 'package:hidden_hiding_app/screens/FlashLight/flashlight_screen.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/vault_main_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,12 +17,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hidden Hide App',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/BirthdayReminderScreen',
+      initialRoute: '/VaultMainScreen',
       routes: {
         '/CalculatorScreen': (context) => const CalculatorScreen(),
-        '/FlashLightScreen': (context) => const FlashLightScreen(),
+        // '/FlashLightScreen': (context) => const FlashLightScreen(),
         '/BirthdayReminderScreen': (context) => const BirthdayReminderScreen(),
         '/BirthdayListScreen': (context) => const BirthdayList(),
+        '/VaultMainScreen': (context) => const VaultMainScreen(),
       },
     );
   }
