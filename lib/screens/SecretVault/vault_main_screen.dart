@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
 
 class VaultMainScreen extends StatefulWidget {
@@ -11,12 +13,13 @@ class VaultMainScreen extends StatefulWidget {
 
 class _VaultMainScreenState extends State<VaultMainScreen> {
   var textKeyController = TextEditingController();
-  var textValueController = TextEditingController();
   var storageService = StorageService();
+  var filePickService = FilePickerService();
   List<StorageItem> items = [];
 
   void getStorageItems() async {
     items = await storageService.readAllSecureData();
+    print(items.length);
     setState(() {});
   }
 
@@ -33,112 +36,268 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
         title: const Text("Hidden Vault"),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: items.length,
-              itemBuilder: (context, index) => Card(
-                child: ListTile(
-                  leading: const Icon(Icons.security),
-                  title: Text(items[index].key),
-                  subtitle: Text(items[index].value),
-                  trailing: const Icon(Icons.security),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(12.0),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 200,
+                  crossAxisSpacing: 10,
+                ),
+                itemCount: items.length,
+                itemBuilder: (context, index) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey[700]!,
+                          width: 2,
+                        ),
+                      ),
+                      // media element
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) => Dialog(
+                                    insetPadding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 10,
+                                    ),
+                                    elevation: 0,
+                                    child: Stack(
+                                      children: [
+                                        Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            ClipRRect(
+                                              clipBehavior: Clip.hardEdge,
+                                              child: Image.file(
+                                                File(items[index].key),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(4.0),
+                                              child: Wrap(
+                                                children: [
+                                                  Text(
+                                                    items[index].value,
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyText2,
+                                                  )
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        Positioned(
+                                          top: 8,
+                                          right: 4,
+                                          child: GestureDetector(
+                                            onTap: () =>
+                                                Navigator.of(context).pop(),
+                                            child: const CircleAvatar(
+                                              backgroundColor: Colors.grey,
+                                              child: Icon(
+                                                Icons.close,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ));
+                        },
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: ClipRRect(
+                            clipBehavior: Clip.hardEdge,
+                            child: Image.file(
+                              File(items[index].key),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // media name and edit
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          flex: 8,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: Text(
+                              items[index].value,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyText1,
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 2,
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => Dialog(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                "Edit File Name",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headline6,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 15,
+                                                vertical: 8,
+                                              ),
+                                              child: TextField(
+                                                textAlign: TextAlign.center,
+                                                controller: textKeyController,
+                                                decoration: InputDecoration(
+                                                  border:
+                                                      const OutlineInputBorder(),
+                                                  hintText: items[index].value,
+                                                ),
+                                              ),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(false);
+                                                  },
+                                                  child: const Text("Cancel"),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () async {
+                                                    await storageService
+                                                        .writeSecureData(
+                                                      StorageItem(
+                                                          items[index].key,
+                                                          "${textKeyController.text}.${items[index].value.split(".")[1]}"),
+                                                    );
+                                                    textKeyController.clear();
+                                                    Navigator.of(context)
+                                                        .pop(true);
+                                                  },
+                                                  child: const Text("Submit"),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      )).then(
+                                  (value) => value ? getStorageItems() : null);
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(Icons.edit),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-          Container(
-            color: Colors.grey,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => Dialog(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text("Please fill the blanks:"),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: TextField(
-                                  controller: textKeyController,
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    hintText: "write the key here...",
+            Container(
+              color: Colors.grey[700],
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                      "Please select a method to pick a file:"),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          await filePickService.getSingleFile();
+                                          Navigator.of(context).pop(true);
+                                        },
+                                        child: const Text("Single File"),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          await filePickService
+                                              .getMultipleFiles();
+                                          Navigator.of(context).pop(true);
+                                        },
+                                        child: const Text("Multiple File"),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                        child: const Text("Cancel"),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: TextField(
-                                  controller: textValueController,
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    hintText: "write the value here...",
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        textKeyController.clear();
-                                        textValueController.clear();
-                                        Navigator.of(context).pop(false);
-                                      },
-                                      child: const Text("Cancel"),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () async {
-                                        await storageService.writeSecureData(
-                                          StorageItem(
-                                            textKeyController.text,
-                                            textValueController.text,
-                                          ),
-                                        );
-                                        textKeyController.clear();
-                                        textValueController.clear();
-                                        Navigator.of(context).pop(true);
-                                      },
-                                      child: const Text("Submit"),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ).then((value) => value ? getStorageItems() : null);
-                    },
-                    child: const Text("Add"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await storageService.deleteAllSecureData();
-                      getStorageItems();
-                    },
-                    child: const Text("Delete All"),
-                  ),
-                ],
+                        ).then((value) => value ? getStorageItems() : null);
+                      },
+                      child: const Text("Add File"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await storageService.deleteAllSecureData();
+                        getStorageItems();
+                      },
+                      child: const Text("Delete All"),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
