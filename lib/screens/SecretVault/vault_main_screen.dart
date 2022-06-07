@@ -62,62 +62,59 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                       child: GestureDetector(
                         onTap: () {
                           showDialog(
-                              context: context,
-                              builder: (context) => Dialog(
-                                    insetPadding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 10,
-                                    ),
-                                    elevation: 0,
-                                    child: Stack(
+                            context: context,
+                            builder: (context) {
+                              return Dialog(
+                                insetPadding: const EdgeInsets.all(0),
+                                elevation: 0,
+                                child: Stack(
+                                  children: [
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            ClipRRect(
-                                              clipBehavior: Clip.hardEdge,
-                                              child: Image.file(
-                                                File(items[index].key),
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(4.0),
-                                              child: Wrap(
-                                                children: [
-                                                  Text(
-                                                    items[index].value,
-                                                    textAlign: TextAlign.center,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .bodyText2,
-                                                  )
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                        Positioned(
-                                          top: 8,
-                                          right: 4,
-                                          child: GestureDetector(
-                                            onTap: () =>
-                                                Navigator.of(context).pop(),
-                                            child: const CircleAvatar(
-                                              backgroundColor: Colors.grey,
-                                              child: Icon(
-                                                Icons.close,
-                                                size: 20,
-                                              ),
-                                            ),
+                                        Flexible(
+                                          child: Image.file(
+                                            File(items[index].key),
+                                            fit: BoxFit.contain,
                                           ),
                                         ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Wrap(
+                                            children: [
+                                              Text(
+                                                items[index].value,
+                                                textAlign: TextAlign.center,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyText2,
+                                              )
+                                            ],
+                                          ),
+                                        )
                                       ],
                                     ),
-                                  ));
+                                    Positioned(
+                                      top: 10,
+                                      right: 10,
+                                      child: GestureDetector(
+                                        onTap: () =>
+                                            Navigator.of(context).pop(),
+                                        child: const CircleAvatar(
+                                          backgroundColor: Colors.grey,
+                                          child: Icon(
+                                            Icons.close,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
                         },
                         child: AspectRatio(
                           aspectRatio: 16 / 9,
@@ -183,32 +180,37 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                                 ),
                                               ),
                                             ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context)
-                                                        .pop(false);
-                                                  },
-                                                  child: const Text("Cancel"),
-                                                ),
-                                                ElevatedButton(
-                                                  onPressed: () async {
-                                                    await storageService
-                                                        .writeSecureData(
-                                                      StorageItem(
-                                                          items[index].key,
-                                                          "${textKeyController.text}.${items[index].value.split(".")[1]}"),
-                                                    );
-                                                    textKeyController.clear();
-                                                    Navigator.of(context)
-                                                        .pop(true);
-                                                  },
-                                                  child: const Text("Submit"),
-                                                ),
-                                              ],
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 6),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop(false);
+                                                    },
+                                                    child: const Text("Cancel"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () async {
+                                                      await storageService
+                                                          .writeSecureData(
+                                                        StorageItem(
+                                                            items[index].key,
+                                                            "${textKeyController.text}.${items[index].value.split(".")[1]}"),
+                                                      );
+                                                      textKeyController.clear();
+                                                      Navigator.of(context)
+                                                          .pop(true);
+                                                    },
+                                                    child: const Text("Submit"),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ],
                                         ),
