@@ -4,6 +4,7 @@ import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class VaultMainScreen extends StatefulWidget {
   const VaultMainScreen({Key? key}) : super(key: key);
@@ -31,8 +32,22 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
 
   @override
   void initState() {
+    requestPermission();
     getStorageItems();
     super.initState();
+  }
+
+  void requestPermission() async {
+    var storagePermissionStatus = await Permission.storage.status;
+    if (!storagePermissionStatus.isGranted) {
+      await Permission.storage.request();
+    }
+
+    var externalStoragePermissionStatus =
+        await Permission.manageExternalStorage.status;
+    if (!externalStoragePermissionStatus.isGranted) {
+      await Permission.manageExternalStorage.request();
+    }
   }
 
   @override

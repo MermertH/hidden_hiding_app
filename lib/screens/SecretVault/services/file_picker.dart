@@ -100,8 +100,7 @@ class FilePickerService {
       // debugPrint("local path of the app is: ${mediaFilesDirectory.path}");
       // await deleteFile(
       //     File("/storage/emulated/0/Pictures/IMG_20220114_214606.jpg"));
-      print(File("/storage/emulated/0/Pictures/IMG_20220114_214606.jpg")
-          .exists());
+      // File("/storage/emulated/0/Pictures/IMG_20220114_214606.jpg").deleteSync();
     } else {
       // User canceled the picker
     }
