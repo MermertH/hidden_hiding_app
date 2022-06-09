@@ -4,6 +4,7 @@
         android:label="hidden_hiding_app"
         android:name="${applicationName}"
         android:allowBackup="false"
+        android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
+import 'package:path_provider/path_provider.dart';
 
 class VaultMainScreen extends StatefulWidget {
   const VaultMainScreen({Key? key}) : super(key: key);
@@ -19,7 +20,12 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
 
   void getStorageItems() async {
     items = await storageService.readAllSecureData();
+    items
+        .sort((a, b) => a.value.toLowerCase().compareTo(b.value.toLowerCase()));
     print(items.length);
+    for (var element in items) {
+      print(element.key);
+    }
     setState(() {});
   }
 
@@ -190,6 +196,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                                 children: [
                                                   ElevatedButton(
                                                     onPressed: () {
+                                                      textKeyController.clear();
                                                       Navigator.of(context)
                                                           .pop(false);
                                                     },
@@ -201,7 +208,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                                           .writeSecureData(
                                                         StorageItem(
                                                             items[index].key,
-                                                            "${textKeyController.text}.${items[index].value.split(".")[1]}"),
+                                                            "${textKeyController.text}.${items[index].value.split(".").last}"),
                                                       );
                                                       textKeyController.clear();
                                                       Navigator.of(context)
@@ -215,7 +222,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                           ],
                                         ),
                                       )).then(
-                                  (value) => value ? getStorageItems() : null);
+                                  (value) => value ? getStorageItems() : value);
                             },
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),
@@ -265,11 +272,12 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                       ),
                                       ElevatedButton(
                                         onPressed: () async {
-                                          await filePickService
-                                              .getMultipleFiles();
+                                          await filePickService.getDir();
+
                                           Navigator.of(context).pop(true);
                                         },
-                                        child: const Text("Multiple File"),
+                                        child:
+                                            const Text("Get Directory Folders"),
                                       ),
                                       ElevatedButton(
                                         onPressed: () {
@@ -283,13 +291,14 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                               ],
                             ),
                           ),
-                        ).then((value) => value ? getStorageItems() : null);
+                        ).then((value) => value ? getStorageItems() : value);
                       },
                       child: const Text("Add File"),
                     ),
                     ElevatedButton(
                       onPressed: () async {
                         await storageService.deleteAllSecureData();
+                        await filePickService.deleteFilesFormApp();
                         getStorageItems();
                       },
                       child: const Text("Delete All"),
