@@ -4,6 +4,7 @@ import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/widgets/video_player.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class VaultMainScreen extends StatefulWidget {
@@ -14,9 +15,9 @@ class VaultMainScreen extends StatefulWidget {
 }
 
 class _VaultMainScreenState extends State<VaultMainScreen> {
-  var textKeyController = TextEditingController();
   var storageService = StorageService();
   var filePickService = FilePickerService();
+  var textKeyController = TextEditingController();
 
   void getStorageItems() async {
     Global().items = await storageService.readAllSecureData();
@@ -85,57 +86,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                           showDialog(
                             context: context,
                             builder: (context) {
-                              return Dialog(
-                                insetPadding: const EdgeInsets.all(0),
-                                elevation: 0,
-                                child: Stack(
-                                  children: [
-                                    Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Flexible(
-                                          child: Image.file(
-                                            File(Global().items[index].key),
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: Wrap(
-                                            children: [
-                                              Text(
-                                                Global().getFileInfo(
-                                                    Global().items[index].value,
-                                                    "name"),
-                                                textAlign: TextAlign.center,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyText2,
-                                              )
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    Positioned(
-                                      top: 10,
-                                      right: 10,
-                                      child: GestureDetector(
-                                        onTap: () =>
-                                            Navigator.of(context).pop(),
-                                        child: const CircleAvatar(
-                                          backgroundColor: Colors.grey,
-                                          child: Icon(
-                                            Icons.close,
-                                            size: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
+                              return expandMediaFileDialog(index);
                             },
                           );
                         },
@@ -143,10 +94,27 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                           aspectRatio: 16 / 9,
                           child: ClipRRect(
                             clipBehavior: Clip.hardEdge,
-                            child: Image.file(
-                              File(Global().items[index].key),
-                              fit: BoxFit.cover,
-                            ),
+                            child: Global().getFileInfo(
+                                        Global().items[index].value,
+                                        "extension") !=
+                                    "mp4"
+                                ? Image.file(
+                                    File(Global().items[index].key),
+                                    fit: BoxFit.cover,
+                                  )
+                                : Stack(
+                                    children: [
+                                      VideoPlayerWidget(
+                                        mediaFile: Global().items[index],
+                                        isExpandedVideo: false,
+                                      ),
+                                      const Positioned(
+                                        right: 2,
+                                        top: 2,
+                                        child: Icon(Icons.video_collection),
+                                      )
+                                    ],
+                                  ),
                           ),
                         ),
                       ),
@@ -174,86 +142,8 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                             onTap: () {
                               showDialog(
                                   context: context,
-                                  builder: (context) => Dialog(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                "Edit File Name",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headline6,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 15,
-                                                vertical: 8,
-                                              ),
-                                              child: TextField(
-                                                textAlign: TextAlign.center,
-                                                controller: textKeyController,
-                                                decoration: InputDecoration(
-                                                  border:
-                                                      const OutlineInputBorder(),
-                                                  hintText: Global()
-                                                      .getFileInfo(
-                                                          Global()
-                                                              .items[index]
-                                                              .value,
-                                                          "name"),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  bottom: 6),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      textKeyController.clear();
-                                                      Navigator.of(context)
-                                                          .pop(false);
-                                                    },
-                                                    child: const Text("Cancel"),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () async {
-                                                      await storageService
-                                                          .writeSecureData(
-                                                        StorageItem(
-                                                          Global()
-                                                              .items[index]
-                                                              .key,
-                                                          Global()
-                                                                  .items[index]
-                                                                  .value
-                                                                  .split(
-                                                                    ",",
-                                                                  )[0] =
-                                                              "${textKeyController.text}.${Global().getFileInfo(Global().items[index].value, "name").split(".").last}",
-                                                        ),
-                                                      );
-                                                      textKeyController.clear();
-                                                      Navigator.of(context)
-                                                          .pop(true);
-                                                    },
-                                                    child: const Text("Submit"),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      )).then(
+                                  builder: (context) =>
+                                      editMediaFileName(index)).then(
                                   (value) => value ? getStorageItems() : value);
                             },
                             child: const Padding(
@@ -341,6 +231,122 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Widget expandMediaFileDialog(int index) {
+    return Dialog(
+      insetPadding: const EdgeInsets.all(0),
+      elevation: 0,
+      child: Stack(
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: Global().getFileInfo(
+                            Global().items[index].value, "extension") !=
+                        "mp4"
+                    ? Image.file(
+                        File(Global().items[index].key),
+                        fit: BoxFit.contain,
+                      )
+                    : VideoPlayerWidget(
+                        mediaFile: Global().items[index],
+                        isExpandedVideo: true),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Wrap(
+                  children: [
+                    Text(
+                      Global().getFileInfo(Global().items[index].value, "name"),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyText2,
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+          Positioned(
+            top: 10,
+            right: 10,
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: const CircleAvatar(
+                backgroundColor: Colors.grey,
+                child: Icon(
+                  Icons.close,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget editMediaFileName(int index) {
+    return Dialog(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              "Edit File Name",
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15,
+              vertical: 8,
+            ),
+            child: TextField(
+              textAlign: TextAlign.center,
+              controller: textKeyController,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText:
+                    Global().getFileInfo(Global().items[index].value, "name"),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    textKeyController.clear();
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await storageService.writeSecureData(
+                      StorageItem(
+                          Global().items[index].key,
+                          Global().setNewFileName(
+                              "${textKeyController.text}.${Global().getFileInfo(Global().items[index].value, "name").split(".").last}",
+                              index)),
+                    );
+                    textKeyController.clear();
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text("Submit"),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

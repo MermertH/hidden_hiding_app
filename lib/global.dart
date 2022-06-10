@@ -15,10 +15,12 @@ class Global {
         return fileData.split(",")[1];
       case "size":
         return fileData.split(",")[2];
-      case "bytes":
-        return fileData.split(",")[3];
       default:
         return "Not Found";
     }
+  }
+
+  String setNewFileName(String name, int index) {
+    return "$name,${Global().getFileInfo(Global().items[index].value, "extension")},${Global().getFileInfo(Global().items[index].value, "size")}";
   }
 }

@@ -91,8 +91,7 @@ class FilePickerService {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
       PlatformFile fileData = result.files.first;
-      fileDetails =
-          "${fileData.name},${fileData.extension},${fileData.size},${fileData.bytes}";
+      fileDetails = "${fileData.name},${fileData.extension},${fileData.size}";
       debugPrint(
           "absolute file path from uri: ${absolutePath = (await LecleFlutterAbsolutePath.getAbsolutePath(fileData.identifier!))!}");
       File file = File(result.files.single.path!);

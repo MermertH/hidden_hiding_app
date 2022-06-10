@@ -1,12 +1,14 @@
 import 'dart:io';
-
+import 'package:chewie/chewie.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final StorageItem mediaFile;
-  const VideoPlayerWidget({Key? key, required this.mediaFile})
+  final bool isExpandedVideo;
+  const VideoPlayerWidget(
+      {Key? key, required this.mediaFile, required this.isExpandedVideo})
       : super(key: key);
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -14,6 +16,7 @@ class VideoPlayerWidget extends StatefulWidget {
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late VideoPlayerController _controller;
+  late ChewieController chewieController;
 
   @override
   void initState() {
@@ -23,40 +26,36 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         setState(() {});
       });
+    chewieController = ChewieController(
+      videoPlayerController: _controller,
+      looping: true,
+    );
   }
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    chewieController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: widget.mediaFile.value.split(",")[0],
-      home: Scaffold(
-        body: Center(
-          child: _controller.value.isInitialized
-              ? AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
-                )
-              : Container(),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              _controller.value.isPlaying
-                  ? _controller.pause()
-                  : _controller.play();
-            });
-          },
-          child: Icon(
-            _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-          ),
-        ),
-      ),
-    );
+    return _controller.value.isInitialized
+        ? GestureDetector(
+            onTap: widget.isExpandedVideo
+                ? () {
+                    setState(() {
+                      _controller.value.isPlaying
+                          ? chewieController.pause()
+                          : chewieController.play();
+                    });
+                  }
+                : null,
+            child: widget.isExpandedVideo
+                ? Chewie(controller: chewieController)
+                : VideoPlayer(_controller),
+          )
+        : Container();
   }
 }
