@@ -3,8 +3,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
+import 'package:lecle_flutter_absolute_path/lecle_flutter_absolute_path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as Path;
 
 class FilePickerService {
   var storageService = StorageService();
@@ -32,7 +32,7 @@ class FilePickerService {
   }
 
   // Add file to the MediaFolder location
-  Future<File> _addToLocalFolder(String pathFile, String root) async {
+  Future<File> _addToLocalFolder(String root, String pathFile) async {
     final path = "$root/$pathFile";
     return File(path).create(recursive: true);
   }
@@ -85,37 +85,26 @@ class FilePickerService {
 
   // Single File
   Future<void> getSingleFile() async {
+    String absolutePath = "";
+    String fileDetails = "";
     var mediaFilesDirectory = await _createNFolder();
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
       PlatformFile fileData = result.files.first;
+      fileDetails =
+          "${fileData.name},${fileData.extension},${fileData.size},${fileData.bytes}";
+      debugPrint(
+          "absolute file path from uri: ${absolutePath = (await LecleFlutterAbsolutePath.getAbsolutePath(fileData.identifier!))!}");
       File file = File(result.files.single.path!);
       file = await moveFile(
           file,
           (await _addToLocalFolder(
-                  file.path.split("/").last, mediaFilesDirectory.path))
+            mediaFilesDirectory.path,
+            file.path.split("/").last,
+          ))
               .path);
-      storageService.writeSecureData(StorageItem(file.path, fileData.name));
-      // debugPrint("Path of the file is: ${file.path}");
-      // debugPrint("local path of the app is: ${mediaFilesDirectory.path}");
-      // await deleteFile(
-      //     File("/storage/emulated/0/Pictures/IMG_20220114_214606.jpg"));
-      // File("/storage/emulated/0/Pictures/IMG_20220114_214606.jpg").deleteSync();
-    } else {
-      // User canceled the picker
-    }
-  }
-
-  // Single File With Extension Filter
-  Future<void> getFileWithFilter() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'pdf', 'doc'],
-    );
-    if (result != null) {
-      PlatformFile fileData = result.files.first;
-      File file = File(result.files.single.path!);
-      storageService.writeSecureData(StorageItem(file.path, fileData.name));
+      storageService.writeSecureData(StorageItem(file.path, fileDetails));
+      // await deleteFile(File(absolutePath));
     } else {
       // User canceled the picker
     }
@@ -153,32 +142,6 @@ class FilePickerService {
       for (var item in files) {
         await storageService.writeSecureData(item);
       }
-    } else {
-      // User canceled the picker
-    }
-  }
-
-  // // Pick a Directory // TODO delete this after everything
-  // Future<String> pickDirectory() async {
-  //   String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-  //   if (selectedDirectory == null) {
-  //     // User canceled the picker
-  //     return "could not found";
-  //   } else {
-  //     return selectedDirectory;
-  //   }
-  // }
-
-  // Load Result and File Details
-  void getResultAndFileDetails() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      PlatformFile file = result.files.first;
-      print(file.name);
-      print(file.bytes);
-      print(file.size);
-      print(file.extension);
-      print(file.path);
     } else {
       // User canceled the picker
     }

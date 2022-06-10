@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class VaultMainScreen extends StatefulWidget {
@@ -17,14 +17,14 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   var textKeyController = TextEditingController();
   var storageService = StorageService();
   var filePickService = FilePickerService();
-  List<StorageItem> items = [];
 
   void getStorageItems() async {
-    items = await storageService.readAllSecureData();
-    items
+    Global().items = await storageService.readAllSecureData();
+    Global()
+        .items
         .sort((a, b) => a.value.toLowerCase().compareTo(b.value.toLowerCase()));
-    print(items.length);
-    for (var element in items) {
+    print(Global().items.length);
+    for (var element in Global().items) {
       print(element.key);
     }
     setState(() {});
@@ -67,7 +67,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                   maxCrossAxisExtent: 200,
                   crossAxisSpacing: 10,
                 ),
-                itemCount: items.length,
+                itemCount: Global().items.length,
                 itemBuilder: (context, index) => Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -96,7 +96,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                       children: [
                                         Flexible(
                                           child: Image.file(
-                                            File(items[index].key),
+                                            File(Global().items[index].key),
                                             fit: BoxFit.contain,
                                           ),
                                         ),
@@ -105,7 +105,9 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                           child: Wrap(
                                             children: [
                                               Text(
-                                                items[index].value,
+                                                Global().getFileInfo(
+                                                    Global().items[index].value,
+                                                    "name"),
                                                 textAlign: TextAlign.center,
                                                 style: Theme.of(context)
                                                     .textTheme
@@ -142,7 +144,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                           child: ClipRRect(
                             clipBehavior: Clip.hardEdge,
                             child: Image.file(
-                              File(items[index].key),
+                              File(Global().items[index].key),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -158,7 +160,8 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                           child: Padding(
                             padding: const EdgeInsets.only(left: 6),
                             child: Text(
-                              items[index].value,
+                              Global().getFileInfo(
+                                  Global().items[index].value, "name"),
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodyText1,
@@ -197,7 +200,12 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                                 decoration: InputDecoration(
                                                   border:
                                                       const OutlineInputBorder(),
-                                                  hintText: items[index].value,
+                                                  hintText: Global()
+                                                      .getFileInfo(
+                                                          Global()
+                                                              .items[index]
+                                                              .value,
+                                                          "name"),
                                                 ),
                                               ),
                                             ),
@@ -222,8 +230,17 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                                       await storageService
                                                           .writeSecureData(
                                                         StorageItem(
-                                                            items[index].key,
-                                                            "${textKeyController.text}.${items[index].value.split(".").last}"),
+                                                          Global()
+                                                              .items[index]
+                                                              .key,
+                                                          Global()
+                                                                  .items[index]
+                                                                  .value
+                                                                  .split(
+                                                                    ",",
+                                                                  )[0] =
+                                                              "${textKeyController.text}.${Global().getFileInfo(Global().items[index].value, "name").split(".").last}",
+                                                        ),
                                                       );
                                                       textKeyController.clear();
                                                       Navigator.of(context)
