@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/vault_main_screen.dart';
 import 'package:hidden_hiding_app/themes/dark.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Preferences().init();
   runApp(const MyApp());
 }
 

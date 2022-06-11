@@ -29,7 +29,7 @@ class Global {
     String? exportPath = await FilePicker.platform.getDirectoryPath();
     if (exportPath == null) {
       // User canceled the picker
-      return "";
+      return "none";
     } else {
       return exportPath;
     }

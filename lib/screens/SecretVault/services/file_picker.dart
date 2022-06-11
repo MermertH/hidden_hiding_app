@@ -32,7 +32,7 @@ class FilePickerService {
   }
 
   // Add file to the MediaFolder location
-  Future<File> _addToLocalFolder(String root, String pathFile) async {
+  Future<File> joinFilePaths(String root, String pathFile) async {
     final path = "$root/$pathFile";
     return File(path).create(recursive: true);
   }
@@ -43,7 +43,7 @@ class FilePickerService {
       // prefer using rename as it is probably faster
       return await sourceFile.rename(newPath);
     } on FileSystemException catch (e) {
-      debugPrint("$e");
+      debugPrint("rename error worked: $e");
       // if rename fails, copy the source file and then delete it
       final newFile = await sourceFile.copy(newPath);
       await sourceFile.delete();
@@ -97,13 +97,13 @@ class FilePickerService {
       File file = File(result.files.single.path!);
       file = await moveFile(
           file,
-          (await _addToLocalFolder(
+          (await joinFilePaths(
             mediaFilesDirectory.path,
             file.path.split("/").last,
           ))
               .path);
       storageService.writeSecureData(StorageItem(file.path, fileDetails));
-      // await deleteFile(File(absolutePath));
+      await deleteFile(File(absolutePath));
     } else {
       // User canceled the picker
     }

@@ -3,15 +3,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Preferences {
   static final Preferences _instance = Preferences._internal();
   static SharedPreferences? sharedPreferences;
+
+  static final defaultSettings = {
+    "isExportPathSelected": false,
+    "exportPath": "none",
+  };
+
   factory Preferences() => _instance;
   Preferences._internal();
   init() async {
     sharedPreferences = await SharedPreferences.getInstance();
   }
-
-  static final defaultSettings = {
-    "isExportPathSelected": false,
-  };
 
   String getString(String key) =>
       (sharedPreferences?.getString(key) ?? '${defaultSettings[key]}');
@@ -29,4 +31,7 @@ class Preferences {
   get getIsExportPathSelected => getBool('isExportPathSelected');
   set setIsExportPathSelected(bool isExportPathSelected) =>
       setBool('isExportPathSelected', isExportPathSelected);
+
+  get getExportPath => getString("exportPath");
+  set setExportPath(String exportPath) => setString('exportPath', exportPath);
 }

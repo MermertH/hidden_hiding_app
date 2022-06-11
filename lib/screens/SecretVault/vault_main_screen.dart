@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/global.dart';
+import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
@@ -89,6 +90,14 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                               return expandMediaFileDialog(index);
                             },
                           );
+                        },
+                        onLongPress: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return exportOrDeleteMediaFileDialog(index);
+                            },
+                          ).then((value) => value ? getStorageItems() : value);
                         },
                         child: AspectRatio(
                           aspectRatio: 16 / 9,
@@ -300,17 +309,25 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "Edit File Name",
-              style: Theme.of(context).textTheme.headline6,
+          Container(
+            color: Colors.grey.shade900,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Edit File Name",
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 15,
-              vertical: 8,
+              vertical: 12,
             ),
             child: TextField(
               textAlign: TextAlign.center,
@@ -336,17 +353,102 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    await storageService.writeSecureData(
-                      StorageItem(
-                          Global().items[index].key,
-                          Global().setNewFileName(
-                              "${textKeyController.text}.${Global().getFileInfo(Global().items[index].value, "name").split(".").last}",
-                              index)),
-                    );
+                    if (textKeyController.text.isNotEmpty) {
+                      await storageService.writeSecureData(
+                        StorageItem(
+                            Global().items[index].key,
+                            Global().setNewFileName(
+                                "${textKeyController.text}.${Global().getFileInfo(Global().items[index].value, "name").split(".").last}",
+                                index)),
+                      );
+                    }
                     textKeyController.clear();
                     Navigator.of(context).pop(true);
                   },
                   child: const Text("Submit"),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget exportOrDeleteMediaFileDialog(int index) {
+    return Dialog(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: Colors.grey.shade900,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Select a directory to export your file or delete it",
+                style: Theme.of(context).textTheme.headline6,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
+            child: Text(
+              "Selected file:\n${Global().getFileInfo(Global().items[index].value, "name")}",
+              style: Theme.of(context).textTheme.headline6,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    if (!Preferences().getIsExportPathSelected) {
+                      var selectedPath =
+                          await Global().getDirectoryToExportMediaFile();
+                      Preferences().setExportPath = selectedPath;
+                      print(
+                          "set export path worked, selected path: $selectedPath");
+                    }
+                    if (Preferences().getExportPath != "none") {
+                      Preferences().setIsExportPathSelected = true;
+                      filePickService.moveFile(
+                        File(Global().items[index].key),
+                        (await filePickService.joinFilePaths(
+                                Preferences().getExportPath,
+                                Global().items[index].key.split("/").last))
+                            .path,
+                      );
+                      await storageService
+                          .deleteSecureData(Global().items[index]);
+                      print("move the file to selected path worked");
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Export location is not selected!'),
+                      ));
+                    }
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text("Export"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await storageService
+                        .deleteSecureData(Global().items[index]);
+                    await filePickService
+                        .deleteFile(File(Global().items[index].key));
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text("Delete"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("Cancel"),
                 ),
               ],
             ),
