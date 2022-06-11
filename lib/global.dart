@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 
 class Global {
@@ -22,5 +23,15 @@ class Global {
 
   String setNewFileName(String name, int index) {
     return "$name,${Global().getFileInfo(Global().items[index].value, "extension")},${Global().getFileInfo(Global().items[index].value, "size")}";
+  }
+
+  Future<String> getDirectoryToExportMediaFile() async {
+    String? exportPath = await FilePicker.platform.getDirectoryPath();
+    if (exportPath == null) {
+      // User canceled the picker
+      return "";
+    } else {
+      return exportPath;
+    }
   }
 }

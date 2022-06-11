@@ -241,46 +241,51 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
       elevation: 0,
       child: Stack(
         children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Flexible(
-                child: Global().getFileInfo(
-                            Global().items[index].value, "extension") !=
-                        "mp4"
-                    ? Image.file(
-                        File(Global().items[index].key),
-                        fit: BoxFit.contain,
-                      )
-                    : VideoPlayerWidget(
-                        mediaFile: Global().items[index],
-                        isExpandedVideo: true),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Wrap(
-                  children: [
-                    Text(
-                      Global().getFileInfo(Global().items[index].value, "name"),
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyText2,
-                    )
-                  ],
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Flexible(
+                  child: Global().getFileInfo(
+                              Global().items[index].value, "extension") !=
+                          "mp4"
+                      ? Image.file(
+                          File(Global().items[index].key),
+                          fit: BoxFit.contain,
+                        )
+                      : VideoPlayerWidget(
+                          mediaFile: Global().items[index],
+                          isExpandedVideo: true),
                 ),
-              )
-            ],
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Wrap(
+                    children: [
+                      Text(
+                        Global()
+                            .getFileInfo(Global().items[index].value, "name"),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyText2,
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
           Positioned(
-            top: 10,
-            right: 10,
+            top: 5,
+            left: 10,
             child: GestureDetector(
               onTap: () => Navigator.of(context).pop(),
-              child: const CircleAvatar(
-                backgroundColor: Colors.grey,
-                child: Icon(
+              child: CircleAvatar(
+                backgroundColor: Colors.black.withOpacity(0.5),
+                child: const Icon(
                   Icons.close,
                   size: 20,
+                  color: Colors.white,
                 ),
               ),
             ),
