@@ -55,9 +55,33 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.greenAccent[700],
+        heroTag: "interactionButton",
+        child: const Icon(
+          Icons.add,
+          color: Colors.black,
+          size: 26,
+        ),
+        onPressed: () {
+          showDialog(context: context, builder: (context) => addFileDialog())
+              .then((value) => value ? getStorageItems() : value);
+        },
+      ),
       appBar: AppBar(
         title: const Text("Hidden Vault"),
         centerTitle: true,
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).pushNamed("/SettingsScreen");
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: Icon(Icons.settings),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -174,58 +198,6 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        showDialog(
-                          context: context,
-                          builder: (context) => Dialog(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                      "Please select a method to pick a file:"),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          await filePickService.getSingleFile();
-                                          Navigator.of(context).pop(true);
-                                        },
-                                        child: const Text("Single File"),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          await filePickService.getDir();
-
-                                          Navigator.of(context).pop(true);
-                                        },
-                                        child:
-                                            const Text("Get Directory Folders"),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                        child: const Text("Cancel"),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ).then((value) => value ? getStorageItems() : value);
-                      },
-                      child: const Text("Add File"),
-                    ),
                     ElevatedButton(
                       onPressed: () async {
                         await storageService.deleteAllSecureData();
@@ -366,6 +338,61 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     Navigator.of(context).pop(true);
                   },
                   child: const Text("Submit"),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget addFileDialog() {
+    return Dialog(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: Colors.grey.shade900,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Please select a method to pick a file:",
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    await filePickService.getSingleFile();
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text("Add File"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await filePickService.getDir();
+
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text("Dir Info"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("Cancel"),
                 ),
               ],
             ),

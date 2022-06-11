@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/preferences.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/settings_screen.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/vault_main_screen.dart';
 import 'package:hidden_hiding_app/themes/dark.dart';
 
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/VaultMainScreen',
       routes: {
         '/VaultMainScreen': (context) => const VaultMainScreen(),
+        '/SettingsScreen': (context) => const SettingsScreen(),
       },
     );
   }
