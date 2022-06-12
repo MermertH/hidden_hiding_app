@@ -40,14 +40,23 @@ class FilePickerService {
   // Move file to the app location
   Future<File> moveFile(File sourceFile, String newPath) async {
     try {
-      // prefer using rename as it is probably faster
-      return await sourceFile.rename(newPath);
-    } on FileSystemException catch (e) {
-      debugPrint("rename error worked: $e");
-      // if rename fails, copy the source file and then delete it
       final newFile = await sourceFile.copy(newPath);
       await sourceFile.delete();
       return newFile;
+    } on FileSystemException catch (e) {
+      debugPrint("move file error worked: $e");
+      return File(sourceFile.path); // return same path when move file is failed
+    }
+  }
+
+  // Rename File
+  Future<File> renameFile(File sourceFile, String newPath) async {
+    try {
+      return await sourceFile.rename(newPath);
+    } on FileSystemException catch (e) {
+      debugPrint("the rename file error was: $e");
+      return File(
+          sourceFile.path); // return same path when rename file is failed
     }
   }
 
@@ -55,10 +64,10 @@ class FilePickerService {
   Future<void> deleteFile(File file) async {
     try {
       if (await file.exists()) {
-        print("entered delete function");
+        debugPrint("entered delete function");
         await file.delete(recursive: true);
       } else {
-        print("no file found to delete");
+        debugPrint("no file found to delete");
       }
     } catch (e) {
       debugPrint("tried but failed with error!");
@@ -83,63 +92,63 @@ class FilePickerService {
     }
   }
 
-  // Single File
-  Future<void> getSingleFile() async {
-    String absolutePath = "";
-    String fileDetails = "";
-    var mediaFilesDirectory = await _createNFolder();
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      PlatformFile fileData = result.files.first;
-      fileDetails = "${fileData.name},${fileData.extension},${fileData.size}";
-      debugPrint(
-          "absolute file path from uri: ${absolutePath = (await LecleFlutterAbsolutePath.getAbsolutePath(fileData.identifier!))!}");
-      File file = File(result.files.single.path!);
-      file = await moveFile(
-          file,
-          (await joinFilePaths(
-            mediaFilesDirectory.path,
-            file.path.split("/").last,
-          ))
-              .path);
-      storageService.writeSecureData(StorageItem(file.path, fileDetails));
-      await deleteFile(File(absolutePath));
-    } else {
-      // User canceled the picker
-    }
-  }
-
-  // Multiple Files
-  Future<void> getMultipleFiles() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(allowMultiple: true);
-
-    if (result != null) {
-      List<StorageItem> files = result.files
-          .map((file) => StorageItem(file.path!, file.name))
-          .toList();
-      for (var item in files) {
-        await storageService.writeSecureData(item);
-      }
-    } else {
-      // User canceled the picker
-    }
-  }
+  // Single File // TODO remove after multiFileWithFilter function works
+  // Future<void> getSingleFile() async {
+  //   String absolutePath = "";
+  //   String fileDetails = "";
+  //   var mediaFilesDirectory = await _createNFolder();
+  //   FilePickerResult? result = await FilePicker.platform.pickFiles();
+  //   if (result != null) {
+  //     PlatformFile fileData = result.files.first;
+  //     fileDetails = "${fileData.name},${fileData.extension},${fileData.size}";
+  //     debugPrint(
+  //         "absolute file path from uri: ${absolutePath = (await LecleFlutterAbsolutePath.getAbsolutePath(fileData.identifier!))!}");
+  //     File file = File(result.files.single.path!);
+  //     file = await moveFile(
+  //         file,
+  //         (await joinFilePaths(
+  //           mediaFilesDirectory.path,
+  //           file.path.split("/").last,
+  //         ))
+  //             .path);
+  //     storageService.writeSecureData(StorageItem(file.path, fileDetails));
+  //     await deleteFile(File(absolutePath));
+  //   } else {
+  //     // User canceled the picker
+  //   }
+  // }
 
   // Multiple Files With Extension Filter
   Future<void> getFilesWithFilter() async {
+    String absolutePath = "";
+    String fileDetails = "";
+    var mediaFilesDirectory = await _createNFolder();
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'pdf', 'doc'],
+      allowedExtensions: ['jpg', 'gif', 'mp4'],
     );
-
     if (result != null) {
-      List<StorageItem> files = result.files
-          .map((file) => StorageItem(file.path!, file.name))
-          .toList();
-      for (var item in files) {
-        await storageService.writeSecureData(item);
+      List<Future<StorageItem>> files = result.files.map((file) async {
+        PlatformFile fileData = file;
+        absolutePath = (await LecleFlutterAbsolutePath.getAbsolutePath(
+            fileData.identifier!))!;
+        debugPrint("absolute file path from uri: $absolutePath");
+        await deleteFile(File(absolutePath));
+        File modifiedFile = File(file.path!);
+        modifiedFile = await moveFile(
+            modifiedFile,
+            (await joinFilePaths(
+              mediaFilesDirectory.path,
+              modifiedFile.path.split("/").last,
+            ))
+                .path);
+        fileDetails =
+            "${modifiedFile.path.split("/").last},${fileData.extension},${fileData.size}";
+        return StorageItem(modifiedFile.path, fileDetails);
+      }).toList();
+      for (var storageItem in files) {
+        await storageService.writeSecureData(await storageItem);
       }
     } else {
       // User canceled the picker

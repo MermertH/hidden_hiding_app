@@ -375,10 +375,10 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    await filePickService.getSingleFile();
+                    await filePickService.getFilesWithFilter();
                     Navigator.of(context).pop(true);
                   },
-                  child: const Text("Add File"),
+                  child: const Text("Add Media"),
                 ),
                 ElevatedButton(
                   onPressed: () async {
