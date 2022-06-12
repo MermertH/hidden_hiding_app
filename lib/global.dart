@@ -1,10 +1,12 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
 
 class Global {
   static final Global _instance = Global._internal();
   factory Global() => _instance;
   Global._internal();
+  var storageService = StorageService();
 
   List<StorageItem> items = [];
 

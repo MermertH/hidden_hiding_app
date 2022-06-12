@@ -20,6 +20,13 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   var filePickService = FilePickerService();
   var textKeyController = TextEditingController();
 
+  @override
+  void initState() {
+    requestPermission();
+    getStorageItems();
+    super.initState();
+  }
+
   void getStorageItems() async {
     Global().items = await storageService.readAllSecureData();
     Global()
@@ -30,13 +37,6 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
       print(element.key);
     }
     setState(() {});
-  }
-
-  @override
-  void initState() {
-    requestPermission();
-    getStorageItems();
-    super.initState();
   }
 
   void requestPermission() async {
@@ -177,7 +177,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                   context: context,
                                   builder: (context) =>
                                       editMediaFileName(index)).then(
-                                  (value) => value ? getStorageItems() : value);
+                                  (value) => value ? getStorageItems() : false);
                             },
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),
@@ -191,25 +191,6 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                 ),
               ),
             ),
-            Container(
-              color: Colors.grey[700],
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        await storageService.deleteAllSecureData();
-                        await filePickService.deleteFilesFormApp();
-                        getStorageItems();
-                      },
-                      child: const Text("Delete All"),
-                    ),
-                  ],
-                ),
-              ),
-            )
           ],
         ),
       ),
