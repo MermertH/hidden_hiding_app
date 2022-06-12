@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/settings_screen.dart';
@@ -7,6 +8,10 @@ import 'package:hidden_hiding_app/themes/dark.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Preferences().init();
+  if (kReleaseMode) {
+    debugPrint = (String? message, {int? wrapWidth}) {};
+  }
+
   runApp(const MyApp());
 }
 
