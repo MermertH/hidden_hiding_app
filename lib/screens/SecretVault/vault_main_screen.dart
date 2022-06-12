@@ -65,7 +65,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
         ),
         onPressed: () {
           showDialog(context: context, builder: (context) => addFileDialog())
-              .then((value) => value ? getStorageItems() : value);
+              .then((value) => value ? getStorageItems() : false);
         },
       ),
       appBar: AppBar(
@@ -121,7 +121,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                             builder: (context) {
                               return exportOrDeleteMediaFileDialog(index);
                             },
-                          ).then((value) => value ? getStorageItems() : value);
+                          ).then((value) => value ? getStorageItems() : false);
                         },
                         child: AspectRatio(
                           aspectRatio: 16 / 9,

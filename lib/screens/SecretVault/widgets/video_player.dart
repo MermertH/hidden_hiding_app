@@ -20,24 +20,26 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   void initState() {
-    super.initState();
     _controller = VideoPlayerController.file(File(widget.mediaFile.key))
       ..initialize().then((_) {
         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-        widget.isExpandedVideo
-            ? chewieController = ChewieController(
-                videoPlayerController: _controller,
-                looping: true,
-              )
-            : null;
+        if (widget.isExpandedVideo) {
+          chewieController = ChewieController(
+            videoPlayerController: _controller,
+            looping: false,
+          );
+        }
         setState(() {});
       });
+    super.initState();
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    chewieController.dispose();
+    if (widget.isExpandedVideo) {
+      chewieController.dispose();
+    }
     super.dispose();
   }
 
