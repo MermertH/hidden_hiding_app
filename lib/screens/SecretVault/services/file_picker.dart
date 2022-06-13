@@ -118,7 +118,7 @@ class FilePickerService {
             ))
                 .path);
         fileDetails =
-            "${modifiedFile.path.split("/").last},${fileData.extension},${fileData.size}";
+            "${modifiedFile.path.split("/").last},${fileData.extension},${fileData.size},${DateTime.now()}";
         return StorageItem(modifiedFile.path, fileDetails);
       }).toList();
       for (var storageItem in files) {

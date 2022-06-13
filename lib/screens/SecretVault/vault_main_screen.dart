@@ -31,9 +31,8 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
 
   void getStorageItems() async {
     Global().items = await storageService.readAllSecureData();
-    Global()
-        .items
-        .sort((a, b) => a.value.toLowerCase().compareTo(b.value.toLowerCase()));
+    Global().items =
+        Global().applySelectedSort(Global().items, Preferences().getSortData);
     print(Global().items.length);
     for (var element in Global().items) {
       print(element.key);
@@ -88,7 +87,9 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.of(context).pushNamed("/SettingsScreen");
+              Navigator.of(context)
+                  .pushNamed("/SettingsScreen")
+                  .then((value) => setState(() {}));
             },
             child: const Padding(
               padding: EdgeInsets.only(right: 10),
@@ -204,9 +205,8 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                 value: "A_Z",
                                 groupValue: Preferences().getSortData,
                                 onChanged: (String? value) {
-                                  setState(() {
-                                    Preferences().setSort = value!;
-                                  });
+                                  Preferences().setSort = value!;
+                                  getStorageItems();
                                 },
                               ),
                               RadioListTile<String>(
@@ -214,9 +214,8 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                 value: "Z_A",
                                 groupValue: Preferences().getSortData,
                                 onChanged: (String? value) {
-                                  setState(() {
-                                    Preferences().setSort = value!;
-                                  });
+                                  Preferences().setSort = value!;
+                                  getStorageItems();
                                 },
                               ),
                               RadioListTile<String>(
@@ -224,9 +223,8 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                 value: "firstDate",
                                 groupValue: Preferences().getSortData,
                                 onChanged: (String? value) {
-                                  setState(() {
-                                    Preferences().setSort = value!;
-                                  });
+                                  Preferences().setSort = value!;
+                                  getStorageItems();
                                 },
                               ),
                               RadioListTile<String>(
@@ -234,12 +232,15 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                 value: "lastDate",
                                 groupValue: Preferences().getSortData,
                                 onChanged: (String? value) {
-                                  setState(() {
-                                    Preferences().setSort = value!;
-                                  });
+                                  Preferences().setSort = value!;
+                                  getStorageItems();
                                 },
                               ),
                             ],
+                          ),
+                          Container(
+                            height: 4,
+                            color: Colors.grey.shade800,
                           ),
                         ],
                       ),
