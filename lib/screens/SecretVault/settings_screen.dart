@@ -54,26 +54,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: const Text("Settings"),
         centerTitle: true,
       ),
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: buttons.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) => Card(
-                child: ListTile(
-                  onTap: () {
-                    buttonFunctions(buttons[index]["tag"]);
-                  },
-                  leading: buttons[index]["leading"],
-                  title: buttons[index]["title"],
-                  trailing: buttons[index]["trailing"],
+      body: Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: buttons.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) => Card(
+                  child: ListTile(
+                    onTap: () {
+                      buttonFunctions(buttons[index]["tag"]);
+                    },
+                    leading: buttons[index]["leading"],
+                    title: buttons[index]["title"],
+                    trailing: buttons[index]["trailing"],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

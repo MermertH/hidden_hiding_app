@@ -88,10 +88,12 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
           children: [
             Expanded(
               child: GridView.builder(
-                padding: const EdgeInsets.all(12.0),
+                clipBehavior: Clip.hardEdge,
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 200,
-                  crossAxisSpacing: 10,
+                  maxCrossAxisExtent: 300,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 4 / 3,
                 ),
                 itemCount: Global().items.length,
                 itemBuilder: (context, index) => Column(
@@ -102,7 +104,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: Colors.grey[700]!,
-                          width: 2,
+                          width: 0,
                         ),
                       ),
                       // media element
@@ -123,70 +125,124 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                             },
                           ).then((value) => value ? getStorageItems() : false);
                         },
-                        child: AspectRatio(
-                          aspectRatio: 16 / 9,
-                          child: ClipRRect(
-                            clipBehavior: Clip.hardEdge,
-                            child: Global().getFileInfo(
-                                        Global().items[index].value,
-                                        "extension") !=
-                                    "mp4"
-                                ? Image.file(
-                                    File(Global().items[index].key),
-                                    fit: BoxFit.cover,
-                                  )
-                                : Stack(
-                                    children: [
-                                      VideoPlayerWidget(
-                                        mediaFile: Global().items[index],
-                                        isExpandedVideo: false,
-                                      ),
-                                      const Positioned(
-                                        right: 2,
-                                        top: 2,
-                                        child: Icon(Icons.video_collection),
-                                      )
-                                    ],
+                        child: Global().getFileInfo(
+                                    Global().items[index].value, "extension") !=
+                                "mp4"
+                            ? Stack(
+                                alignment: AlignmentDirectional.bottomCenter,
+                                children: [
+                                  AspectRatio(
+                                    aspectRatio: 4 / 3,
+                                    child: Image.file(
+                                      File(Global().items[index].key),
+                                      fit: BoxFit.cover,
+                                      alignment: Alignment.center,
+                                    ),
                                   ),
-                          ),
-                        ),
+                                  Container(
+                                    color: Colors.black.withOpacity(0.4),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          flex: 8,
+                                          child: Text(
+                                            Global().getFileInfo(
+                                                Global().items[index].value,
+                                                "name"),
+                                            textAlign: TextAlign.center,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1,
+                                          ),
+                                        ),
+                                        Flexible(
+                                          flex: 2,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      editMediaFileName(
+                                                          index)).then(
+                                                  (value) => value
+                                                      ? getStorageItems()
+                                                      : false);
+                                            },
+                                            child: const Padding(
+                                              padding: EdgeInsets.all(2),
+                                              child: Icon(Icons.edit),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Stack(
+                                alignment: AlignmentDirectional.bottomCenter,
+                                children: [
+                                  AspectRatio(
+                                    aspectRatio: 4 / 3,
+                                    child: VideoPlayerWidget(
+                                      mediaFile: Global().items[index],
+                                      isExpandedVideo: false,
+                                    ),
+                                  ),
+                                  const Positioned(
+                                    right: 2,
+                                    top: 2,
+                                    child: Icon(Icons.video_collection),
+                                  ),
+                                  Container(
+                                    color: Colors.black.withOpacity(0.4),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          flex: 8,
+                                          child: Text(
+                                            Global().getFileInfo(
+                                                Global().items[index].value,
+                                                "name"),
+                                            textAlign: TextAlign.center,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1,
+                                          ),
+                                        ),
+                                        Flexible(
+                                          flex: 2,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      editMediaFileName(
+                                                          index)).then(
+                                                  (value) => value
+                                                      ? getStorageItems()
+                                                      : false);
+                                            },
+                                            child: const Padding(
+                                              padding: EdgeInsets.all(2),
+                                              child: Icon(Icons.edit),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ),
                     // media name and edit
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          flex: 8,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 6),
-                            child: Text(
-                              Global().getFileInfo(
-                                  Global().items[index].value, "name"),
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodyText1,
-                            ),
-                          ),
-                        ),
-                        Flexible(
-                          flex: 2,
-                          child: GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) =>
-                                      editMediaFileName(index)).then(
-                                  (value) => value ? getStorageItems() : false);
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.edit),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
