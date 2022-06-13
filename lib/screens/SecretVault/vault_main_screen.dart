@@ -19,6 +19,8 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   var storageService = StorageService();
   var filePickService = FilePickerService();
   var textKeyController = TextEditingController();
+  bool isFilterMode = false;
+  double filterAreaSize = 0;
 
   @override
   void initState() {
@@ -74,6 +76,18 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
         actions: [
           GestureDetector(
             onTap: () {
+              setState(() {
+                isFilterMode = !isFilterMode;
+                //filterAreaSize = isFilterMode ? 340 : 0;
+              });
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(right: 25),
+              child: Icon(Icons.filter),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
               Navigator.of(context).pushNamed("/SettingsScreen");
             },
             child: const Padding(
@@ -86,6 +100,152 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            AnimatedContainer(
+              height: !isFilterMode ? 0 : null,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.fastOutSlowIn,
+              child: isFilterMode
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  flex: 2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 4),
+                                    child: Text("View Style:",
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText2!
+                                            .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            )),
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 8,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Preferences().getViewStyle ==
+                                                  "file"
+                                              ? Colors.black
+                                              : Colors.grey.shade700,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            Preferences().setViewStyle = "file";
+                                          });
+                                        },
+                                        child: Text("File",
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText2!
+                                                .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                )),
+                                      ),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Preferences().getViewStyle ==
+                                                  "list"
+                                              ? Colors.black
+                                              : Colors.grey.shade700,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            Preferences().setViewStyle = "list";
+                                          });
+                                        },
+                                        child: Text("List",
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText2!
+                                                .copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                )),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text("List Sorting",
+                                textAlign: TextAlign.start,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyText2!
+                                    .copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                          ),
+                          Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              RadioListTile<String>(
+                                title: const Text('From A to Z'),
+                                value: "A_Z",
+                                groupValue: Preferences().getSortData,
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    Preferences().setSort = value!;
+                                  });
+                                },
+                              ),
+                              RadioListTile<String>(
+                                title: const Text('From Z to A'),
+                                value: "Z_A",
+                                groupValue: Preferences().getSortData,
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    Preferences().setSort = value!;
+                                  });
+                                },
+                              ),
+                              RadioListTile<String>(
+                                title: const Text('From first date'),
+                                value: "firstDate",
+                                groupValue: Preferences().getSortData,
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    Preferences().setSort = value!;
+                                  });
+                                },
+                              ),
+                              RadioListTile<String>(
+                                title: const Text('From last date'),
+                                value: "lastDate",
+                                groupValue: Preferences().getSortData,
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    Preferences().setSort = value!;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(),
+            ),
             Expanded(
               child: GridView.builder(
                 clipBehavior: Clip.hardEdge,

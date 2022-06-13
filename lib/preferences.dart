@@ -6,7 +6,16 @@ class Preferences {
 
   static final defaultSettings = {
     "isExportPathSelected": false,
+    "fileView": "file",
+    "sort": "A_Z",
     "exportPath": "none",
+  };
+
+  static final sortTypes = {
+    "A_Z": "A_Z",
+    "Z_A": "Z_A",
+    "firstDate": "firstDate",
+    "lastDate": "lastDate",
   };
 
   factory Preferences() => _instance;
@@ -34,4 +43,11 @@ class Preferences {
 
   get getExportPath => getString("exportPath");
   set setExportPath(String exportPath) => setString('exportPath', exportPath);
+
+  get getViewStyle => getString('fileView');
+  set setViewStyle(String fileView) => setString('fileView', fileView);
+
+  get getSort => getString('sort');
+  get getSortData => sortTypes[getSort];
+  set setSort(String sort) => setString('sort', sort);
 }
