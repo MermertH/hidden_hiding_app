@@ -141,14 +141,13 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                     children: [
                                       ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                          primary: Preferences().getViewStyle ==
-                                                  "file"
+                                          primary: Preferences().getViewStyle
                                               ? Colors.black
                                               : Colors.grey.shade700,
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            Preferences().setViewStyle = "file";
+                                            Preferences().setViewStyle = true;
                                           });
                                         },
                                         child: Text("File",
@@ -162,14 +161,13 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                       ),
                                       ElevatedButton(
                                         style: ElevatedButton.styleFrom(
-                                          primary: Preferences().getViewStyle ==
-                                                  "list"
+                                          primary: !Preferences().getViewStyle
                                               ? Colors.black
                                               : Colors.grey.shade700,
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            Preferences().setViewStyle = "list";
+                                            Preferences().setViewStyle = false;
                                           });
                                         },
                                         child: Text("List",
@@ -286,6 +284,26 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                   getStorageItems();
                                 },
                               ),
+                              RadioListTile<String>(
+                                title:
+                                    const Text('From high to lower file size'),
+                                value: "sizeDescending",
+                                groupValue: Preferences().getSortData,
+                                onChanged: (String? value) {
+                                  Preferences().setSort = value!;
+                                  getStorageItems();
+                                },
+                              ),
+                              RadioListTile<String>(
+                                title:
+                                    const Text('From low to higher file size'),
+                                value: "sizeAscending",
+                                groupValue: Preferences().getSortData,
+                                onChanged: (String? value) {
+                                  Preferences().setSort = value!;
+                                  getStorageItems();
+                                },
+                              ),
                             ],
                           ),
                           Container(
@@ -297,173 +315,255 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     )
                   : const SizedBox(),
             ),
-            Expanded(
-              child: GridView.builder(
-                clipBehavior: Clip.hardEdge,
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 300,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  childAspectRatio: 4 / 3,
-                ),
-                itemCount: Global().items.length,
-                itemBuilder: (context, index) => Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey[700]!,
-                          width: 0,
-                        ),
-                      ),
-                      // media element
-                      child: GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return expandMediaFileDialog(index);
-                            },
-                          );
-                        },
-                        onLongPress: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return exportOrDeleteMediaFileDialog(index);
-                            },
-                          ).then((value) => value ? getStorageItems() : false);
-                        },
-                        child: Global().getFileInfo(
-                                    Global().items[index].value, "extension") !=
-                                "mp4"
-                            ? Stack(
-                                alignment: AlignmentDirectional.bottomCenter,
-                                children: [
-                                  AspectRatio(
-                                    aspectRatio: 4 / 3,
-                                    child: Image.file(
-                                      File(Global().items[index].key),
-                                      fit: BoxFit.cover,
-                                      alignment: Alignment.center,
-                                    ),
-                                  ),
-                                  Container(
-                                    color: Colors.black.withOpacity(0.4),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Flexible(
-                                          flex: 8,
-                                          child: Text(
-                                            Global().getFileInfo(
-                                                Global().items[index].value,
-                                                "name"),
-                                            textAlign: TextAlign.center,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1,
-                                          ),
-                                        ),
-                                        Flexible(
-                                          flex: 2,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (context) =>
-                                                      editMediaFileName(
-                                                          index)).then(
-                                                  (value) => value
-                                                      ? getStorageItems()
-                                                      : false);
-                                            },
-                                            child: const Padding(
-                                              padding: EdgeInsets.all(2),
-                                              child: Icon(Icons.edit),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Stack(
-                                alignment: AlignmentDirectional.bottomCenter,
-                                children: [
-                                  AspectRatio(
-                                    aspectRatio: 4 / 3,
-                                    child: VideoPlayerWidget(
-                                      mediaFile: Global().items[index],
-                                      isExpandedVideo: false,
-                                    ),
-                                  ),
-                                  const Positioned(
-                                    right: 2,
-                                    top: 2,
-                                    child: Icon(Icons.video_collection),
-                                  ),
-                                  Container(
-                                    color: Colors.black.withOpacity(0.4),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Flexible(
-                                          flex: 8,
-                                          child: Text(
-                                            Global().getFileInfo(
-                                                Global().items[index].value,
-                                                "name"),
-                                            textAlign: TextAlign.center,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1,
-                                          ),
-                                        ),
-                                        Flexible(
-                                          flex: 2,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (context) =>
-                                                      editMediaFileName(
-                                                          index)).then(
-                                                  (value) => value
-                                                      ? getStorageItems()
-                                                      : false);
-                                            },
-                                            child: const Padding(
-                                              padding: EdgeInsets.all(2),
-                                              child: Icon(Icons.edit),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                    // media name and edit
-                  ],
-                ),
-              ),
-            ),
+            Preferences().getViewStyle ? fileViewStyle() : listViewStyle(),
           ],
         ),
       ),
     );
   }
 
+  // View Styles
+  Widget listViewStyle() {
+    return Expanded(
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: Global().items.length,
+        itemBuilder: (context, index) => Card(
+          child: ListTile(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return expandMediaFileDialog(index);
+                },
+              );
+            },
+            onLongPress: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return exportOrDeleteMediaFileDialog(index);
+                },
+              ).then((value) => value ? getStorageItems() : false);
+            },
+            leading: Global().getFileInfo(
+                        Global().items[index].value, "extension") !=
+                    "mp4"
+                ? ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 45,
+                      maxHeight: 45,
+                    ),
+                    child: Image.file(
+                      File(Global().items[index].key),
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                    ),
+                  )
+                : ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 45,
+                      maxHeight: 45,
+                    ),
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: VideoPlayerWidget(
+                            mediaFile: Global().items[index],
+                            isExpandedVideo: false,
+                          ),
+                        ),
+                        const Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Icon(
+                            Icons.video_collection,
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+            title:
+                Text(Global().getFileInfo(Global().items[index].value, "name")),
+            subtitle: Text(Global().sizeFormat(double.parse(
+                Global().getFileInfo(Global().items[index].value, "size")))),
+            trailing: GestureDetector(
+              onTap: () {
+                showDialog(
+                        context: context,
+                        builder: (context) => editMediaFileName(index))
+                    .then((value) => value ? getStorageItems() : false);
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(2),
+                child: Icon(Icons.edit),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget fileViewStyle() {
+    return Expanded(
+      child: GridView.builder(
+        clipBehavior: Clip.hardEdge,
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 300,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 4 / 3,
+        ),
+        itemCount: Global().items.length,
+        itemBuilder: (context, index) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.grey[700]!,
+                  width: 0,
+                ),
+              ),
+              // media element
+              child: GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return expandMediaFileDialog(index);
+                    },
+                  );
+                },
+                onLongPress: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return exportOrDeleteMediaFileDialog(index);
+                    },
+                  ).then((value) => value ? getStorageItems() : false);
+                },
+                child: Global().getFileInfo(
+                            Global().items[index].value, "extension") !=
+                        "mp4"
+                    ? Stack(
+                        alignment: AlignmentDirectional.bottomCenter,
+                        children: [
+                          AspectRatio(
+                            aspectRatio: 4 / 3,
+                            child: Image.file(
+                              File(Global().items[index].key),
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
+                            ),
+                          ),
+                          Container(
+                            color: Colors.black.withOpacity(0.4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  flex: 8,
+                                  child: Text(
+                                    Global().getFileInfo(
+                                        Global().items[index].value, "name"),
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        Theme.of(context).textTheme.bodyText1,
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              editMediaFileName(index)).then(
+                                          (value) => value
+                                              ? getStorageItems()
+                                              : false);
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(2),
+                                      child: Icon(Icons.edit),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    : Stack(
+                        alignment: AlignmentDirectional.bottomCenter,
+                        children: [
+                          AspectRatio(
+                            aspectRatio: 4 / 3,
+                            child: VideoPlayerWidget(
+                              mediaFile: Global().items[index],
+                              isExpandedVideo: false,
+                            ),
+                          ),
+                          const Positioned(
+                            right: 2,
+                            top: 2,
+                            child: Icon(Icons.video_collection),
+                          ),
+                          Container(
+                            color: Colors.black.withOpacity(0.4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  flex: 8,
+                                  child: Text(
+                                    Global().getFileInfo(
+                                        Global().items[index].value, "name"),
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        Theme.of(context).textTheme.bodyText1,
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              editMediaFileName(index)).then(
+                                          (value) => value
+                                              ? getStorageItems()
+                                              : false);
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(2),
+                                      child: Icon(Icons.edit),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+            // media name and edit
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Dialogs
   Widget expandMediaFileDialog(int index) {
     return Dialog(
       insetPadding: const EdgeInsets.all(0),

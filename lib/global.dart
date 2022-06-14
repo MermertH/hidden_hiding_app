@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
+import 'dart:math';
 
 class Global {
   static final Global _instance = Global._internal();
@@ -48,6 +49,14 @@ class Global {
         list.sort(
             (a, b) => a.value.split(",")[3].compareTo(b.value..split(",")[3]));
         return list;
+      case "sizeAscending":
+        list.sort(
+            (a, b) => a.value.split(",")[2].compareTo(b.value..split(",")[2]));
+        return list;
+      case "sizeDescending":
+        list.sort(
+            (a, b) => a.value.split(",")[2].compareTo(b.value..split(",")[2]));
+        return list.reversed.toList();
       default:
         return list;
     }
@@ -70,6 +79,20 @@ class Global {
           .toList();
     }
     return list;
+  }
+
+  String sizeFormat(double size) {
+    if (size.toString().length < 4) {
+      return "${size}byte";
+    } else if (size.toString().length >= 4 && size.toString().length <= 7) {
+      return "${(size / pow(10, 3)).toStringAsFixed(3)}kB";
+    } else if (size.toString().length >= 8 && size.toString().length <= 11) {
+      return "${(size / pow(10, 6)).toStringAsFixed(3)}MB";
+    } else if (size.toString().length >= 12 && size.toString().length <= 15) {
+      return "${(size / pow(10, 9)).toStringAsFixed(3)}GB";
+    } else {
+      return size.toString();
+    }
   }
 
   String setNewFileName(String name, int index) {

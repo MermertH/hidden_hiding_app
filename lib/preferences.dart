@@ -11,7 +11,7 @@ class Preferences {
 
   static final defaultSettings = {
     "isExportPathSelected": false,
-    "fileView": "file",
+    "fileView": true,
     "sort": "A_Z",
     "exportPath": "none",
   };
@@ -29,6 +29,8 @@ class Preferences {
     "Z_A": "Z_A",
     "firstDate": "firstDate",
     "lastDate": "lastDate",
+    "sizeDescending": "sizeDescending",
+    "sizeAscending": "sizeAscending",
   };
 
   String getString(String key) =>
@@ -47,6 +49,7 @@ class Preferences {
   bool getExtensionsBool(String key) =>
       (sharedPreferences?.getBool(key) ?? (extensionTypes[key] as bool));
 
+// Export Path
   get getIsExportPathSelected => getBool('isExportPathSelected');
   set setIsExportPathSelected(bool isExportPathSelected) =>
       setBool('isExportPathSelected', isExportPathSelected);
@@ -54,13 +57,16 @@ class Preferences {
   get getExportPath => getString("exportPath");
   set setExportPath(String exportPath) => setString('exportPath', exportPath);
 
-  get getViewStyle => getString('fileView');
-  set setViewStyle(String fileView) => setString('fileView', fileView);
+// View Style
+  get getViewStyle => getBool('fileView');
+  set setViewStyle(bool fileView) => setBool('fileView', fileView);
 
+// Sorting
   get getSort => getString('sort');
   get getSortData => sortTypes[getSort];
   set setSort(String sort) => setString('sort', sort);
 
+// Extension Filter
   set setExtensionType(int index) {
     setBool(
         extensionTypes.keys.toList().elementAt(index),
