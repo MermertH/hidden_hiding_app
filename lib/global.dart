@@ -53,6 +53,25 @@ class Global {
     }
   }
 
+  List<StorageItem> applyExtensionFilter(List<StorageItem> list) {
+    if (Preferences().getExtensionsBool("any")) {
+      return list;
+    }
+    if (Preferences.extensionTypes.keys
+        .toList()
+        .any((extension) => Preferences().getExtensionsBool(extension))) {
+      List<String> activeExtensionFilters = Preferences.extensionTypes.keys
+          .where((extension) => Preferences().getExtensionsBool(extension))
+          .toList();
+      print(activeExtensionFilters);
+      return list
+          .where((listItem) => activeExtensionFilters.any((extension) =>
+              extension.contains(listItem.value.split(",")[0].split(".").last)))
+          .toList();
+    }
+    return list;
+  }
+
   String setNewFileName(String name, int index) {
     return "$name,${Global().getFileInfo(Global().items[index].value, "extension")},${Global().getFileInfo(Global().items[index].value, "size")},${Global().getFileInfo(Global().items[index].value, "date")}";
   }

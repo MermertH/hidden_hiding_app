@@ -31,6 +31,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
 
   void getStorageItems() async {
     Global().items = await storageService.readAllSecureData();
+    Global().items = Global().applyExtensionFilter(Global().items);
     Global().items =
         Global().applySelectedSort(Global().items, Preferences().getSortData);
     // print(Global().items.length);
@@ -205,7 +206,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                               itemCount: Preferences.extensionTypes.length,
                               itemBuilder: (context, index) => Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 25),
+                                    const EdgeInsets.symmetric(horizontal: 20),
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                       primary: Preferences().getExtensionsBool(
@@ -214,20 +215,20 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                           ? Colors.black
                                           : Colors.grey.shade700),
                                   onPressed: () {
-                                    setState(() {
-                                      if (Preferences.extensionTypes.keys
-                                              .toList()[index] !=
-                                          "any") {
-                                        Preferences().setExceptionTypeAny =
-                                            false;
-                                        Preferences().setExtensionType = index;
-                                      } else {
-                                        Preferences().setExceptionTypeAny =
-                                            true;
-                                        Preferences()
-                                            .setExceptionTypeExceptAny = false;
-                                      }
-                                    });
+                                    if (Preferences.extensionTypes.keys
+                                            .toList()[index] !=
+                                        "any") {
+                                      Preferences().setExtensionTypeAny = false;
+                                      Preferences().setExtensionType = index;
+                                      Preferences()
+                                              .setCheckExtensionTypeExceptAny =
+                                          true;
+                                    } else {
+                                      Preferences().setExtensionTypeAny = true;
+                                      Preferences().setExtensionTypeExceptAny =
+                                          false;
+                                    }
+                                    getStorageItems();
                                   },
                                   child: Text(Preferences.extensionTypes.keys
                                       .toList()[index]),

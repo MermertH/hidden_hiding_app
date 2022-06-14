@@ -14,7 +14,6 @@ class Preferences {
     "fileView": "file",
     "sort": "A_Z",
     "exportPath": "none",
-    "extension": true,
   };
 
   static final extensionTypes = {
@@ -62,20 +61,35 @@ class Preferences {
   get getSortData => sortTypes[getSort];
   set setSort(String sort) => setString('sort', sort);
 
-  set setExceptionTypeAny(bool isAny) {
-    setBool(extensionTypes.keys.toList().elementAt(0), isAny);
-  }
-
-  set setExceptionTypeExceptAny(bool isAny) {
-    for (int index = 1; index < extensionTypes.length; index++) {
-      setBool(extensionTypes.keys.toList().elementAt(index), isAny);
-    }
-  }
-
   set setExtensionType(int index) {
     setBool(
         extensionTypes.keys.toList().elementAt(index),
         extensionTypes.values.toList()[index] =
             !getExtensionsBool(extensionTypes.keys.toList().elementAt(index)));
+  }
+
+  set setExtensionTypeAny(bool isAny) {
+    setBool(extensionTypes.keys.toList().elementAt(0), isAny);
+  }
+
+  set setCheckExtensionTypeExceptAny(bool isAny) {
+    // if no filter selected then make 'any' filter true
+    bool checkResult = false;
+    for (int index = 1; index < extensionTypes.length; index++) {
+      checkResult =
+          getExtensionsBool(extensionTypes.keys.toList().elementAt(index));
+      if (checkResult) {
+        break;
+      }
+    }
+    if (!checkResult) {
+      setBool(extensionTypes.keys.toList().elementAt(0), isAny);
+    }
+  }
+
+  set setExtensionTypeExceptAny(bool isAny) {
+    for (int index = 1; index < extensionTypes.length; index++) {
+      setBool(extensionTypes.keys.toList().elementAt(index), isAny);
+    }
   }
 }
