@@ -204,7 +204,8 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                               scrollDirection: Axis.horizontal,
                               itemCount: Preferences.extensionTypes.length,
                               itemBuilder: (context, index) => Padding(
-                                padding: const EdgeInsets.only(left: 35),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 25),
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                       primary: Preferences().getExtensionsBool(
