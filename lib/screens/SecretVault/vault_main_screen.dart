@@ -33,10 +33,10 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
     Global().items = await storageService.readAllSecureData();
     Global().items =
         Global().applySelectedSort(Global().items, Preferences().getSortData);
-    print(Global().items.length);
-    for (var element in Global().items) {
-      print(element.key);
-    }
+    // print(Global().items.length);
+    // for (var element in Global().items) {
+    //   print(element.key);
+    // }
     setState(() {});
   }
 
@@ -184,6 +184,54 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                   ),
                                 ),
                               ],
+                            ),
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 12, bottom: 12),
+                            child: Text("Extension Filter:",
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyText2!
+                                    .copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                          ),
+                          SizedBox(
+                            height: 40,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: Preferences.extensionTypes.length,
+                              itemBuilder: (context, index) => Padding(
+                                padding: const EdgeInsets.only(left: 35),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      primary: Preferences().getExtensionsBool(
+                                              Preferences.extensionTypes.keys
+                                                  .toList()[index])
+                                          ? Colors.black
+                                          : Colors.grey.shade700),
+                                  onPressed: () {
+                                    setState(() {
+                                      if (Preferences.extensionTypes.keys
+                                              .toList()[index] !=
+                                          "any") {
+                                        Preferences().setExceptionTypeAny =
+                                            false;
+                                        Preferences().setExtensionType = index;
+                                      } else {
+                                        Preferences().setExceptionTypeAny =
+                                            true;
+                                        Preferences()
+                                            .setExceptionTypeExceptAny = false;
+                                      }
+                                    });
+                                  },
+                                  child: Text(Preferences.extensionTypes.keys
+                                      .toList()[index]),
+                                ),
+                              ),
                             ),
                           ),
                           Padding(

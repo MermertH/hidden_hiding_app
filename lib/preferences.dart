@@ -3,12 +3,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Preferences {
   static final Preferences _instance = Preferences._internal();
   static SharedPreferences? sharedPreferences;
+  factory Preferences() => _instance;
+  Preferences._internal();
+  init() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+  }
 
   static final defaultSettings = {
     "isExportPathSelected": false,
     "fileView": "file",
     "sort": "A_Z",
     "exportPath": "none",
+    "extension": true,
+  };
+
+  static final extensionTypes = {
+    "any": true,
+    "jpg": false,
+    "png": false,
+    "gif": false,
+    "mp4": false,
   };
 
   static final sortTypes = {
@@ -17,12 +31,6 @@ class Preferences {
     "firstDate": "firstDate",
     "lastDate": "lastDate",
   };
-
-  factory Preferences() => _instance;
-  Preferences._internal();
-  init() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-  }
 
   String getString(String key) =>
       (sharedPreferences?.getString(key) ?? '${defaultSettings[key]}');
@@ -37,6 +45,9 @@ class Preferences {
   Future<bool>? setBool(String key, bool value) =>
       sharedPreferences?.setBool(key, value);
 
+  bool getExtensionsBool(String key) =>
+      (sharedPreferences?.getBool(key) ?? (extensionTypes[key] as bool));
+
   get getIsExportPathSelected => getBool('isExportPathSelected');
   set setIsExportPathSelected(bool isExportPathSelected) =>
       setBool('isExportPathSelected', isExportPathSelected);
@@ -50,4 +61,21 @@ class Preferences {
   get getSort => getString('sort');
   get getSortData => sortTypes[getSort];
   set setSort(String sort) => setString('sort', sort);
+
+  set setExceptionTypeAny(bool isAny) {
+    setBool(extensionTypes.keys.toList().elementAt(0), isAny);
+  }
+
+  set setExceptionTypeExceptAny(bool isAny) {
+    for (int index = 1; index < extensionTypes.length; index++) {
+      setBool(extensionTypes.keys.toList().elementAt(index), isAny);
+    }
+  }
+
+  set setExtensionType(int index) {
+    setBool(
+        extensionTypes.keys.toList().elementAt(index),
+        extensionTypes.values.toList()[index] =
+            !getExtensionsBool(extensionTypes.keys.toList().elementAt(index)));
+  }
 }

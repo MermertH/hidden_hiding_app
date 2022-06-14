@@ -11,7 +11,6 @@ void main() async {
   if (kReleaseMode) {
     debugPrint = (String? message, {int? wrapWidth}) {};
   }
-
   runApp(const MyApp());
 }
 
