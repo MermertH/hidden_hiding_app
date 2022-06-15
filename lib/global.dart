@@ -33,7 +33,7 @@ class Global {
         list.sort((a, b) => a.value
             .split(",")[0]
             .toLowerCase()
-            .compareTo(b.value..split(",")[0].toLowerCase()));
+            .compareTo(b.value.split(",")[0].toLowerCase()));
         return list;
       case "Z_A":
         list.sort((a, b) => a.value
@@ -43,19 +43,19 @@ class Global {
         return list.reversed.toList();
       case "firstDate":
         list.sort(
-            (a, b) => a.value.split(",")[3].compareTo(b.value..split(",")[3]));
+            (a, b) => a.value.split(",")[3].compareTo(b.value.split(",")[3]));
         return list.reversed.toList();
       case "lastDate":
         list.sort(
-            (a, b) => a.value.split(",")[3].compareTo(b.value..split(",")[3]));
+            (a, b) => a.value.split(",")[3].compareTo(b.value.split(",")[3]));
         return list;
       case "sizeAscending":
-        list.sort(
-            (a, b) => a.value.split(",")[2].compareTo(b.value..split(",")[2]));
+        list.sort((a, b) => double.parse(a.value.split(",")[2])
+            .compareTo(double.parse(b.value.split(",")[2])));
         return list;
       case "sizeDescending":
-        list.sort(
-            (a, b) => a.value.split(",")[2].compareTo(b.value..split(",")[2]));
+        list.sort((a, b) => double.parse(a.value.split(",")[2])
+            .compareTo(double.parse(b.value.split(",")[2])));
         return list.reversed.toList();
       default:
         return list;
@@ -72,7 +72,6 @@ class Global {
       List<String> activeExtensionFilters = Preferences.extensionTypes.keys
           .where((extension) => Preferences().getExtensionsBool(extension))
           .toList();
-      print(activeExtensionFilters);
       return list
           .where((listItem) => activeExtensionFilters.any((extension) =>
               extension.contains(listItem.value.split(",")[0].split(".").last)))

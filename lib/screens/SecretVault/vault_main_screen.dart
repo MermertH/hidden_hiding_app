@@ -57,6 +57,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.greenAccent[700],
         heroTag: "interactionButton",
@@ -325,80 +326,89 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   // View Styles
   Widget listViewStyle() {
     return Expanded(
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: Global().items.length,
-        itemBuilder: (context, index) => Card(
-          child: ListTile(
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return expandMediaFileDialog(index);
-                },
-              );
-            },
-            onLongPress: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return exportOrDeleteMediaFileDialog(index);
-                },
-              ).then((value) => value ? getStorageItems() : false);
-            },
-            leading: Global().getFileInfo(
-                        Global().items[index].value, "extension") !=
-                    "mp4"
-                ? ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 45,
-                      maxHeight: 45,
-                    ),
-                    child: Image.file(
-                      File(Global().items[index].key),
-                      fit: BoxFit.cover,
-                      alignment: Alignment.center,
-                    ),
-                  )
-                : ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 45,
-                      maxHeight: 45,
-                    ),
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.center,
-                          child: VideoPlayerWidget(
-                            mediaFile: Global().items[index],
-                            isExpandedVideo: false,
-                          ),
-                        ),
-                        const Positioned(
-                          right: 0,
-                          top: 0,
-                          child: Icon(
-                            Icons.video_collection,
-                            size: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-            title:
-                Text(Global().getFileInfo(Global().items[index].value, "name")),
-            subtitle: Text(Global().sizeFormat(double.parse(
-                Global().getFileInfo(Global().items[index].value, "size")))),
-            trailing: GestureDetector(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 2),
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: Global().items.length,
+          itemBuilder: (context, index) => Card(
+            child: ListTile(
               onTap: () {
                 showDialog(
-                        context: context,
-                        builder: (context) => editMediaFileName(index))
-                    .then((value) => value ? getStorageItems() : false);
+                  context: context,
+                  builder: (context) {
+                    return expandMediaFileDialog(index);
+                  },
+                );
               },
-              child: const Padding(
-                padding: EdgeInsets.all(2),
-                child: Icon(Icons.edit),
+              onLongPress: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return exportOrDeleteMediaFileDialog(index);
+                  },
+                ).then((value) => value ? getStorageItems() : false);
+              },
+              leading: Global().getFileInfo(
+                          Global().items[index].value, "extension") !=
+                      "mp4"
+                  ? ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 60,
+                        maxHeight: 60,
+                      ),
+                      child: AspectRatio(
+                        aspectRatio: 4 / 3,
+                        child: Image.file(
+                          File(Global().items[index].key),
+                          fit: BoxFit.cover,
+                          alignment: Alignment.center,
+                        ),
+                      ),
+                    )
+                  : ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 60,
+                        maxHeight: 60,
+                      ),
+                      child: AspectRatio(
+                        aspectRatio: 4 / 3,
+                        child: Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.center,
+                              child: VideoPlayerWidget(
+                                mediaFile: Global().items[index],
+                                isExpandedVideo: false,
+                              ),
+                            ),
+                            const Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Icon(
+                                Icons.video_collection,
+                                size: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+              title: Text(
+                  Global().getFileInfo(Global().items[index].value, "name")),
+              subtitle: Text(Global().sizeFormat(double.parse(
+                  Global().getFileInfo(Global().items[index].value, "size")))),
+              trailing: GestureDetector(
+                onTap: () {
+                  showDialog(
+                          context: context,
+                          builder: (context) => editMediaFileName(index))
+                      .then((value) => value ? getStorageItems() : false);
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(2),
+                  child: Icon(Icons.edit),
+                ),
               ),
             ),
           ),
