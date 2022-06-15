@@ -1,11 +1,12 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
-import 'package:hidden_hiding_app/screens/SecretVault/widgets/video_player.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/widgets/video_player_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class VaultMainScreen extends StatefulWidget {
@@ -334,12 +335,24 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
           itemBuilder: (context, index) => Card(
             child: ListTile(
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return expandMediaFileDialog(index);
-                  },
-                );
+                if (Global().getFileInfo(
+                        Global().items[index].value, "extension") ==
+                    "mp4") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          VideoPlayerScreen(mediaFile: Global().items[index]),
+                    ),
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return expandMediaFileDialog(index);
+                    },
+                  );
+                }
               },
               onLongPress: () {
                 showDialog(
@@ -366,34 +379,47 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                         ),
                       ),
                     )
-                  : ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: 60,
-                        maxHeight: 60,
-                      ),
-                      child: AspectRatio(
-                        aspectRatio: 4 / 3,
-                        child: Stack(
-                          children: [
-                            Align(
-                              alignment: Alignment.center,
-                              child: VideoPlayerWidget(
-                                mediaFile: Global().items[index],
-                                isExpandedVideo: false,
-                              ),
+                  : FutureBuilder(
+                      future:
+                          Global().videoThumbnail(Global().items[index].key),
+                      builder: (context, snapshot) {
+                        return ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: 60,
+                            maxHeight: 60,
+                          ),
+                          child: AspectRatio(
+                            aspectRatio: 4 / 3,
+                            child: Stack(
+                              children: [
+                                Align(
+                                    alignment: Alignment.center,
+                                    child: AspectRatio(
+                                      aspectRatio: 4 / 3,
+                                      child: snapshot.hasData
+                                          ? Image.memory(
+                                              snapshot.data! as Uint8List,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : const Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.green,
+                                              ),
+                                            ),
+                                    )),
+                                const Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Icon(
+                                    Icons.video_collection,
+                                    size: 20,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const Positioned(
-                              right: 0,
-                              top: 0,
-                              child: Icon(
-                                Icons.video_collection,
-                                size: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                          ),
+                        );
+                      }),
               title: Text(
                   Global().getFileInfo(Global().items[index].value, "name")),
               subtitle: Text(Global.getFileSizeFormat(
@@ -444,12 +470,24 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
               // media element
               child: GestureDetector(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return expandMediaFileDialog(index);
-                    },
-                  );
+                  if (Global().getFileInfo(
+                          Global().items[index].value, "extension") ==
+                      "mp4") {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            VideoPlayerScreen(mediaFile: Global().items[index]),
+                      ),
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return expandMediaFileDialog(index);
+                      },
+                    );
+                  }
                 },
                 onLongPress: () {
                   showDialog(
@@ -512,60 +550,73 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                           ),
                         ],
                       )
-                    : Stack(
-                        alignment: AlignmentDirectional.bottomCenter,
-                        children: [
-                          AspectRatio(
-                            aspectRatio: 4 / 3,
-                            child: VideoPlayerWidget(
-                              mediaFile: Global().items[index],
-                              isExpandedVideo: false,
-                            ),
-                          ),
-                          const Positioned(
-                            right: 2,
-                            top: 2,
-                            child: Icon(Icons.video_collection),
-                          ),
-                          Container(
-                            color: Colors.black.withOpacity(0.4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  flex: 8,
-                                  child: Text(
-                                    Global().getFileInfo(
-                                        Global().items[index].value, "name"),
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    style:
-                                        Theme.of(context).textTheme.bodyText1,
-                                  ),
-                                ),
-                                Flexible(
-                                  flex: 2,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) =>
-                                              editMediaFileName(index)).then(
-                                          (value) => value
-                                              ? getStorageItems()
-                                              : false);
-                                    },
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(2),
-                                      child: Icon(Icons.edit),
+                    : FutureBuilder(
+                        future:
+                            Global().videoThumbnail(Global().items[index].key),
+                        builder: (context, snapshot) {
+                          return Stack(
+                            alignment: AlignmentDirectional.bottomCenter,
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 4 / 3,
+                                child: snapshot.hasData
+                                    ? Image.memory(
+                                        snapshot.data! as Uint8List,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : const Center(
+                                        child: CircularProgressIndicator(
+                                        color: Colors.green,
+                                      )),
+                              ),
+                              const Positioned(
+                                right: 2,
+                                top: 2,
+                                child: Icon(Icons.video_collection),
+                              ),
+                              Container(
+                                color: Colors.black.withOpacity(0.4),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      flex: 8,
+                                      child: Text(
+                                        Global().getFileInfo(
+                                            Global().items[index].value,
+                                            "name"),
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText1,
+                                      ),
                                     ),
-                                  ),
+                                    Flexible(
+                                      flex: 2,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      editMediaFileName(index))
+                                              .then((value) => value
+                                                  ? getStorageItems()
+                                                  : false);
+                                        },
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(2),
+                                          child: Icon(Icons.edit),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                              ),
+                            ],
+                          );
+                        }),
               ),
             ),
             // media name and edit
@@ -581,40 +632,35 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
       insetPadding: const EdgeInsets.all(0),
       elevation: 0,
       child: Stack(
+        alignment: AlignmentDirectional.center,
         children: [
           Container(
-            color: Colors.black.withOpacity(0.5),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Flexible(
-                  child: Global().getFileInfo(
-                              Global().items[index].value, "extension") !=
-                          "mp4"
-                      ? Image.file(
-                          File(Global().items[index].key),
-                          fit: BoxFit.contain,
-                        )
-                      : VideoPlayerWidget(
-                          mediaFile: Global().items[index],
-                          isExpandedVideo: true),
+            color: Colors.black,
+            width: double.maxFinite,
+            height: double.maxFinite,
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                  child: Image.file(
+                File(Global().items[index].key),
+                fit: BoxFit.contain,
+              )),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Wrap(
+                  children: [
+                    Text(
+                      Global().getFileInfo(Global().items[index].value, "name"),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyText2,
+                    )
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Wrap(
-                    children: [
-                      Text(
-                        Global()
-                            .getFileInfo(Global().items[index].value, "name"),
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyText2,
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
+              )
+            ],
           ),
           Positioned(
             top: 5,

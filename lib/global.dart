@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
 import 'dart:math';
+
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class Global {
   static final Global _instance = Global._internal();
@@ -78,6 +82,16 @@ class Global {
           .toList();
     }
     return list;
+  }
+
+  Future<Uint8List> videoThumbnail(String path) async {
+    final uint8list = await VideoThumbnail.thumbnailData(
+      video: path,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 0,
+      quality: 25,
+    );
+    return uint8list!;
   }
 
   static String getFileSizeFormat({required int bytes, int decimals = 0}) {
