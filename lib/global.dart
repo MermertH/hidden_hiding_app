@@ -80,18 +80,10 @@ class Global {
     return list;
   }
 
-  String sizeFormat(double size) {
-    if (size.toString().length < 4) {
-      return "${size}byte";
-    } else if (size.toString().length >= 4 && size.toString().length <= 7) {
-      return "${(size / pow(10, 3)).toStringAsFixed(3)}kB";
-    } else if (size.toString().length >= 8 && size.toString().length <= 11) {
-      return "${(size / pow(10, 6)).toStringAsFixed(3)}MB";
-    } else if (size.toString().length >= 12 && size.toString().length <= 15) {
-      return "${(size / pow(10, 9)).toStringAsFixed(3)}GB";
-    } else {
-      return size.toString();
-    }
+  static String getFileSizeFormat({required int bytes, int decimals = 0}) {
+    const suffixes = ["b", "kB", "MB", "GB", "TB"];
+    var i = (log(bytes) / log(1024)).floor();
+    return ((bytes / pow(1024, i)).toStringAsFixed(decimals)) + suffixes[i];
   }
 
   String setNewFileName(String name, int index) {

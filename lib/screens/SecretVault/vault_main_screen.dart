@@ -396,8 +396,10 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     ),
               title: Text(
                   Global().getFileInfo(Global().items[index].value, "name")),
-              subtitle: Text(Global().sizeFormat(double.parse(
-                  Global().getFileInfo(Global().items[index].value, "size")))),
+              subtitle: Text(Global.getFileSizeFormat(
+                  bytes: int.parse(Global()
+                      .getFileInfo(Global().items[index].value, "size")),
+                  decimals: 2)),
               trailing: GestureDetector(
                 onTap: () {
                   showDialog(
