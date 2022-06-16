@@ -15,10 +15,15 @@ class FilePickerService {
     return directory.path;
   }
 
+  Future<String> get _safeLocalPath async {
+    final directory = await getExternalStorageDirectory();
+    return directory!.path;
+  }
+
   // Create Media Folder in App Location
   Future<Directory> _createNFolder() async {
     const folderName = "MediaFiles";
-    final path = Directory("${await _localPath}/$folderName");
+    final path = Directory("${await _safeLocalPath}/$folderName");
     if ((await path.exists())) {
       debugPrint("exist");
       debugPrint("created folder location: ${path.path}");
@@ -26,9 +31,16 @@ class FilePickerService {
     } else {
       debugPrint("not exist");
       path.create();
+      await addNewFileToGivenPath(path.path, ".nomedia");
       debugPrint("created folder location: ${path.path}");
       return path;
     }
+  }
+
+  // Create file
+  Future<void> addNewFileToGivenPath(String root, String pathFile) async {
+    final path = "$root/$pathFile";
+    File(path).create(recursive: true);
   }
 
   // Add file to the MediaFolder location
@@ -132,9 +144,14 @@ class FilePickerService {
   Future<void> getDir() async {
     //TODO delete after vault is done
     List<FileSystemEntity> _folders;
-    final directory = await getApplicationDocumentsDirectory();
-    final myDir = Directory('${directory.path}/');
+    List<FileSystemEntity> _safeFolders;
+    final directory = await _localPath;
+    final topLevelStorageDir = await _safeLocalPath;
+    final myDir = Directory('$directory/');
+    final safeDir = Directory('$topLevelStorageDir/');
     _folders = myDir.listSync(recursive: true, followLinks: false);
-    debugPrint("$_folders");
+    _safeFolders = safeDir.listSync(recursive: true, followLinks: true);
+    debugPrint(topLevelStorageDir);
+    debugPrint("$_safeFolders");
   }
 }

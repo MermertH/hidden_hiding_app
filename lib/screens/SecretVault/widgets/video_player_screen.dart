@@ -20,7 +20,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void initState() {
     _controller = VideoPlayerController.file(File(widget.mediaFile.key))
       ..initialize().then((_) {
-        print(_controller.value.aspectRatio);
         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         chewieController = ChewieController(
             videoPlayerController: _controller,
