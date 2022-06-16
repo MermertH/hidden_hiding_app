@@ -201,38 +201,70 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                           ),
                           SizedBox(
                             height: 40,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: Preferences.extensionTypes.length,
-                              itemBuilder: (context, index) => Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      primary: Preferences().getExtensionsBool(
-                                              Preferences.extensionTypes.keys
-                                                  .toList()[index])
-                                          ? Colors.black
-                                          : Colors.grey.shade700),
-                                  onPressed: () {
-                                    if (Preferences.extensionTypes.keys
-                                            .toList()[index] !=
-                                        "any") {
-                                      Preferences().setExtensionTypeAny = false;
-                                      Preferences().setExtensionType = index;
-                                      Preferences()
-                                              .setCheckExtensionTypeExceptAny =
-                                          true;
-                                    } else {
-                                      Preferences().setExtensionTypeAny = true;
-                                      Preferences().setExtensionTypeExceptAny =
-                                          false;
-                                    }
-                                    getStorageItems();
-                                  },
-                                  child: Text(Preferences.extensionTypes.keys
-                                      .toList()[index]),
-                                ),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 4,
+                                    color: Colors.grey[600],
+                                  ),
+                                  Flexible(
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount:
+                                          Preferences.extensionTypes.length,
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 18),
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                primary: Preferences()
+                                                        .getExtensionsBool(
+                                                            Preferences
+                                                                .extensionTypes
+                                                                .keys
+                                                                .toList()[index])
+                                                    ? Colors.black
+                                                    : Colors.grey.shade700),
+                                            onPressed: () {
+                                              if (Preferences
+                                                      .extensionTypes.keys
+                                                      .toList()[index] !=
+                                                  "any") {
+                                                Preferences()
+                                                        .setExtensionTypeAny =
+                                                    false;
+                                                Preferences().setExtensionType =
+                                                    index;
+                                                Preferences()
+                                                        .setCheckExtensionTypeExceptAny =
+                                                    true;
+                                              } else {
+                                                Preferences()
+                                                    .setExtensionTypeAny = true;
+                                                Preferences()
+                                                        .setExtensionTypeExceptAny =
+                                                    false;
+                                              }
+                                              getStorageItems();
+                                            },
+                                            child: Text(Preferences
+                                                .extensionTypes.keys
+                                                .toList()[index]),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 4,
+                                    color: Colors.grey[600],
+                                  ),
+                                ],
                               ),
                             ),
                           ),
