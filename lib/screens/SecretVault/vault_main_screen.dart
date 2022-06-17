@@ -21,7 +21,6 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   var filePickService = FilePickerService();
   var textKeyController = TextEditingController();
   bool isFilterMode = false;
-  double filterAreaSize = 0;
 
   @override
   void initState() {
@@ -80,7 +79,6 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
             onTap: () {
               setState(() {
                 isFilterMode = !isFilterMode;
-                //filterAreaSize = isFilterMode ? 340 : 0;
               });
             },
             child: const Padding(
@@ -104,250 +102,254 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            AnimatedContainer(
-              height: !isFilterMode ? 0 : null,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.fastOutSlowIn,
-              child: isFilterMode
-                  ? Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  flex: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 4),
-                                    child: Text("View Style:",
-                                        textAlign: TextAlign.center,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText2!
-                                            .copyWith(
-                                              fontWeight: FontWeight.bold,
-                                            )),
-                                  ),
-                                ),
-                                Flexible(
-                                  flex: 8,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          primary: Preferences().getViewStyle
-                                              ? Colors.black
-                                              : Colors.grey.shade700,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            Preferences().setViewStyle = true;
-                                          });
-                                        },
-                                        child: Text("File",
-                                            textAlign: TextAlign.center,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText2!
-                                                .copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                )),
-                                      ),
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          primary: !Preferences().getViewStyle
-                                              ? Colors.black
-                                              : Colors.grey.shade700,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            Preferences().setViewStyle = false;
-                                          });
-                                        },
-                                        child: Text("List",
-                                            textAlign: TextAlign.center,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText2!
-                                                .copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                )),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 12, bottom: 12),
-                            child: Text("Extension Filter:",
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyText2!
-                                    .copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                          ),
-                          SizedBox(
-                            height: 40,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
+            SizedBox(
+              child: AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.fastOutSlowIn,
+                child: isFilterMode
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
                               child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Container(
-                                    width: 4,
-                                    color: Colors.grey[600],
-                                  ),
                                   Flexible(
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount:
-                                          Preferences.extensionTypes.length,
-                                      itemBuilder: (context, index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 18),
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                                primary: Preferences()
-                                                        .getExtensionsBool(
-                                                            Preferences
-                                                                .extensionTypes
-                                                                .keys
-                                                                .toList()[index])
-                                                    ? Colors.black
-                                                    : Colors.grey.shade700),
-                                            onPressed: () {
-                                              if (Preferences
-                                                      .extensionTypes.keys
-                                                      .toList()[index] !=
-                                                  "any") {
-                                                Preferences()
-                                                        .setExtensionTypeAny =
-                                                    false;
-                                                Preferences().setExtensionType =
-                                                    index;
-                                                Preferences()
-                                                        .setCheckExtensionTypeExceptAny =
-                                                    true;
-                                              } else {
-                                                Preferences()
-                                                    .setExtensionTypeAny = true;
-                                                Preferences()
-                                                        .setExtensionTypeExceptAny =
-                                                    false;
-                                              }
-                                              getStorageItems();
-                                            },
-                                            child: Text(Preferences
-                                                .extensionTypes.keys
-                                                .toList()[index]),
-                                          ),
-                                        );
-                                      },
+                                    flex: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 4),
+                                      child: Text("View Style:",
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyText2!
+                                              .copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              )),
                                     ),
                                   ),
-                                  Container(
-                                    width: 4,
-                                    color: Colors.grey[600],
+                                  Flexible(
+                                    flex: 8,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            primary: Preferences().getViewStyle
+                                                ? Colors.black
+                                                : Colors.grey.shade700,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              Preferences().setViewStyle = true;
+                                            });
+                                          },
+                                          child: Text("File",
+                                              textAlign: TextAlign.center,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyText2!
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                  )),
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            primary: !Preferences().getViewStyle
+                                                ? Colors.black
+                                                : Colors.grey.shade700,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              Preferences().setViewStyle =
+                                                  false;
+                                            });
+                                          },
+                                          child: Text("List",
+                                              textAlign: TextAlign.center,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyText2!
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                  )),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text("List Sorting",
-                                textAlign: TextAlign.start,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyText2!
-                                    .copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    )),
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              RadioListTile<String>(
-                                title: const Text('From A to Z'),
-                                value: "A_Z",
-                                groupValue: Preferences().getSortData,
-                                onChanged: (String? value) {
-                                  Preferences().setSort = value!;
-                                  getStorageItems();
-                                },
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 12, bottom: 12),
+                              child: Text("Extension Filter:",
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText2!
+                                      .copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                            ),
+                            SizedBox(
+                              height: 40,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 4,
+                                      color: Colors.grey[600],
+                                    ),
+                                    Flexible(
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount:
+                                            Preferences.extensionTypes.length,
+                                        itemBuilder: (context, index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 18),
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  primary: Preferences()
+                                                          .getExtensionsBool(
+                                                              Preferences
+                                                                  .extensionTypes
+                                                                  .keys
+                                                                  .toList()[index])
+                                                      ? Colors.black
+                                                      : Colors.grey.shade700),
+                                              onPressed: () {
+                                                if (Preferences
+                                                        .extensionTypes.keys
+                                                        .toList()[index] !=
+                                                    "any") {
+                                                  Preferences()
+                                                          .setExtensionTypeAny =
+                                                      false;
+                                                  Preferences()
+                                                      .setExtensionType = index;
+                                                  Preferences()
+                                                          .setCheckExtensionTypeExceptAny =
+                                                      true;
+                                                } else {
+                                                  Preferences()
+                                                          .setExtensionTypeAny =
+                                                      true;
+                                                  Preferences()
+                                                          .setExtensionTypeExceptAny =
+                                                      false;
+                                                }
+                                                getStorageItems();
+                                              },
+                                              child: Text(Preferences
+                                                  .extensionTypes.keys
+                                                  .toList()[index]),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 4,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ],
+                                ),
                               ),
-                              RadioListTile<String>(
-                                title: const Text('From Z to A'),
-                                value: "Z_A",
-                                groupValue: Preferences().getSortData,
-                                onChanged: (String? value) {
-                                  Preferences().setSort = value!;
-                                  getStorageItems();
-                                },
-                              ),
-                              RadioListTile<String>(
-                                title: const Text('From first date'),
-                                value: "firstDate",
-                                groupValue: Preferences().getSortData,
-                                onChanged: (String? value) {
-                                  Preferences().setSort = value!;
-                                  getStorageItems();
-                                },
-                              ),
-                              RadioListTile<String>(
-                                title: const Text('From last date'),
-                                value: "lastDate",
-                                groupValue: Preferences().getSortData,
-                                onChanged: (String? value) {
-                                  Preferences().setSort = value!;
-                                  getStorageItems();
-                                },
-                              ),
-                              RadioListTile<String>(
-                                title:
-                                    const Text('From high to lower file size'),
-                                value: "sizeDescending",
-                                groupValue: Preferences().getSortData,
-                                onChanged: (String? value) {
-                                  Preferences().setSort = value!;
-                                  getStorageItems();
-                                },
-                              ),
-                              RadioListTile<String>(
-                                title:
-                                    const Text('From low to higher file size'),
-                                value: "sizeAscending",
-                                groupValue: Preferences().getSortData,
-                                onChanged: (String? value) {
-                                  Preferences().setSort = value!;
-                                  getStorageItems();
-                                },
-                              ),
-                            ],
-                          ),
-                          Container(
-                            height: 4,
-                            color: Colors.grey.shade800,
-                          ),
-                        ],
-                      ),
-                    )
-                  : const SizedBox(),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Text("List Sorting",
+                                  textAlign: TextAlign.start,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText2!
+                                      .copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                            ),
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                RadioListTile<String>(
+                                  title: const Text('From A to Z'),
+                                  value: "A_Z",
+                                  groupValue: Preferences().getSortData,
+                                  onChanged: (String? value) {
+                                    Preferences().setSort = value!;
+                                    getStorageItems();
+                                  },
+                                ),
+                                RadioListTile<String>(
+                                  title: const Text('From Z to A'),
+                                  value: "Z_A",
+                                  groupValue: Preferences().getSortData,
+                                  onChanged: (String? value) {
+                                    Preferences().setSort = value!;
+                                    getStorageItems();
+                                  },
+                                ),
+                                RadioListTile<String>(
+                                  title: const Text('From first date'),
+                                  value: "firstDate",
+                                  groupValue: Preferences().getSortData,
+                                  onChanged: (String? value) {
+                                    Preferences().setSort = value!;
+                                    getStorageItems();
+                                  },
+                                ),
+                                RadioListTile<String>(
+                                  title: const Text('From last date'),
+                                  value: "lastDate",
+                                  groupValue: Preferences().getSortData,
+                                  onChanged: (String? value) {
+                                    Preferences().setSort = value!;
+                                    getStorageItems();
+                                  },
+                                ),
+                                RadioListTile<String>(
+                                  title: const Text(
+                                      'From high to lower file size'),
+                                  value: "sizeDescending",
+                                  groupValue: Preferences().getSortData,
+                                  onChanged: (String? value) {
+                                    Preferences().setSort = value!;
+                                    getStorageItems();
+                                  },
+                                ),
+                                RadioListTile<String>(
+                                  title: const Text(
+                                      'From low to higher file size'),
+                                  value: "sizeAscending",
+                                  groupValue: Preferences().getSortData,
+                                  onChanged: (String? value) {
+                                    Preferences().setSort = value!;
+                                    getStorageItems();
+                                  },
+                                ),
+                              ],
+                            ),
+                            Container(
+                              height: 4,
+                              color: Colors.grey.shade800,
+                            ),
+                          ],
+                        ),
+                      )
+                    : const SizedBox(),
+              ),
             ),
             Preferences().getViewStyle ? fileViewStyle() : listViewStyle(),
           ],
