@@ -1,6 +1,8 @@
+import 'dart:io';
+
 class StorageItem {
   StorageItem(this.key, this.value);
 
-  final String key;
-  final String value;
+  final FileSystemEntity key;
+  final List<String> value;
 }

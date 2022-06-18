@@ -3,9 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
-import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
-import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/widgets/video_player_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -16,11 +14,14 @@ class VaultMainScreen extends StatefulWidget {
   State<VaultMainScreen> createState() => _VaultMainScreenState();
 }
 
-class _VaultMainScreenState extends State<VaultMainScreen> {
-  var storageService = StorageService();
+class _VaultMainScreenState extends State<VaultMainScreen>
+    with SingleTickerProviderStateMixin {
   var filePickService = FilePickerService();
   var textKeyController = TextEditingController();
+  var folderNameController = TextEditingController();
+  bool _isExpanded = false;
   bool isFilterMode = false;
+  bool isOnce = true;
 
   @override
   void initState() {
@@ -29,22 +30,37 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> getInitDir() async {
+    if (isOnce) {
+      var initDir = await filePickService.createNFolder();
+      Global().currentPath = initDir.path;
+      isOnce = false;
+    } else {}
+  }
+
   void getStorageItems() async {
-    Global().items = await storageService.readAllSecureData();
+    await getInitDir();
+    Global().items =
+        await filePickService.getDirMedia(Directory(Global().currentPath));
     Global().items = Global().applyExtensionFilter(Global().items);
     Global().items =
         Global().applySelectedSort(Global().items, Preferences().getSortData);
-    // print(Global().items.length);
-    // for (var element in Global().items) {
-    //   print(element.key);
-    // }
     setState(() {});
   }
 
   void requestPermission() async {
     var storagePermissionStatus = await Permission.storage.status;
     if (!storagePermissionStatus.isGranted) {
-      await Permission.storage.request();
+      await Permission.storage.request().then((permission) {
+        if (permission.isDenied || permission.isPermanentlyDenied) {
+          // TODO warn user to accept, otherwise app wont work.
+        }
+      });
     }
 
     var externalStoragePermissionStatus =
@@ -58,17 +74,76 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.greenAccent[700],
-        heroTag: "interactionButton",
-        child: const Icon(
-          Icons.add,
-          color: Colors.black,
-          size: 26,
-        ),
-        onPressed: () {
-          showDialog(context: context, builder: (context) => addFileDialog())
-              .then((value) => value ? getStorageItems() : false);
+      floatingActionButton: StatefulBuilder(
+        builder: (context, setState) {
+          return Stack(
+            children: [
+              AnimatedPositioned(
+                bottom: _isExpanded ? 160 : 0,
+                duration: const Duration(milliseconds: 300),
+                child: FloatingActionButton(
+                  backgroundColor: Colors.greenAccent[700],
+                  heroTag: "createFolderButton",
+                  onPressed: () {
+                    setState(() {
+                      showDialog(
+                              context: context,
+                              builder: (context) => addNewFolderDialog())
+                          .then((value) => value ? getStorageItems() : false);
+                      //TODO create folder dialog
+                    });
+                  },
+                  child: const Icon(
+                    Icons.create_new_folder,
+                    color: Colors.black,
+                    size: 24,
+                  ),
+                ),
+              ),
+              AnimatedPositioned(
+                bottom: _isExpanded ? 80 : 0,
+                duration: const Duration(milliseconds: 300),
+                child: FloatingActionButton(
+                  backgroundColor: Colors.yellow,
+                  heroTag: "addButton",
+                  onPressed: () {
+                    setState(() {
+                      showDialog(
+                              context: context,
+                              builder: (context) => addFileDialog())
+                          .then((value) => value ? getStorageItems() : false);
+                    });
+                  },
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.black,
+                    size: 24,
+                  ),
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 160),
+                  FloatingActionButton(
+                    backgroundColor:
+                        !_isExpanded ? Colors.greenAccent[700]! : Colors.red,
+                    heroTag: "interactionButton",
+                    child: Icon(
+                      !_isExpanded ? Icons.add : Icons.close,
+                      color: Colors.black,
+                      size: 26,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isExpanded = !_isExpanded;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ],
+          );
         },
       ),
       appBar: AppBar(
@@ -368,8 +443,11 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
           itemCount: Global().items.length,
           itemBuilder: (context, index) => Card(
             child: ListTile(
-              onTap: () {
-                if (Global().getFileInfo(
+              onTap: () async {
+                if (Global().items[index].key.statSync().type ==
+                    FileSystemEntityType.directory) {
+                  //TODO logic here
+                } else if (Global().getFileInfo(
                         Global().items[index].value, "extension") ==
                     "mp4") {
                   Navigator.push(
@@ -389,71 +467,93 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                 }
               },
               onLongPress: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return exportOrDeleteMediaFileDialog(index);
-                  },
-                ).then((value) => value ? getStorageItems() : false);
+                if (Global().items[index].key.statSync().type ==
+                    FileSystemEntityType.directory) {
+                  //TODO logic here
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return exportOrDeleteMediaFileDialog(index);
+                    },
+                  ).then((value) => value ? getStorageItems() : false);
+                }
               },
-              leading: Global().getFileInfo(
-                          Global().items[index].value, "extension") !=
-                      "mp4"
-                  ? ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: 60,
-                        maxHeight: 60,
-                      ),
-                      child: AspectRatio(
-                        aspectRatio: 4 / 3,
-                        child: Image.file(
-                          File(Global().items[index].key),
-                          fit: BoxFit.cover,
-                          alignment: Alignment.center,
-                        ),
-                      ),
-                    )
-                  : FutureBuilder(
-                      future:
-                          Global().videoThumbnail(Global().items[index].key),
-                      builder: (context, snapshot) {
-                        return ConstrainedBox(
+              leading: Global().items[index].key.statSync().type !=
+                      FileSystemEntityType.directory
+                  ? Global().getFileInfo(
+                              Global().items[index].value, "extension") !=
+                          "mp4"
+                      ? ConstrainedBox(
                           constraints: const BoxConstraints(
                             maxWidth: 60,
                             maxHeight: 60,
                           ),
                           child: AspectRatio(
                             aspectRatio: 4 / 3,
-                            child: Stack(
-                              children: [
-                                Align(
-                                    alignment: Alignment.center,
-                                    child: AspectRatio(
-                                      aspectRatio: 4 / 3,
-                                      child: snapshot.hasData
-                                          ? Image.memory(
-                                              snapshot.data! as Uint8List,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : const Center(
-                                              child: CircularProgressIndicator(
-                                                color: Colors.green,
-                                              ),
-                                            ),
-                                    )),
-                                const Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: Icon(
-                                    Icons.video_collection,
-                                    size: 20,
-                                  ),
-                                ),
-                              ],
+                            child: Image.file(
+                              File(Global().items[index].key.path),
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
                             ),
                           ),
-                        );
-                      }),
+                        )
+                      : FutureBuilder(
+                          future: Global()
+                              .videoThumbnail(Global().items[index].key.path),
+                          builder: (context, snapshot) {
+                            return ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                maxWidth: 60,
+                                maxHeight: 60,
+                              ),
+                              child: AspectRatio(
+                                aspectRatio: 4 / 3,
+                                child: Stack(
+                                  children: [
+                                    Align(
+                                        alignment: Alignment.center,
+                                        child: AspectRatio(
+                                          aspectRatio: 4 / 3,
+                                          child: snapshot.hasData
+                                              ? Image.memory(
+                                                  snapshot.data! as Uint8List,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : const Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
+                                        )),
+                                    const Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      child: Icon(
+                                        Icons.video_collection,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          })
+                  : ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 60,
+                        maxHeight: 60,
+                      ),
+                      child: const AspectRatio(
+                          aspectRatio: 4 / 3,
+                          child: Center(
+                            child: Icon(
+                              Icons.folder,
+                              size: 35,
+                            ),
+                          )),
+                    ),
               title: Text(
                   Global().getFileInfo(Global().items[index].value, "name")),
               subtitle: Text(Global.getFileSizeFormat(
@@ -503,8 +603,11 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
               ),
               // media element
               child: GestureDetector(
-                onTap: () {
-                  if (Global().getFileInfo(
+                onTap: () async {
+                  if (Global().items[index].key.statSync().type ==
+                      FileSystemEntityType.directory) {
+                    //TODO logic here
+                  } else if (Global().getFileInfo(
                           Global().items[index].value, "extension") ==
                       "mp4") {
                     Navigator.push(
@@ -523,90 +626,34 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     );
                   }
                 },
-                onLongPress: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return exportOrDeleteMediaFileDialog(index);
-                    },
-                  ).then((value) => value ? getStorageItems() : false);
+                onLongPress: () async {
+                  if (Global().items[index].key.statSync().type ==
+                      FileSystemEntityType.directory) {
+                    //TODO logic here
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return exportOrDeleteMediaFileDialog(index);
+                      },
+                    ).then((value) => value ? getStorageItems() : value);
+                  }
                 },
-                child: Global().getFileInfo(
-                            Global().items[index].value, "extension") !=
-                        "mp4"
-                    ? Stack(
-                        alignment: AlignmentDirectional.bottomCenter,
-                        children: [
-                          AspectRatio(
-                            aspectRatio: 4 / 3,
-                            child: Image.file(
-                              File(Global().items[index].key),
-                              fit: BoxFit.cover,
-                              alignment: Alignment.center,
-                            ),
-                          ),
-                          Container(
-                            color: Colors.black.withOpacity(0.4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  flex: 8,
-                                  child: Text(
-                                    Global().getFileInfo(
-                                        Global().items[index].value, "name"),
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    style:
-                                        Theme.of(context).textTheme.bodyText1,
-                                  ),
-                                ),
-                                Flexible(
-                                  flex: 2,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) =>
-                                              editMediaFileName(index)).then(
-                                          (value) => value
-                                              ? getStorageItems()
-                                              : false);
-                                    },
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(2),
-                                      child: Icon(Icons.edit),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                    : FutureBuilder(
-                        future:
-                            Global().videoThumbnail(Global().items[index].key),
-                        builder: (context, snapshot) {
-                          return Stack(
+                child: Global().items[index].key.statSync().type !=
+                        FileSystemEntityType.directory
+                    ? Global().getFileInfo(
+                                Global().items[index].value, "extension") !=
+                            "mp4"
+                        ? Stack(
                             alignment: AlignmentDirectional.bottomCenter,
                             children: [
                               AspectRatio(
                                 aspectRatio: 4 / 3,
-                                child: snapshot.hasData
-                                    ? Image.memory(
-                                        snapshot.data! as Uint8List,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : const Center(
-                                        child: CircularProgressIndicator(
-                                        color: Colors.green,
-                                      )),
-                              ),
-                              const Positioned(
-                                right: 2,
-                                top: 2,
-                                child: Icon(Icons.video_collection),
+                                child: Image.file(
+                                  File(Global().items[index].key.path),
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.center,
+                                ),
                               ),
                               Container(
                                 color: Colors.black.withOpacity(0.4),
@@ -649,8 +696,123 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                 ),
                               ),
                             ],
-                          );
-                        }),
+                          )
+                        : FutureBuilder(
+                            future: Global()
+                                .videoThumbnail(Global().items[index].key.path),
+                            builder: (context, snapshot) {
+                              return Stack(
+                                alignment: AlignmentDirectional.bottomCenter,
+                                children: [
+                                  AspectRatio(
+                                    aspectRatio: 4 / 3,
+                                    child: snapshot.hasData
+                                        ? Image.memory(
+                                            snapshot.data! as Uint8List,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : const Center(
+                                            child: CircularProgressIndicator(
+                                            color: Colors.green,
+                                          )),
+                                  ),
+                                  const Positioned(
+                                    right: 2,
+                                    top: 2,
+                                    child: Icon(Icons.video_collection),
+                                  ),
+                                  Container(
+                                    color: Colors.black.withOpacity(0.4),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          flex: 8,
+                                          child: Text(
+                                            Global().getFileInfo(
+                                                Global().items[index].value,
+                                                "name"),
+                                            textAlign: TextAlign.center,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1,
+                                          ),
+                                        ),
+                                        Flexible(
+                                          flex: 2,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      editMediaFileName(
+                                                          index)).then(
+                                                  (value) => value
+                                                      ? getStorageItems()
+                                                      : false);
+                                            },
+                                            child: const Padding(
+                                              padding: EdgeInsets.all(2),
+                                              child: Icon(Icons.edit),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            })
+                    : Stack(
+                        alignment: AlignmentDirectional.bottomCenter,
+                        children: [
+                          const AspectRatio(
+                              aspectRatio: 4 / 3,
+                              child: Icon(
+                                Icons.folder,
+                                size: 35,
+                              )),
+                          Container(
+                            color: Colors.black.withOpacity(0.4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  flex: 8,
+                                  child: Text(
+                                    Global().getFileInfo(
+                                        Global().items[index].value, "name"),
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        Theme.of(context).textTheme.bodyText1,
+                                  ),
+                                ),
+                                Flexible(
+                                  flex: 2,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              editMediaFileName(index)).then(
+                                          (value) => value
+                                              ? getStorageItems()
+                                              : false);
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(2),
+                                      child: Icon(Icons.edit),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             ),
             // media name and edit
@@ -679,7 +841,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
             children: [
               Flexible(
                   child: Image.file(
-                File(Global().items[index].key),
+                File(Global().items[index].key.path),
                 fit: BoxFit.contain,
               )),
               Padding(
@@ -766,16 +928,80 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     if (textKeyController.text.isNotEmpty) {
-                      await storageService.writeSecureData(
-                        StorageItem(
-                            Global().items[index].key,
-                            Global().setNewFileName(
-                                "${textKeyController.text}.${Global().getFileInfo(Global().items[index].value, "name").split(".").last}",
-                                index)),
-                      );
+                      await filePickService.renameFile(
+                          Global().items[index].key as File,
+                          "${textKeyController.text}.${Global().getFileInfo(Global().items[index].value, "name").split(".").last}");
                     }
                     textKeyController.clear();
                     Navigator.of(context).pop(true);
+                  },
+                  child: const Text("Submit"),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget addNewFolderDialog() {
+    return Dialog(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: Colors.grey.shade900,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Write Folder Name:",
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15,
+              vertical: 12,
+            ),
+            child: TextField(
+              textAlign: TextAlign.center,
+              controller: folderNameController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    folderNameController.clear();
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (folderNameController.text.isNotEmpty) {
+                      filePickService.createFolderInGivenPath(
+                        folderNameController.text,
+                        Global().currentPath,
+                        context,
+                      );
+                    }
+                    folderNameController.clear();
+                    Navigator.of(context)
+                        .pop(folderNameController.text.isNotEmpty);
                   },
                   child: const Text("Submit"),
                 ),
@@ -822,8 +1048,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    await filePickService.getDir();
-
+                    filePickService.getDir();
                     Navigator.of(context).pop(true);
                   },
                   child: const Text("Dir Info"),
@@ -877,21 +1102,19 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                       var selectedPath =
                           await Global().getDirectoryToExportMediaFile();
                       Preferences().setExportPath = selectedPath;
-                      print(
+                      debugPrint(
                           "set export path worked, selected path: $selectedPath");
                     }
                     if (Preferences().getExportPath != "none") {
                       Preferences().setIsExportPathSelected = true;
-                      filePickService.moveFile(
-                        File(Global().items[index].key),
+                      await filePickService.moveFile(
+                        File(Global().items[index].key.path),
                         (await filePickService.joinFilePaths(
                                 Preferences().getExportPath,
-                                Global().items[index].key.split("/").last))
+                                Global().items[index].key.path.split("/").last))
                             .path,
                       );
-                      await storageService
-                          .deleteSecureData(Global().items[index]);
-                      print("move the file to selected path worked");
+                      debugPrint("move the file to selected path worked");
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Export location is not selected!'),
@@ -902,14 +1125,68 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                   child: const Text("Export"),
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    await storageService
-                        .deleteSecureData(Global().items[index]);
-                    await filePickService
-                        .deleteFile(File(Global().items[index].key));
-                    Navigator.of(context).pop(true);
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) => deleteSelectedFileDialog(
+                            Global().items[index].key.path)).then((value) {
+                      if (value) {
+                        Navigator.of(context).pop(true);
+                      }
+                    });
                   },
                   child: const Text("Delete"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("Cancel"),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget deleteSelectedFileDialog(String path) {
+    return Dialog(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: Colors.grey.shade900,
+            child: Wrap(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Are you sure you want to delete this file? This cannot be undone.",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    await filePickService.deleteFile(File(path));
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text("ACCEPT",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText2!
+                          .copyWith(color: Colors.red)),
                 ),
                 ElevatedButton(
                   onPressed: () {

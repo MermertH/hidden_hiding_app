@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
-import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
 import 'dart:math';
 
 import 'package:video_thumbnail/video_thumbnail.dart';
@@ -11,20 +10,21 @@ class Global {
   static final Global _instance = Global._internal();
   factory Global() => _instance;
   Global._internal();
-  var storageService = StorageService();
 
   List<StorageItem> items = [];
 
-  dynamic getFileInfo(String fileData, String dataType) {
+  String currentPath = "";
+
+  dynamic getFileInfo(List<String> fileData, String dataType) {
     switch (dataType) {
       case "name":
-        return fileData.split(",")[0];
+        return fileData[0];
       case "extension":
-        return fileData.split(",")[1];
+        return fileData[1];
       case "size":
-        return fileData.split(",")[2];
+        return fileData[2];
       case "date":
-        return DateTime.parse(fileData.split(",")[3]);
+        return DateTime.parse(fileData[3]);
       default:
         return "Not Found";
     }
@@ -33,32 +33,26 @@ class Global {
   List<StorageItem> applySelectedSort(List<StorageItem> list, String sortType) {
     switch (sortType) {
       case "A_Z":
-        list.sort((a, b) => a.value
-            .split(",")[0]
-            .toLowerCase()
-            .compareTo(b.value.split(",")[0].toLowerCase()));
+        list.sort((a, b) =>
+            a.value[0].toLowerCase().compareTo(b.value[0].toLowerCase()));
         return list;
       case "Z_A":
-        list.sort((a, b) => a.value
-            .split(",")[0]
-            .toLowerCase()
-            .compareTo(b.value..split(",")[0].toLowerCase()));
+        list.sort((a, b) =>
+            a.value[0].toLowerCase().compareTo(b.value[0].toLowerCase()));
         return list.reversed.toList();
       case "firstDate":
-        list.sort(
-            (a, b) => a.value.split(",")[3].compareTo(b.value.split(",")[3]));
+        list.sort((a, b) => a.value[3].compareTo(b.value[3]));
         return list.reversed.toList();
       case "lastDate":
-        list.sort(
-            (a, b) => a.value.split(",")[3].compareTo(b.value.split(",")[3]));
+        list.sort((a, b) => a.value[3].compareTo(b.value[3]));
         return list;
       case "sizeAscending":
-        list.sort((a, b) => double.parse(a.value.split(",")[2])
-            .compareTo(double.parse(b.value.split(",")[2])));
+        list.sort((a, b) =>
+            double.parse(a.value[2]).compareTo(double.parse(b.value[2])));
         return list;
       case "sizeDescending":
-        list.sort((a, b) => double.parse(a.value.split(",")[2])
-            .compareTo(double.parse(b.value.split(",")[2])));
+        list.sort((a, b) =>
+            double.parse(a.value[2]).compareTo(double.parse(b.value[2])));
         return list.reversed.toList();
       default:
         return list;
@@ -77,7 +71,7 @@ class Global {
           .toList();
       return list
           .where((listItem) => activeExtensionFilters.any((extension) =>
-              extension.contains(listItem.value.split(",")[0].split(".").last)))
+              extension.contains(listItem.value[0].split(".").last)))
           .toList();
     }
     return list;
@@ -88,7 +82,7 @@ class Global {
       video: path,
       imageFormat: ImageFormat.JPEG,
       maxWidth: 0,
-      quality: 25,
+      quality: 10,
     );
     return uint8list!;
   }
@@ -97,10 +91,6 @@ class Global {
     const suffixes = ["b", "kB", "MB", "GB", "TB"];
     var i = (log(bytes) / log(1024)).floor();
     return ((bytes / pow(1024, i)).toStringAsFixed(decimals)) + suffixes[i];
-  }
-
-  String setNewFileName(String name, int index) {
-    return "$name,${Global().getFileInfo(Global().items[index].value, "extension")},${Global().getFileInfo(Global().items[index].value, "size")},${Global().getFileInfo(Global().items[index].value, "date")}";
   }
 
   Future<String> getDirectoryToExportMediaFile() async {

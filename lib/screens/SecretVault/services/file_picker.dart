@@ -1,39 +1,49 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
-import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
 import 'package:lecle_flutter_absolute_path/lecle_flutter_absolute_path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 class FilePickerService {
-  var storageService = StorageService();
-
-  // Get App File Location
+  // Get App Hidden File Location
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
 
-  Future<String> get _safeLocalPath async {
-    final directory = await getExternalStorageDirectory();
-    return directory!.path;
-  }
-
   // Create Media Folder in App Location
-  Future<Directory> _createNFolder() async {
+  Future<Directory> createNFolder() async {
     const folderName = "MediaFiles";
-    final path = Directory("${await _safeLocalPath}/$folderName");
+    final path = Directory("${await _localPath}/$folderName");
     if ((await path.exists())) {
       debugPrint("exist");
-      debugPrint("created folder location: ${path.path}");
+      // debugPrint("created folder location: ${path.path}");
       return path;
     } else {
       debugPrint("not exist");
       path.create();
-      await addNewFileToGivenPath(path.path, ".nomedia");
       debugPrint("created folder location: ${path.path}");
       return path;
+    }
+  }
+
+  // Create Folder In Given Path
+  Future<void> createFolderInGivenPath(
+      String folderName, String currentPath, BuildContext context) async {
+    print("new folder name: $folderName");
+    final path = Directory("$currentPath/$folderName");
+    if ((await path.exists())) {
+      debugPrint("exist");
+      debugPrint("this folder already exists: ${path.path}");
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('This folder already exists!'),
+      ));
+    } else {
+      debugPrint("not exist");
+      path.create();
+      debugPrint("created folder location: ${path.path}");
     }
   }
 
@@ -62,14 +72,11 @@ class FilePickerService {
   }
 
   // Rename File
-  Future<File> renameFile(File sourceFile, String newPath) async {
-    try {
-      return await sourceFile.rename(newPath);
-    } on FileSystemException catch (e) {
-      debugPrint("the rename file error was: $e");
-      return File(
-          sourceFile.path); // return same path when rename file is failed
-    }
+  Future<File> renameFile(File file, String newFileName) {
+    var path = file.path;
+    var lastSeparator = path.lastIndexOf(Platform.pathSeparator);
+    var newPath = path.substring(0, lastSeparator + 1) + newFileName;
+    return file.rename(newPath);
   }
 
   // Delete file from Gallery
@@ -90,7 +97,7 @@ class FilePickerService {
 
   // Delete files from app location
   Future<void> deleteFilesFormApp() async {
-    var mediaFilesDirectory = await _createNFolder();
+    var mediaFilesDirectory = await createNFolder();
     var appMediaFilesList =
         mediaFilesDirectory.listSync(recursive: true, followLinks: false);
     try {
@@ -107,15 +114,14 @@ class FilePickerService {
   // Multiple Files With Extension Filter
   Future<void> getFilesWithFilter() async {
     String absolutePath = "";
-    String fileDetails = "";
-    var mediaFilesDirectory = await _createNFolder();
+    var mediaFilesDirectory = await createNFolder();
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: ['jpg', 'png', 'gif', 'mp4'],
     );
     if (result != null) {
-      List<Future<StorageItem>> files = result.files.map((file) async {
+      for (PlatformFile file in result.files) {
         PlatformFile fileData = file;
         absolutePath = (await LecleFlutterAbsolutePath.getAbsolutePath(
             fileData.identifier!))!;
@@ -129,29 +135,47 @@ class FilePickerService {
               modifiedFile.path.split("/").last,
             ))
                 .path);
-        fileDetails =
-            "${modifiedFile.path.split("/").last},${fileData.extension},${fileData.size},${DateTime.now()}";
-        return StorageItem(modifiedFile.path, fileDetails);
-      }).toList();
-      for (var storageItem in files) {
-        await storageService.writeSecureData(await storageItem);
       }
     } else {
       // User canceled the picker
     }
   }
 
+  // Get Dir Media items
+
   Future<void> getDir() async {
-    //TODO delete after vault is done
     List<FileSystemEntity> _folders;
-    List<FileSystemEntity> _safeFolders;
-    final directory = await _localPath;
-    final topLevelStorageDir = await _safeLocalPath;
-    final myDir = Directory('$directory/');
-    final safeDir = Directory('$topLevelStorageDir/');
-    _folders = myDir.listSync(recursive: true, followLinks: false);
-    _safeFolders = safeDir.listSync(recursive: true, followLinks: true);
-    debugPrint(topLevelStorageDir);
-    debugPrint("$_safeFolders");
+    final directory = await createNFolder();
+    _folders = directory.listSync(recursive: true, followLinks: false);
+    debugPrint("$_folders");
+  }
+
+  // Get Media to show in UI
+  Future<List<StorageItem>> getDirMedia(Directory pathDirectory) async {
+    List<FileSystemEntity> folders = [];
+    print("current path directory to be listed: ${pathDirectory.path}");
+    final directory = pathDirectory;
+    folders = directory.listSync(recursive: true, followLinks: false);
+    List<StorageItem> files = folders.map((item) {
+      if (item.statSync().type == FileSystemEntityType.directory ||
+          item.statSync().type == FileSystemEntityType.file) {
+        print(p.extension(item.path));
+        List<String> mediaData = [];
+        mediaData.add(item.path.split("/").last);
+        mediaData.add(item.path.split(".").last.isNotEmpty
+            ? item.path.split(".").last
+            : '');
+        mediaData.add(item.statSync().size.toString());
+        mediaData.add(item.statSync().accessed.toString());
+        return StorageItem(item, mediaData);
+      } else {
+        FileSystemEntity dummy = File("null");
+        return StorageItem(dummy, []);
+      }
+    }).toList();
+    files.removeWhere((element) =>
+        element.key.path == "null" &&
+        element.value.isEmpty); // remove dummy files
+    return files;
   }
 }

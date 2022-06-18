@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
-import 'package:hidden_hiding_app/screens/SecretVault/services/storage_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -12,15 +13,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  var storageService = StorageService();
   var filePickService = FilePickerService();
   List<Map<String, dynamic>> buttons = [
-    {
-      "tag": "language",
-      "leading": const Icon(Icons.language),
-      "title": const Text("Change Language"),
-      "trailing": const SizedBox(),
-    },
     {
       "tag": "security",
       "leading": const Icon(Icons.security),
@@ -46,6 +40,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       "trailing": const SizedBox(),
     },
   ];
+
+  void getStorageItems() async {
+    Global().items =
+        await filePickService.getDirMedia(Directory(Global().currentPath));
+    Global().items = Global().applyExtensionFilter(Global().items);
+    Global().items =
+        Global().applySelectedSort(Global().items, Preferences().getSortData);
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,8 +90,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         showDialog(
                 context: context, builder: (context) => deleteAllDataDialog())
             .then((value) => value ? getStorageItems() : false);
-        break;
-      case "language":
         break;
       case "export":
         var selectedPath = await Global().getDirectoryToExportMediaFile();
@@ -135,7 +136,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    await storageService.deleteAllSecureData();
                     await filePickService.deleteFilesFormApp();
                     Navigator.of(context).pop(true);
                   },
@@ -157,17 +157,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
-  }
-
-  void getStorageItems() async {
-    Global().items = await storageService.readAllSecureData();
-    Global()
-        .items
-        .sort((a, b) => a.value.toLowerCase().compareTo(b.value.toLowerCase()));
-    print(Global().items.length);
-    for (var element in Global().items) {
-      print(element.key);
-    }
-    setState(() {});
   }
 }
