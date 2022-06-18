@@ -20,6 +20,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
   var textKeyController = TextEditingController();
   var folderNameController = TextEditingController();
   bool _isExpanded = false;
+  bool _islabelVisible = false;
   bool isFilterMode = false;
   bool isOnce = true;
 
@@ -79,52 +80,103 @@ class _VaultMainScreenState extends State<VaultMainScreen>
           return Stack(
             children: [
               AnimatedPositioned(
+                onEnd: () {
+                  setState(() {
+                    if (_isExpanded) {
+                      _islabelVisible = true;
+                    }
+                  });
+                },
                 bottom: _isExpanded ? 160 : 0,
-                duration: const Duration(milliseconds: 300),
-                child: FloatingActionButton(
-                  backgroundColor: Colors.greenAccent[700],
-                  heroTag: "createFolderButton",
-                  onPressed: () {
-                    setState(() {
-                      showDialog(
-                              context: context,
-                              builder: (context) => addNewFolderDialog())
-                          .then((value) => value ? getStorageItems() : false);
-                      //TODO create folder dialog
-                    });
-                  },
-                  child: const Icon(
-                    Icons.create_new_folder,
-                    color: Colors.black,
-                    size: 24,
-                  ),
+                duration: const Duration(milliseconds: 150),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    _islabelVisible
+                        ? Positioned(
+                            left: -130,
+                            bottom: 10,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade700,
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text("Create Folder"),
+                              ),
+                            ),
+                          )
+                        : const SizedBox(),
+                    FloatingActionButton(
+                      backgroundColor: Colors.greenAccent[700],
+                      heroTag: "createFolderButton",
+                      onPressed: () {
+                        setState(() {
+                          showDialog(
+                                  context: context,
+                                  builder: (context) => addNewFolderDialog())
+                              .then(
+                                  (value) => value ? getStorageItems() : false);
+                        });
+                      },
+                      child: const Icon(
+                        Icons.create_new_folder_sharp,
+                        color: Colors.black,
+                        size: 24,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               AnimatedPositioned(
                 bottom: _isExpanded ? 80 : 0,
-                duration: const Duration(milliseconds: 300),
-                child: FloatingActionButton(
-                  backgroundColor: Colors.yellow,
-                  heroTag: "addButton",
-                  onPressed: () {
-                    setState(() {
-                      showDialog(
-                              context: context,
-                              builder: (context) => addFileDialog())
-                          .then((value) => value ? getStorageItems() : false);
-                    });
-                  },
-                  child: const Icon(
-                    Icons.add,
-                    color: Colors.black,
-                    size: 24,
-                  ),
+                duration: const Duration(milliseconds: 150),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    _islabelVisible
+                        ? Positioned(
+                            left: -110,
+                            bottom: 10,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade700,
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text("Add Media"),
+                              ),
+                            ),
+                          )
+                        : const SizedBox(),
+                    FloatingActionButton(
+                      backgroundColor: Colors.yellow,
+                      heroTag: "addButton",
+                      onPressed: () {
+                        setState(() {
+                          showDialog(
+                                  context: context,
+                                  builder: (context) => addFileDialog())
+                              .then(
+                                  (value) => value ? getStorageItems() : false);
+                        });
+                      },
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.black,
+                        size: 24,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 160),
+                  const SizedBox(
+                    height: 160,
+                  ),
                   FloatingActionButton(
                     backgroundColor:
                         !_isExpanded ? Colors.greenAccent[700]! : Colors.red,
@@ -137,6 +189,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                     onPressed: () {
                       setState(() {
                         _isExpanded = !_isExpanded;
+                        _islabelVisible = false;
                       });
                     },
                   ),
@@ -772,7 +825,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                               aspectRatio: 4 / 3,
                               child: Icon(
                                 Icons.folder,
-                                size: 35,
+                                size: 50,
                               )),
                           Container(
                             color: Colors.black.withOpacity(0.4),
@@ -928,9 +981,12 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                 ElevatedButton(
                   onPressed: () async {
                     if (textKeyController.text.isNotEmpty) {
-                      await filePickService.renameFile(
-                          Global().items[index].key as File,
-                          "${textKeyController.text}.${Global().getFileInfo(Global().items[index].value, "name").split(".").last}");
+                      await filePickService.renameFileOrFolder(
+                          Global().items[index].key,
+                          Global().items[index].key.statSync().type ==
+                                  FileSystemEntityType.file
+                              ? "${textKeyController.text}.${Global().getFileInfo(Global().items[index].value, "extension")}"
+                              : textKeyController.text);
                     }
                     textKeyController.clear();
                     Navigator.of(context).pop(true);
@@ -991,17 +1047,18 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                   child: const Text("Cancel"),
                 ),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    bool isValid = false;
                     if (folderNameController.text.isNotEmpty) {
-                      filePickService.createFolderInGivenPath(
+                      await filePickService.createFolderInGivenPath(
                         folderNameController.text,
                         Global().currentPath,
                         context,
                       );
+                      isValid = true;
                     }
                     folderNameController.clear();
-                    Navigator.of(context)
-                        .pop(folderNameController.text.isNotEmpty);
+                    Navigator.of(context).pop(isValid);
                   },
                   child: const Text("Submit"),
                 ),

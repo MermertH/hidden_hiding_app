@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:lecle_flutter_absolute_path/lecle_flutter_absolute_path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 
 class FilePickerService {
   // Get App Hidden File Location
@@ -32,7 +31,6 @@ class FilePickerService {
   // Create Folder In Given Path
   Future<void> createFolderInGivenPath(
       String folderName, String currentPath, BuildContext context) async {
-    print("new folder name: $folderName");
     final path = Directory("$currentPath/$folderName");
     if ((await path.exists())) {
       debugPrint("exist");
@@ -72,11 +70,14 @@ class FilePickerService {
   }
 
   // Rename File
-  Future<File> renameFile(File file, String newFileName) {
-    var path = file.path;
+  Future<FileSystemEntity> renameFileOrFolder(
+      FileSystemEntity media, String newFileName) async {
+    var path = media.path;
     var lastSeparator = path.lastIndexOf(Platform.pathSeparator);
     var newPath = path.substring(0, lastSeparator + 1) + newFileName;
-    return file.rename(newPath);
+    return media.statSync().type == FileSystemEntityType.file
+        ? (media as File).renameSync(newPath)
+        : (media as Directory).renameSync(newPath);
   }
 
   // Delete file from Gallery
@@ -153,13 +154,12 @@ class FilePickerService {
   // Get Media to show in UI
   Future<List<StorageItem>> getDirMedia(Directory pathDirectory) async {
     List<FileSystemEntity> folders = [];
-    print("current path directory to be listed: ${pathDirectory.path}");
+    debugPrint("current path directory to be listed: ${pathDirectory.path}");
     final directory = pathDirectory;
     folders = directory.listSync(recursive: true, followLinks: false);
     List<StorageItem> files = folders.map((item) {
       if (item.statSync().type == FileSystemEntityType.directory ||
           item.statSync().type == FileSystemEntityType.file) {
-        print(p.extension(item.path));
         List<String> mediaData = [];
         mediaData.add(item.path.split("/").last);
         mediaData.add(item.path.split(".").last.isNotEmpty
