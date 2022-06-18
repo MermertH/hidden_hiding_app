@@ -522,12 +522,17 @@ class _VaultMainScreenState extends State<VaultMainScreen>
               onLongPress: () {
                 if (Global().items[index].key.statSync().type ==
                     FileSystemEntityType.directory) {
-                  //TODO logic here
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return exportOrDeleteMediaDialog(index);
+                    },
+                  ).then((value) => value ? getStorageItems() : false);
                 } else {
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return exportOrDeleteMediaFileDialog(index);
+                      return exportOrDeleteMediaDialog(index);
                     },
                   ).then((value) => value ? getStorageItems() : false);
                 }
@@ -682,12 +687,17 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                 onLongPress: () async {
                   if (Global().items[index].key.statSync().type ==
                       FileSystemEntityType.directory) {
-                    //TODO logic here
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return exportOrDeleteMediaDialog(index);
+                      },
+                    ).then((value) => value ? getStorageItems() : false);
                   } else {
                     showDialog(
                       context: context,
                       builder: (context) {
-                        return exportOrDeleteMediaFileDialog(index);
+                        return exportOrDeleteMediaDialog(index);
                       },
                     ).then((value) => value ? getStorageItems() : value);
                   }
@@ -1124,7 +1134,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
     );
   }
 
-  Widget exportOrDeleteMediaFileDialog(int index) {
+  Widget exportOrDeleteMediaDialog(int index) {
     return Dialog(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1153,40 +1163,50 @@ class _VaultMainScreenState extends State<VaultMainScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    if (!Preferences().getIsExportPathSelected) {
-                      var selectedPath =
-                          await Global().getDirectoryToExportMediaFile();
-                      Preferences().setExportPath = selectedPath;
-                      debugPrint(
-                          "set export path worked, selected path: $selectedPath");
-                    }
-                    if (Preferences().getExportPath != "none") {
-                      Preferences().setIsExportPathSelected = true;
-                      await filePickService.moveFile(
-                        File(Global().items[index].key.path),
-                        (await filePickService.joinFilePaths(
-                                Preferences().getExportPath,
-                                Global().items[index].key.path.split("/").last))
-                            .path,
-                      );
-                      debugPrint("move the file to selected path worked");
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Export location is not selected!'),
-                      ));
-                    }
-                    Navigator.of(context).pop(true);
-                  },
-                  child: const Text("Export"),
-                ),
+                if (Global().items[index].key.statSync().type ==
+                    FileSystemEntityType.file)
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (!Preferences().getIsExportPathSelected) {
+                        var selectedPath =
+                            await Global().getDirectoryToExportMediaFile();
+                        Preferences().setExportPath = selectedPath;
+                        debugPrint(
+                            "set export path worked, selected path: $selectedPath");
+                      }
+                      if (Preferences().getExportPath != "none") {
+                        Preferences().setIsExportPathSelected = true;
+                        await filePickService.moveFile(
+                          File(Global().items[index].key.path),
+                          (await filePickService.joinFilePaths(
+                                  Preferences().getExportPath,
+                                  Global()
+                                      .items[index]
+                                      .key
+                                      .path
+                                      .split("/")
+                                      .last))
+                              .path,
+                        );
+                        debugPrint("move the file to selected path worked");
+                      } else {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('Export location is not selected!'),
+                        ));
+                      }
+                      Navigator.of(context).pop(true);
+                    },
+                    child: const Text("Export"),
+                  ),
                 ElevatedButton(
                   onPressed: () {
                     showDialog(
                         context: context,
                         builder: (context) => deleteSelectedFileDialog(
-                            Global().items[index].key.path)).then((value) {
+                              Global().items[index].key.path,
+                              index,
+                            )).then((value) {
                       if (value) {
                         Navigator.of(context).pop(true);
                       }
@@ -1208,7 +1228,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
     );
   }
 
-  Widget deleteSelectedFileDialog(String path) {
+  Widget deleteSelectedFileDialog(String path, int index) {
     return Dialog(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1236,7 +1256,11 @@ class _VaultMainScreenState extends State<VaultMainScreen>
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    await filePickService.deleteFile(File(path));
+                    await filePickService.deleteMedia(
+                        Global().items[index].key.statSync().type ==
+                                FileSystemEntityType.file
+                            ? File(path)
+                            : Directory(path));
                     Navigator.of(context).pop(true);
                   },
                   child: Text("ACCEPT",

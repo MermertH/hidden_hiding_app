@@ -81,11 +81,11 @@ class FilePickerService {
   }
 
   // Delete file from Gallery
-  Future<void> deleteFile(File file) async {
+  Future<void> deleteMedia(FileSystemEntity media) async {
     try {
-      if (await file.exists()) {
+      if (await media.exists()) {
         debugPrint("entered delete function");
-        await file.delete(recursive: true);
+        media.deleteSync(recursive: true);
       } else {
         debugPrint("no file found to delete");
       }
@@ -103,7 +103,10 @@ class FilePickerService {
         mediaFilesDirectory.listSync(recursive: true, followLinks: false);
     try {
       for (var userMediaToDelete in appMediaFilesList) {
-        await deleteFile(File(userMediaToDelete.path));
+        await deleteMedia(
+            userMediaToDelete.statSync().type == FileSystemEntityType.file
+                ? File(userMediaToDelete.path)
+                : Directory(userMediaToDelete.path));
       }
     } catch (e) {
       debugPrint("tried but failed with error!");
@@ -127,7 +130,7 @@ class FilePickerService {
         absolutePath = (await LecleFlutterAbsolutePath.getAbsolutePath(
             fileData.identifier!))!;
         debugPrint("absolute file path from uri: $absolutePath");
-        await deleteFile(File(absolutePath));
+        await deleteMedia(File(absolutePath));
         File modifiedFile = File(file.path!);
         modifiedFile = await moveFile(
             modifiedFile,
