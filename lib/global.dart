@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:hidden_hiding_app/preferences.dart';
@@ -31,29 +32,56 @@ class Global {
   }
 
   List<StorageItem> applySelectedSort(List<StorageItem> list, String sortType) {
+    List<StorageItem> folderList = [];
+    List<StorageItem> fileList = [];
+    folderList = list
+        .where((folderCandidate) =>
+            folderCandidate.key.statSync().type ==
+            FileSystemEntityType.directory)
+        .toList();
+    fileList = list
+        .where((fileCandidate) =>
+            fileCandidate.key.statSync().type == FileSystemEntityType.file)
+        .toList();
     switch (sortType) {
       case "A_Z":
-        list.sort((a, b) =>
+        folderList.sort((a, b) =>
             a.value[0].toLowerCase().compareTo(b.value[0].toLowerCase()));
+        fileList.sort((a, b) =>
+            a.value[0].toLowerCase().compareTo(b.value[0].toLowerCase()));
+        list = [...folderList, ...fileList];
         return list;
       case "Z_A":
-        list.sort((a, b) =>
+        folderList.sort((a, b) =>
             a.value[0].toLowerCase().compareTo(b.value[0].toLowerCase()));
-        return list.reversed.toList();
+        fileList.sort((a, b) =>
+            a.value[0].toLowerCase().compareTo(b.value[0].toLowerCase()));
+        list = [...folderList.reversed.toList(), ...fileList.reversed.toList()];
+        return list;
       case "firstDate":
-        list.sort((a, b) => a.value[3].compareTo(b.value[3]));
-        return list.reversed.toList();
+        folderList.sort((a, b) => a.value[3].compareTo(b.value[3]));
+        fileList.sort((a, b) => a.value[3].compareTo(b.value[3]));
+        list = [...folderList.reversed.toList(), ...fileList.reversed.toList()];
+        return list;
       case "lastDate":
-        list.sort((a, b) => a.value[3].compareTo(b.value[3]));
+        folderList.sort((a, b) => a.value[3].compareTo(b.value[3]));
+        fileList.sort((a, b) => a.value[3].compareTo(b.value[3]));
+        list = [...folderList, ...fileList];
         return list;
       case "sizeAscending":
-        list.sort((a, b) =>
+        folderList.sort((a, b) =>
             double.parse(a.value[2]).compareTo(double.parse(b.value[2])));
+        fileList.sort((a, b) =>
+            double.parse(a.value[2]).compareTo(double.parse(b.value[2])));
+        list = [...folderList, ...fileList];
         return list;
       case "sizeDescending":
-        list.sort((a, b) =>
+        folderList.sort((a, b) =>
             double.parse(a.value[2]).compareTo(double.parse(b.value[2])));
-        return list.reversed.toList();
+        fileList.sort((a, b) =>
+            double.parse(a.value[2]).compareTo(double.parse(b.value[2])));
+        list = [...folderList.reversed.toList(), ...fileList.reversed.toList()];
+        return list;
       default:
         return list;
     }
