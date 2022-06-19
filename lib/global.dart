@@ -4,8 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'dart:math';
-
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:video_compress/video_compress.dart';
 
 class Global {
   static final Global _instance = Global._internal();
@@ -105,23 +104,22 @@ class Global {
     return list;
   }
 
-  Future<List<StorageItem>> getVideoThumbnails(List<StorageItem> list) async {
-    List<StorageItem> videoFiles = [];
-    List<StorageItem> otherMedia = [];
-    videoFiles = list.where((media) => media.value[1] == "mp4").toList();
-    otherMedia = list.where((media) => media.value[1] != "mp4").toList();
-    for (var video in videoFiles) {
-      video.thumbnail = await videoThumbnail(video.key.path);
-    }
-    return [...videoFiles, ...otherMedia];
-  }
+  // Future<List<StorageItem>> getVideoThumbnails(List<StorageItem> list) async {
+  //   List<StorageItem> videoFiles = [];
+  //   List<StorageItem> otherMedia = [];
+  //   videoFiles = list.where((media) => media.value[1] == "mp4").toList();
+  //   otherMedia = list.where((media) => media.value[1] != "mp4").toList();
+  //   for (var video in videoFiles) {
+  //     video.thumbnail = await videoThumbnail(video.key.path);
+  //   }
+  //   return [...videoFiles, ...otherMedia];
+  // }
 
   Future<Uint8List> videoThumbnail(String path) async {
-    final uint8list = await VideoThumbnail.thumbnailData(
-      video: path,
-      imageFormat: ImageFormat.JPEG,
-      quality: 100,
-    );
+    final uint8list = await VideoCompress.getByteThumbnail(path,
+        quality: 100, // default(100)
+        position: -1 // default(-1)
+        );
     return uint8list!;
   }
 

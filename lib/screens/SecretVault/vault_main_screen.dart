@@ -53,7 +53,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
       Global().items =
           await filePickService.getDirMedia(Directory(Global().currentPath));
       Global().items = Global().applyExtensionFilter(Global().items);
-      Global().items = await Global().getVideoThumbnails(Global().items);
+      // Global().items = await Global().getVideoThumbnails(Global().items);
       Global().items =
           Global().applySelectedSort(Global().items, Preferences().getSortData);
       setState(() {});
@@ -628,9 +628,25 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                                   alignment: Alignment.center,
                                   child: AspectRatio(
                                     aspectRatio: 4 / 3,
-                                    child: Image.memory(
-                                      Global().items[index].thumbnail!,
-                                      fit: BoxFit.cover,
+                                    child: FutureBuilder<Uint8List>(
+                                      future: Global().videoThumbnail(
+                                          Global().items[index].key.path),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                                ConnectionState.done &&
+                                            snapshot.hasData) {
+                                          return Image.memory(
+                                            snapshot.data!,
+                                            fit: BoxFit.cover,
+                                          );
+                                        } else {
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.green[700],
+                                            ),
+                                          );
+                                        }
+                                      },
                                     ),
                                   ),
                                 ),
@@ -821,9 +837,25 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                             children: [
                               AspectRatio(
                                 aspectRatio: 4 / 3,
-                                child: Image.memory(
-                                  Global().items[index].thumbnail!,
-                                  fit: BoxFit.cover,
+                                child: FutureBuilder<Uint8List>(
+                                  future: Global().videoThumbnail(
+                                      Global().items[index].key.path),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                            ConnectionState.done &&
+                                        snapshot.hasData) {
+                                      return Image.memory(
+                                        snapshot.data!,
+                                        fit: BoxFit.cover,
+                                      );
+                                    } else {
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          color: Colors.green[700],
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                               ),
                               const Positioned(

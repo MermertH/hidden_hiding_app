@@ -6,7 +6,6 @@ import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:lecle_flutter_absolute_path/lecle_flutter_absolute_path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 
 class FilePickerService {
   // Get App Hidden File Location
@@ -163,7 +162,7 @@ class FilePickerService {
     final directory = pathDirectory;
     folders = directory.listSync(followLinks: false);
     List<StorageItem> files = folders.map((item) {
-      Uint8List? thumbnailData;
+      // Uint8List? thumbnailData;
       if (item.statSync().type == FileSystemEntityType.directory ||
           item.statSync().type == FileSystemEntityType.file) {
         List<String> mediaData = [];
@@ -173,8 +172,7 @@ class FilePickerService {
             : '');
         mediaData.add(item.statSync().size.toString());
         mediaData.add(item.statSync().accessed.toString());
-        return StorageItem(
-            key: item, value: mediaData, thumbnail: thumbnailData);
+        return StorageItem(key: item, value: mediaData);
       } else {
         FileSystemEntity dummy = File("null");
         return StorageItem(key: dummy, value: []);
