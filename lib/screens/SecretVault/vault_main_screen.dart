@@ -88,7 +88,9 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                 },
                 icon: const Icon(Icons.arrow_back),
               ),
-        title: const Text("Hidden Vault"),
+        title: Text(isDefaultPath
+            ? "Hidden Vault"
+            : Global().currentPath.split("/").last),
         centerTitle: true,
         actions: [
           GestureDetector(
@@ -628,7 +630,9 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                           )),
                     ),
               title: Text(
-                  Global().getFileInfo(Global().items[index].value, "name")),
+                Global().getFileInfo(Global().items[index].value, "name"),
+                style: Theme.of(context).textTheme.headline1,
+              ),
               subtitle: Global().items[index].key.statSync().type ==
                       FileSystemEntityType.file
                   ? Text(Global.getFileSizeFormat(
@@ -821,7 +825,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                                             overflow: TextOverflow.ellipsis,
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .bodyText1,
+                                                .headline1,
                                           ),
                                         ),
                                         Flexible(
@@ -852,12 +856,16 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                     : Stack(
                         alignment: AlignmentDirectional.bottomCenter,
                         children: [
-                          const AspectRatio(
-                              aspectRatio: 4 / 3,
-                              child: Icon(
+                          AspectRatio(
+                            aspectRatio: 4 / 3,
+                            child: Container(
+                              color: Colors.transparent,
+                              child: const Icon(
                                 Icons.folder,
                                 size: 50,
-                              )),
+                              ),
+                            ),
+                          ),
                           Container(
                             color: Colors.black.withOpacity(0.4),
                             child: Row(
@@ -871,7 +879,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                                     textAlign: TextAlign.center,
                                     overflow: TextOverflow.ellipsis,
                                     style:
-                                        Theme.of(context).textTheme.bodyText1,
+                                        Theme.of(context).textTheme.headline1,
                                   ),
                                 ),
                                 Flexible(

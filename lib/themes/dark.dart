@@ -21,6 +21,10 @@ class DarkTheme {
               fontSize: 15,
               color: Colors.white,
             ),
+            headline1: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
             button: TextStyle(
               fontSize: 17,
               color: Colors.white,

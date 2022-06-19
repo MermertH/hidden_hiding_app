@@ -81,8 +81,7 @@ class Global {
     final uint8list = await VideoThumbnail.thumbnailData(
       video: path,
       imageFormat: ImageFormat.JPEG,
-      maxWidth: 0,
-      quality: 10,
+      quality: 100,
     );
     return uint8list!;
   }
