@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
@@ -45,29 +46,63 @@ class _VaultMainScreenState extends State<VaultMainScreen>
   }
 
   void getStorageItems() async {
-    await getInitDir();
-    Global().items =
-        await filePickService.getDirMedia(Directory(Global().currentPath));
-    Global().items = Global().applyExtensionFilter(Global().items);
-    Global().items =
-        Global().applySelectedSort(Global().items, Preferences().getSortData);
-    setState(() {});
+    if (await Permission.storage.status.isGranted &&
+        await Permission.manageExternalStorage.status.isGranted) {
+      await getInitDir();
+      Global().items =
+          await filePickService.getDirMedia(Directory(Global().currentPath));
+      Global().items = Global().applyExtensionFilter(Global().items);
+      Global().items =
+          Global().applySelectedSort(Global().items, Preferences().getSortData);
+      setState(() {});
+    }
   }
 
   void requestPermission() async {
-    var storagePermissionStatus = await Permission.storage.status;
-    if (!storagePermissionStatus.isGranted) {
-      await Permission.storage.request().then((permission) {
-        if (permission.isDenied || permission.isPermanentlyDenied) {
+    var externalStoragePermissionStatus =
+        await Permission.manageExternalStorage.status;
+    if (!externalStoragePermissionStatus.isGranted) {
+      await Permission.manageExternalStorage.request().then((permission) {
+        if (permission.isDenied ||
+            permission.isPermanentlyDenied ||
+            !permission.isGranted) {
+          print(
+              "manageExternalStorage isDenied:${permission.isDenied} isPermanentlyDenied: ${permission.isPermanentlyDenied}");
           // TODO warn user to accept, otherwise app wont work.
+        }
+      }).whenComplete(() async {
+        if (await Permission.storage.status.isGranted &&
+            await Permission.manageExternalStorage.status.isGranted) {
+          getStorageItems();
         }
       });
     }
 
-    var externalStoragePermissionStatus =
-        await Permission.manageExternalStorage.status;
-    if (!externalStoragePermissionStatus.isGranted) {
-      await Permission.manageExternalStorage.request();
+    var storagePermissionStatus = await Permission.storage.status;
+    if (!storagePermissionStatus.isGranted) {
+      await Permission.storage.request().then((permission) async {
+        if (permission.isPermanentlyDenied ||
+            !(await Permission.manageExternalStorage.status.isGranted)) {
+          print(
+              "storagePermissionStatus: isPermanentlyDenied: ${permission.isPermanentlyDenied}");
+          showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (context) {
+                return permissionWarningDialog(permission.isPermanentlyDenied,
+                    externalStoragePermissionStatus.isPermanentlyDenied);
+              }).then((value) {
+            if (!value) {
+              exit(0);
+            }
+          });
+        }
+      }).whenComplete(() async {
+        if (await Permission.storage.status.isGranted &&
+            await Permission.manageExternalStorage.status.isGranted) {
+          getStorageItems();
+        }
+      });
     }
   }
 
@@ -1154,6 +1189,58 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                     Navigator.of(context).pop(false);
                   },
                   child: const Text("Cancel"),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget permissionWarningDialog(
+      bool permanentlyDeniedStorage, bool permanentlyDeniedExternalStorage) {
+    print(
+        "permanentlyDeniedStorage: $permanentlyDeniedStorage permanentlyDeniedExternalStorage: $permanentlyDeniedExternalStorage");
+    return Dialog(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: Colors.grey.shade900,
+            child: Wrap(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "In order to use this application, required permissions must be given. ${permanentlyDeniedStorage || permanentlyDeniedExternalStorage ? "Please go to app permission settings and activate permissions manually" : ''}",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                if (!permanentlyDeniedStorage &&
+                    !permanentlyDeniedExternalStorage)
+                  ElevatedButton(
+                    onPressed: () async {
+                      requestPermission();
+                      Navigator.of(context).pop(true);
+                    },
+                    child: const Text("Permit"),
+                  ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text("Close App"),
                 ),
               ],
             ),
