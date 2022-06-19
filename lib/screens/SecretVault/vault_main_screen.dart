@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
@@ -16,7 +15,7 @@ class VaultMainScreen extends StatefulWidget {
 }
 
 class _VaultMainScreenState extends State<VaultMainScreen>
-    with SingleTickerProviderStateMixin {
+    with WidgetsBindingObserver {
   var filePickService = FilePickerService();
   var textKeyController = TextEditingController();
   var folderNameController = TextEditingController();
@@ -27,6 +26,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     requestPermission();
     getStorageItems();
     super.initState();
@@ -34,6 +34,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -65,11 +66,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
       await Permission.manageExternalStorage.request().then((permission) {
         if (permission.isDenied ||
             permission.isPermanentlyDenied ||
-            !permission.isGranted) {
-          print(
-              "manageExternalStorage isDenied:${permission.isDenied} isPermanentlyDenied: ${permission.isPermanentlyDenied}");
-          // TODO warn user to accept, otherwise app wont work.
-        }
+            !permission.isGranted) {}
       }).whenComplete(() async {
         if (await Permission.storage.status.isGranted &&
             await Permission.manageExternalStorage.status.isGranted) {
@@ -83,8 +80,6 @@ class _VaultMainScreenState extends State<VaultMainScreen>
       await Permission.storage.request().then((permission) async {
         if (permission.isPermanentlyDenied ||
             !(await Permission.manageExternalStorage.status.isGranted)) {
-          print(
-              "storagePermissionStatus: isPermanentlyDenied: ${permission.isPermanentlyDenied}");
           showDialog(
               barrierDismissible: false,
               context: context,
@@ -104,6 +99,17 @@ class _VaultMainScreenState extends State<VaultMainScreen>
         }
       });
     }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) return;
+
+    if (state == AppLifecycleState.paused) {
+      print("app is in the background"); // TODO hide app or close it
+    }
+    super.didChangeAppLifecycleState(state);
   }
 
   @override
@@ -175,7 +181,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                             bottom: 10,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade700,
+                                color: Colors.grey.shade900,
                               ),
                               child: const Padding(
                                 padding: EdgeInsets.all(8.0),
@@ -217,7 +223,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                             bottom: 10,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade700,
+                                color: Colors.grey.shade900,
                               ),
                               child: const Padding(
                                 padding: EdgeInsets.all(8.0),
@@ -622,21 +628,39 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                                 child: Stack(
                                   children: [
                                     Align(
-                                        alignment: Alignment.center,
-                                        child: AspectRatio(
-                                          aspectRatio: 4 / 3,
-                                          child: snapshot.hasData
-                                              ? Image.memory(
-                                                  snapshot.data! as Uint8List,
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : const Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    color: Colors.green,
-                                                  ),
+                                      alignment: Alignment.center,
+                                      child: AspectRatio(
+                                        aspectRatio: 4 / 3,
+                                        child: snapshot.hasError
+                                            ? Container(
+                                                color: Colors.transparent,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: const [
+                                                    Icon(
+                                                      Icons.folder_off,
+                                                      size: 35,
+                                                    ),
+                                                    Text("Data load failed!"),
+                                                  ],
                                                 ),
-                                        )),
+                                              )
+                                            : snapshot.connectionState ==
+                                                        ConnectionState.done &&
+                                                    snapshot.hasData
+                                                ? Image.memory(
+                                                    snapshot.data! as Uint8List,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : const Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      color: Colors.green,
+                                                    ),
+                                                  ),
+                                      ),
+                                    ),
                                     const Positioned(
                                       right: 0,
                                       top: 0,
@@ -829,15 +853,33 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                                 children: [
                                   AspectRatio(
                                     aspectRatio: 4 / 3,
-                                    child: snapshot.hasData
-                                        ? Image.memory(
-                                            snapshot.data! as Uint8List,
-                                            fit: BoxFit.cover,
+                                    child: snapshot.hasError
+                                        ? Container(
+                                            color: Colors.transparent,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: const [
+                                                Icon(
+                                                  Icons.folder_off,
+                                                  size: 35,
+                                                ),
+                                                Text("Data load failed!"),
+                                              ],
+                                            ),
                                           )
-                                        : const Center(
-                                            child: CircularProgressIndicator(
-                                            color: Colors.green,
-                                          )),
+                                        : snapshot.connectionState ==
+                                                    ConnectionState.done &&
+                                                snapshot.hasData
+                                            ? Image.memory(
+                                                snapshot.data! as Uint8List,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : const Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: Colors.green,
+                                                ),
+                                              ),
                                   ),
                                   const Positioned(
                                     right: 2,
@@ -1200,8 +1242,6 @@ class _VaultMainScreenState extends State<VaultMainScreen>
 
   Widget permissionWarningDialog(
       bool permanentlyDeniedStorage, bool permanentlyDeniedExternalStorage) {
-    print(
-        "permanentlyDeniedStorage: $permanentlyDeniedStorage permanentlyDeniedExternalStorage: $permanentlyDeniedExternalStorage");
     return Dialog(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
