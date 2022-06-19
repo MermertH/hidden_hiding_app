@@ -12,7 +12,7 @@ class Global {
   Global._internal();
 
   List<StorageItem> items = [];
-
+  bool isOnce = true;
   String currentPath = "";
 
   dynamic getFileInfo(List<String> fileData, String dataType) {

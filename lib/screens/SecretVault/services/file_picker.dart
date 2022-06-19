@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:lecle_flutter_absolute_path/lecle_flutter_absolute_path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -118,7 +119,7 @@ class FilePickerService {
   // Multiple Files With Extension Filter
   Future<void> getFilesWithFilter() async {
     String absolutePath = "";
-    var mediaFilesDirectory = await createNFolder();
+    var mediaFilesDirectory = Directory(Global().currentPath);
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -149,7 +150,7 @@ class FilePickerService {
 
   Future<void> getDir() async {
     List<FileSystemEntity> _folders;
-    final directory = await createNFolder();
+    final directory = Directory(Global().currentPath);
     _folders = directory.listSync(recursive: true, followLinks: false);
     debugPrint("$_folders");
   }
@@ -159,7 +160,7 @@ class FilePickerService {
     List<FileSystemEntity> folders = [];
     debugPrint("current path directory to be listed: ${pathDirectory.path}");
     final directory = pathDirectory;
-    folders = directory.listSync(recursive: true, followLinks: false);
+    folders = directory.listSync(followLinks: false);
     List<StorageItem> files = folders.map((item) {
       if (item.statSync().type == FileSystemEntityType.directory ||
           item.statSync().type == FileSystemEntityType.file) {

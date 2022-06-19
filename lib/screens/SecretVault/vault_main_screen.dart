@@ -22,7 +22,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
   bool _isExpanded = false;
   bool _islabelVisible = false;
   bool isFilterMode = false;
-  bool isOnce = true;
+  bool isDefaultPath = true;
 
   @override
   void initState() {
@@ -37,10 +37,10 @@ class _VaultMainScreenState extends State<VaultMainScreen>
   }
 
   Future<void> getInitDir() async {
-    if (isOnce) {
+    if (Global().isOnce) {
       var initDir = await filePickService.createNFolder();
       Global().currentPath = initDir.path;
-      isOnce = false;
+      Global().isOnce = false;
     } else {}
   }
 
@@ -75,6 +75,46 @@ class _VaultMainScreenState extends State<VaultMainScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        leading: isDefaultPath
+            ? null
+            : IconButton(
+                onPressed: () async {
+                  Global().currentPath =
+                      Directory(Global().currentPath).parent.path;
+                  isDefaultPath = Global().currentPath ==
+                      (await filePickService.createNFolder()).path;
+                  getStorageItems();
+                },
+                icon: const Icon(Icons.arrow_back),
+              ),
+        title: const Text("Hidden Vault"),
+        centerTitle: true,
+        actions: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isFilterMode = !isFilterMode;
+              });
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(right: 25),
+              child: Icon(Icons.filter),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context)
+                  .pushNamed("/SettingsScreen")
+                  .then((value) => setState(() {}));
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: Icon(Icons.settings),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: StatefulBuilder(
         builder: (context, setState) {
           return Stack(
@@ -198,34 +238,6 @@ class _VaultMainScreenState extends State<VaultMainScreen>
             ],
           );
         },
-      ),
-      appBar: AppBar(
-        title: const Text("Hidden Vault"),
-        centerTitle: true,
-        actions: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                isFilterMode = !isFilterMode;
-              });
-            },
-            child: const Padding(
-              padding: EdgeInsets.only(right: 25),
-              child: Icon(Icons.filter),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context)
-                  .pushNamed("/SettingsScreen")
-                  .then((value) => setState(() {}));
-            },
-            child: const Padding(
-              padding: EdgeInsets.only(right: 10),
-              child: Icon(Icons.settings),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Column(
@@ -499,7 +511,10 @@ class _VaultMainScreenState extends State<VaultMainScreen>
               onTap: () async {
                 if (Global().items[index].key.statSync().type ==
                     FileSystemEntityType.directory) {
-                  //TODO logic here
+                  Global().currentPath = Global().items[index].key.path;
+                  isDefaultPath = Global().currentPath ==
+                      (await filePickService.createNFolder()).path;
+                  getStorageItems();
                 } else if (Global().getFileInfo(
                         Global().items[index].value, "extension") ==
                     "mp4") {
@@ -614,10 +629,13 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                     ),
               title: Text(
                   Global().getFileInfo(Global().items[index].value, "name")),
-              subtitle: Text(Global.getFileSizeFormat(
-                  bytes: int.parse(Global()
-                      .getFileInfo(Global().items[index].value, "size")),
-                  decimals: 2)),
+              subtitle: Global().items[index].key.statSync().type ==
+                      FileSystemEntityType.file
+                  ? Text(Global.getFileSizeFormat(
+                      bytes: int.parse(Global()
+                          .getFileInfo(Global().items[index].value, "size")),
+                      decimals: 2))
+                  : null,
               trailing: GestureDetector(
                 onTap: () {
                   showDialog(
@@ -664,7 +682,10 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                 onTap: () async {
                   if (Global().items[index].key.statSync().type ==
                       FileSystemEntityType.directory) {
-                    //TODO logic here
+                    Global().currentPath = Global().items[index].key.path;
+                    isDefaultPath = Global().currentPath ==
+                        (await filePickService.createNFolder()).path;
+                    getStorageItems();
                   } else if (Global().getFileInfo(
                           Global().items[index].value, "extension") ==
                       "mp4") {
