@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:lecle_flutter_absolute_path/lecle_flutter_absolute_path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class FilePickerService {
   // Get App Hidden File Location
@@ -147,7 +149,6 @@ class FilePickerService {
   }
 
   // Get Dir Media items
-
   Future<void> getDir() async {
     List<FileSystemEntity> _folders;
     final directory = Directory(Global().currentPath);
@@ -162,6 +163,7 @@ class FilePickerService {
     final directory = pathDirectory;
     folders = directory.listSync(followLinks: false);
     List<StorageItem> files = folders.map((item) {
+      Uint8List? thumbnailData;
       if (item.statSync().type == FileSystemEntityType.directory ||
           item.statSync().type == FileSystemEntityType.file) {
         List<String> mediaData = [];
@@ -171,10 +173,11 @@ class FilePickerService {
             : '');
         mediaData.add(item.statSync().size.toString());
         mediaData.add(item.statSync().accessed.toString());
-        return StorageItem(item, mediaData);
+        return StorageItem(
+            key: item, value: mediaData, thumbnail: thumbnailData);
       } else {
         FileSystemEntity dummy = File("null");
-        return StorageItem(dummy, []);
+        return StorageItem(key: dummy, value: []);
       }
     }).toList();
     files.removeWhere((element) =>

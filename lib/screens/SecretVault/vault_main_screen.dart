@@ -53,6 +53,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
       Global().items =
           await filePickService.getDirMedia(Directory(Global().currentPath));
       Global().items = Global().applyExtensionFilter(Global().items);
+      Global().items = await Global().getVideoThumbnails(Global().items);
       Global().items =
           Global().applySelectedSort(Global().items, Preferences().getSortData);
       setState(() {});
@@ -614,66 +615,37 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                             ),
                           ),
                         )
-                      : FutureBuilder(
-                          future: Global()
-                              .videoThumbnail(Global().items[index].key.path),
-                          builder: (context, snapshot) {
-                            return ConstrainedBox(
-                              constraints: const BoxConstraints(
-                                maxWidth: 60,
-                                maxHeight: 60,
-                              ),
-                              child: AspectRatio(
-                                aspectRatio: 4 / 3,
-                                child: Stack(
-                                  children: [
-                                    Align(
-                                      alignment: Alignment.center,
-                                      child: AspectRatio(
-                                        aspectRatio: 4 / 3,
-                                        child: snapshot.hasError
-                                            ? Container(
-                                                color: Colors.transparent,
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: const [
-                                                    Icon(
-                                                      Icons.folder_off,
-                                                      size: 35,
-                                                    ),
-                                                    Text("Data load failed!"),
-                                                  ],
-                                                ),
-                                              )
-                                            : snapshot.connectionState ==
-                                                        ConnectionState.done &&
-                                                    snapshot.hasData
-                                                ? Image.memory(
-                                                    snapshot.data! as Uint8List,
-                                                    fit: BoxFit.cover,
-                                                  )
-                                                : const Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      color: Colors.green,
-                                                    ),
-                                                  ),
-                                      ),
+                      : ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: 60,
+                            maxHeight: 60,
+                          ),
+                          child: AspectRatio(
+                            aspectRatio: 4 / 3,
+                            child: Stack(
+                              children: [
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: AspectRatio(
+                                    aspectRatio: 4 / 3,
+                                    child: Image.memory(
+                                      Global().items[index].thumbnail!,
+                                      fit: BoxFit.cover,
                                     ),
-                                    const Positioned(
-                                      right: 0,
-                                      top: 0,
-                                      child: Icon(
-                                        Icons.video_collection,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          })
+                                const Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Icon(
+                                    Icons.video_collection,
+                                    size: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
                   : ConstrainedBox(
                       constraints: const BoxConstraints(
                         maxWidth: 60,
@@ -844,92 +816,63 @@ class _VaultMainScreenState extends State<VaultMainScreen>
                               ),
                             ],
                           )
-                        : FutureBuilder(
-                            future: Global()
-                                .videoThumbnail(Global().items[index].key.path),
-                            builder: (context, snapshot) {
-                              return Stack(
-                                alignment: AlignmentDirectional.bottomCenter,
-                                children: [
-                                  AspectRatio(
-                                    aspectRatio: 4 / 3,
-                                    child: snapshot.hasError
-                                        ? Container(
-                                            color: Colors.transparent,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: const [
-                                                Icon(
-                                                  Icons.folder_off,
-                                                  size: 35,
-                                                ),
-                                                Text("Data load failed!"),
-                                              ],
-                                            ),
-                                          )
-                                        : snapshot.connectionState ==
-                                                    ConnectionState.done &&
-                                                snapshot.hasData
-                                            ? Image.memory(
-                                                snapshot.data! as Uint8List,
-                                                fit: BoxFit.cover,
-                                              )
-                                            : const Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  color: Colors.green,
-                                                ),
-                                              ),
-                                  ),
-                                  const Positioned(
-                                    right: 2,
-                                    top: 2,
-                                    child: Icon(Icons.video_collection),
-                                  ),
-                                  Container(
-                                    color: Colors.black.withOpacity(0.4),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Flexible(
-                                          flex: 8,
-                                          child: Text(
-                                            Global().getFileInfo(
-                                                Global().items[index].value,
-                                                "name"),
-                                            textAlign: TextAlign.center,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline1,
-                                          ),
-                                        ),
-                                        Flexible(
-                                          flex: 2,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              showDialog(
+                        : Stack(
+                            alignment: AlignmentDirectional.bottomCenter,
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 4 / 3,
+                                child: Image.memory(
+                                  Global().items[index].thumbnail!,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const Positioned(
+                                right: 2,
+                                top: 2,
+                                child: Icon(Icons.video_collection),
+                              ),
+                              Container(
+                                color: Colors.black.withOpacity(0.4),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      flex: 8,
+                                      child: Text(
+                                        Global().getFileInfo(
+                                            Global().items[index].value,
+                                            "name"),
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline1,
+                                      ),
+                                    ),
+                                    Flexible(
+                                      flex: 2,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          showDialog(
                                                   context: context,
                                                   builder: (context) =>
-                                                      editMediaFileName(
-                                                          index)).then(
-                                                  (value) => value
-                                                      ? getStorageItems()
-                                                      : false);
-                                            },
-                                            child: const Padding(
-                                              padding: EdgeInsets.all(2),
-                                              child: Icon(Icons.edit),
-                                            ),
-                                          ),
+                                                      editMediaFileName(index))
+                                              .then((value) => value
+                                                  ? getStorageItems()
+                                                  : false);
+                                        },
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(2),
+                                          child: Icon(Icons.edit),
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            })
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
                     : Stack(
                         alignment: AlignmentDirectional.bottomCenter,
                         children: [

@@ -105,6 +105,17 @@ class Global {
     return list;
   }
 
+  Future<List<StorageItem>> getVideoThumbnails(List<StorageItem> list) async {
+    List<StorageItem> videoFiles = [];
+    List<StorageItem> otherMedia = [];
+    videoFiles = list.where((media) => media.value[1] == "mp4").toList();
+    otherMedia = list.where((media) => media.value[1] != "mp4").toList();
+    for (var video in videoFiles) {
+      video.thumbnail = await videoThumbnail(video.key.path);
+    }
+    return [...videoFiles, ...otherMedia];
+  }
+
   Future<Uint8List> videoThumbnail(String path) async {
     final uint8list = await VideoThumbnail.thumbnailData(
       video: path,
