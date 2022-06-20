@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_button_shape.dart';
@@ -17,26 +19,86 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.amber[100],
         appBar: AppBar(
           actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.list,
-                size: 30,
-                color: Colors.black,
-              ),
+            Builder(
+              builder: (BuildContext context) {
+                return IconButton(
+                  onPressed: () {
+                    Scaffold.of(context).openEndDrawer();
+                  },
+                  icon: const Icon(
+                    Icons.list,
+                    size: 30,
+                    color: Colors.black,
+                  ),
+                  tooltip:
+                      MaterialLocalizations.of(context).openAppDrawerTooltip,
+                );
+              },
             ),
           ],
           backgroundColor: Colors.amber[500],
           title: const Text("Find&Score"),
+          centerTitle: true,
           titleTextStyle: GoogleFonts.abel(
             fontSize: 32,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
-          centerTitle: true,
+        ),
+        endDrawer: Drawer(
+          backgroundColor: Colors.amber[100],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Found Words List",
+                style: GoogleFonts.abel(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              Container(
+                height: 4,
+                width: double.maxFinite,
+                color: Colors.amber[800],
+              ),
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: 5,
+                itemBuilder: (context, index) => Card(
+                  color: Colors.amber[300],
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.star,
+                      color: Colors.red[300]!,
+                    ),
+                    title: Text(
+                      "Word",
+                      style: GoogleFonts.abel(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    trailing: Text(
+                      "Point: ${Random().nextInt(20) + 1}",
+                      style: GoogleFonts.abel(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         body: Column(
           children: [
