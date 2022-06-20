@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -20,9 +21,11 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   var filePickService = FilePickerService();
   var textKeyController = TextEditingController();
   var folderNameController = TextEditingController();
+  final ScrollController filterController = ScrollController();
   bool _isExpanded = false;
   bool _islabelVisible = false;
   bool isFilterMode = false;
+  bool isFlexible = false;
   bool isDefaultPath = true;
 
   @override
@@ -120,10 +123,22 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
         centerTitle: true,
         actions: [
           GestureDetector(
-            onTap: () {
+            onTap: () async {
               setState(() {
                 isFilterMode = !isFilterMode;
               });
+              if (!isFilterMode) {
+                await Future.delayed(const Duration(milliseconds: 300))
+                    .whenComplete(() {
+                  setState(() {
+                    isFlexible = !isFlexible;
+                  });
+                });
+              } else {
+                setState(() {
+                  isFlexible = !isFlexible;
+                });
+              }
             },
             child: const Padding(
               padding: EdgeInsets.only(right: 25),
@@ -143,381 +158,13 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
           ),
         ],
       ),
-      floatingActionButton: StatefulBuilder(
-        builder: (context, setState) {
-          return Stack(
-            children: [
-              AnimatedPositioned(
-                onEnd: () {
-                  setState(() {
-                    if (_isExpanded) {
-                      _islabelVisible = true;
-                    }
-                  });
-                },
-                bottom: _isExpanded ? 160 : 0,
-                duration: const Duration(milliseconds: 150),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    _islabelVisible
-                        ? Positioned(
-                            left: -130,
-                            bottom: 10,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade900,
-                              ),
-                              child: const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text("Create Folder"),
-                              ),
-                            ),
-                          )
-                        : const SizedBox(),
-                    FloatingActionButton(
-                      backgroundColor: Colors.greenAccent[700],
-                      heroTag: "createFolderButton",
-                      onPressed: () {
-                        setState(() {
-                          showDialog(
-                                  context: context,
-                                  builder: (context) => addNewFolderDialog())
-                              .then(
-                                  (value) => value ? getStorageItems() : false);
-                        });
-                      },
-                      child: const Icon(
-                        Icons.create_new_folder_sharp,
-                        color: Colors.black,
-                        size: 24,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              AnimatedPositioned(
-                bottom: _isExpanded ? 80 : 0,
-                duration: const Duration(milliseconds: 150),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    _islabelVisible
-                        ? Positioned(
-                            left: -110,
-                            bottom: 10,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade900,
-                              ),
-                              child: const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text("Add Media"),
-                              ),
-                            ),
-                          )
-                        : const SizedBox(),
-                    FloatingActionButton(
-                      backgroundColor: Colors.yellow,
-                      heroTag: "addButton",
-                      onPressed: () {
-                        setState(() {
-                          showDialog(
-                                  context: context,
-                                  builder: (context) => addFileDialog())
-                              .then(
-                                  (value) => value ? getStorageItems() : false);
-                        });
-                      },
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.black,
-                        size: 24,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(
-                    height: 160,
-                  ),
-                  FloatingActionButton(
-                    backgroundColor:
-                        !_isExpanded ? Colors.greenAccent[700]! : Colors.red,
-                    heroTag: "interactionButton",
-                    child: Icon(
-                      !_isExpanded ? Icons.add : Icons.close,
-                      color: Colors.black,
-                      size: 26,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isExpanded = !_isExpanded;
-                        _islabelVisible = false;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
+      floatingActionButton: addMedia(),
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(
-              child: AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.fastOutSlowIn,
-                child: isFilterMode
-                    ? Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    flex: 2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 4),
-                                      child: Text("View Style:",
-                                          textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyText2!
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              )),
-                                    ),
-                                  ),
-                                  Flexible(
-                                    flex: 8,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            primary: Preferences().getViewStyle
-                                                ? Colors.black
-                                                : Colors.grey.shade700,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              Preferences().setViewStyle = true;
-                                            });
-                                          },
-                                          child: Text("File",
-                                              textAlign: TextAlign.center,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyText2!
-                                                  .copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                  )),
-                                        ),
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            primary: !Preferences().getViewStyle
-                                                ? Colors.black
-                                                : Colors.grey.shade700,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              Preferences().setViewStyle =
-                                                  false;
-                                            });
-                                          },
-                                          child: Text("List",
-                                              textAlign: TextAlign.center,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyText2!
-                                                  .copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                  )),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 12, bottom: 12),
-                              child: Text("Extension Filter:",
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyText2!
-                                      .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      )),
-                            ),
-                            SizedBox(
-                              height: 40,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 4,
-                                      color: Colors.grey[600],
-                                    ),
-                                    Flexible(
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        scrollDirection: Axis.horizontal,
-                                        itemCount:
-                                            Preferences.extensionTypes.length,
-                                        itemBuilder: (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 18),
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  primary: Preferences()
-                                                          .getExtensionsBool(
-                                                              Preferences
-                                                                  .extensionTypes
-                                                                  .keys
-                                                                  .toList()[index])
-                                                      ? Colors.black
-                                                      : Colors.grey.shade700),
-                                              onPressed: () {
-                                                if (Preferences
-                                                        .extensionTypes.keys
-                                                        .toList()[index] !=
-                                                    "any") {
-                                                  Preferences()
-                                                          .setExtensionTypeAny =
-                                                      false;
-                                                  Preferences()
-                                                      .setExtensionType = index;
-                                                  Preferences()
-                                                          .setCheckExtensionTypeExceptAny =
-                                                      true;
-                                                } else {
-                                                  Preferences()
-                                                          .setExtensionTypeAny =
-                                                      true;
-                                                  Preferences()
-                                                          .setExtensionTypeExceptAny =
-                                                      false;
-                                                }
-                                                getStorageItems();
-                                              },
-                                              child: Text(Preferences
-                                                  .extensionTypes.keys
-                                                  .toList()[index]),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 4,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Text("List Sorting",
-                                  textAlign: TextAlign.start,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyText2!
-                                      .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      )),
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                RadioListTile<String>(
-                                  title: const Text('From A to Z'),
-                                  value: "A_Z",
-                                  groupValue: Preferences().getSortData,
-                                  onChanged: (String? value) {
-                                    Preferences().setSort = value!;
-                                    getStorageItems();
-                                  },
-                                ),
-                                RadioListTile<String>(
-                                  title: const Text('From Z to A'),
-                                  value: "Z_A",
-                                  groupValue: Preferences().getSortData,
-                                  onChanged: (String? value) {
-                                    Preferences().setSort = value!;
-                                    getStorageItems();
-                                  },
-                                ),
-                                RadioListTile<String>(
-                                  title: const Text('From first date'),
-                                  value: "firstDate",
-                                  groupValue: Preferences().getSortData,
-                                  onChanged: (String? value) {
-                                    Preferences().setSort = value!;
-                                    getStorageItems();
-                                  },
-                                ),
-                                RadioListTile<String>(
-                                  title: const Text('From last date'),
-                                  value: "lastDate",
-                                  groupValue: Preferences().getSortData,
-                                  onChanged: (String? value) {
-                                    Preferences().setSort = value!;
-                                    getStorageItems();
-                                  },
-                                ),
-                                RadioListTile<String>(
-                                  title: const Text(
-                                      'From high to lower file size'),
-                                  value: "sizeDescending",
-                                  groupValue: Preferences().getSortData,
-                                  onChanged: (String? value) {
-                                    Preferences().setSort = value!;
-                                    getStorageItems();
-                                  },
-                                ),
-                                RadioListTile<String>(
-                                  title: const Text(
-                                      'From low to higher file size'),
-                                  value: "sizeAscending",
-                                  groupValue: Preferences().getSortData,
-                                  onChanged: (String? value) {
-                                    Preferences().setSort = value!;
-                                    getStorageItems();
-                                  },
-                                ),
-                              ],
-                            ),
-                            Container(
-                              height: 4,
-                              color: Colors.grey.shade800,
-                            ),
-                          ],
-                        ),
-                      )
-                    : const SizedBox(),
-              ),
+            Flexible(
+              flex: isFlexible ? 1 : 0,
+              child: filterArea(),
             ),
             Preferences().getViewStyle ? fileViewStyle() : listViewStyle(),
           ],
@@ -950,6 +597,374 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
     );
   }
 
+  // Floating action button
+
+  StatefulBuilder addMedia() {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Stack(
+          children: [
+            AnimatedPositioned(
+              onEnd: () {
+                setState(() {
+                  if (_isExpanded) {
+                    _islabelVisible = true;
+                  }
+                });
+              },
+              bottom: _isExpanded ? 160 : 0,
+              duration: const Duration(milliseconds: 150),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  _islabelVisible
+                      ? Positioned(
+                          left: -130,
+                          bottom: 10,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade900,
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Create Folder"),
+                            ),
+                          ),
+                        )
+                      : const SizedBox(),
+                  FloatingActionButton(
+                    backgroundColor: Colors.greenAccent[700],
+                    heroTag: "createFolderButton",
+                    onPressed: () {
+                      setState(() {
+                        showDialog(
+                                context: context,
+                                builder: (context) => addNewFolderDialog())
+                            .then((value) => value ? getStorageItems() : false);
+                      });
+                    },
+                    child: const Icon(
+                      Icons.create_new_folder_sharp,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            AnimatedPositioned(
+              bottom: _isExpanded ? 80 : 0,
+              duration: const Duration(milliseconds: 150),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  _islabelVisible
+                      ? Positioned(
+                          left: -110,
+                          bottom: 10,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade900,
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text("Add Media"),
+                            ),
+                          ),
+                        )
+                      : const SizedBox(),
+                  FloatingActionButton(
+                    backgroundColor: Colors.yellow,
+                    heroTag: "addButton",
+                    onPressed: () async {
+                      await filePickService
+                          .getFilesWithFilter()
+                          .then((_) => getStorageItems());
+                    },
+                    child: const Icon(
+                      Icons.add,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  height: 160,
+                ),
+                FloatingActionButton(
+                  backgroundColor:
+                      !_isExpanded ? Colors.greenAccent[700]! : Colors.red,
+                  heroTag: "interactionButton",
+                  child: Icon(
+                    !_isExpanded ? Icons.add : Icons.close,
+                    color: Colors.black,
+                    size: 26,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isExpanded = !_isExpanded;
+                      _islabelVisible = false;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Filter Widget
+  Widget filterArea() {
+    return Scrollbar(
+      controller: filterController,
+      thumbVisibility: isFilterMode,
+      thickness: 3,
+      child: SingleChildScrollView(
+        controller: filterController,
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.fastOutSlowIn,
+          child: isFilterMode
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 4),
+                                child: Text("View Style:",
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText2!
+                                        .copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                              ),
+                            ),
+                            Flexible(
+                              flex: 8,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Preferences().getViewStyle
+                                          ? Colors.black
+                                          : Colors.grey.shade700,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        Preferences().setViewStyle = true;
+                                      });
+                                    },
+                                    child: Text("File",
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText2!
+                                            .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            )),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      primary: !Preferences().getViewStyle
+                                          ? Colors.black
+                                          : Colors.grey.shade700,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        Preferences().setViewStyle = false;
+                                      });
+                                    },
+                                    child: Text("List",
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText2!
+                                            .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            )),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12, bottom: 12),
+                        child: Text("Extension Filter:",
+                            textAlign: TextAlign.center,
+                            style:
+                                Theme.of(context).textTheme.bodyText2!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                      ),
+                      SizedBox(
+                        height: 40,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 4,
+                                color: Colors.grey[600],
+                              ),
+                              Flexible(
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: Preferences.extensionTypes.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 18),
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            primary: Preferences()
+                                                    .getExtensionsBool(
+                                                        Preferences
+                                                            .extensionTypes.keys
+                                                            .toList()[index])
+                                                ? Colors.black
+                                                : Colors.grey.shade700),
+                                        onPressed: () {
+                                          if (Preferences.extensionTypes.keys
+                                                  .toList()[index] !=
+                                              "any") {
+                                            Preferences().setExtensionTypeAny =
+                                                false;
+                                            Preferences().setExtensionType =
+                                                index;
+                                            Preferences()
+                                                    .setCheckExtensionTypeExceptAny =
+                                                true;
+                                          } else {
+                                            Preferences().setExtensionTypeAny =
+                                                true;
+                                            Preferences()
+                                                    .setExtensionTypeExceptAny =
+                                                false;
+                                          }
+                                          getStorageItems();
+                                        },
+                                        child: Text(Preferences
+                                            .extensionTypes.keys
+                                            .toList()[index]),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              Container(
+                                width: 4,
+                                color: Colors.grey[600],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text("List Sorting",
+                            textAlign: TextAlign.start,
+                            style:
+                                Theme.of(context).textTheme.bodyText2!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          RadioListTile<String>(
+                            title: const Text('From A to Z'),
+                            value: "A_Z",
+                            groupValue: Preferences().getSortData,
+                            onChanged: (String? value) {
+                              Preferences().setSort = value!;
+                              getStorageItems();
+                            },
+                          ),
+                          RadioListTile<String>(
+                            title: const Text('From Z to A'),
+                            value: "Z_A",
+                            groupValue: Preferences().getSortData,
+                            onChanged: (String? value) {
+                              Preferences().setSort = value!;
+                              getStorageItems();
+                            },
+                          ),
+                          RadioListTile<String>(
+                            title: const Text('From first date'),
+                            value: "firstDate",
+                            groupValue: Preferences().getSortData,
+                            onChanged: (String? value) {
+                              Preferences().setSort = value!;
+                              getStorageItems();
+                            },
+                          ),
+                          RadioListTile<String>(
+                            title: const Text('From last date'),
+                            value: "lastDate",
+                            groupValue: Preferences().getSortData,
+                            onChanged: (String? value) {
+                              Preferences().setSort = value!;
+                              getStorageItems();
+                            },
+                          ),
+                          RadioListTile<String>(
+                            title: const Text('From high to lower file size'),
+                            value: "sizeDescending",
+                            groupValue: Preferences().getSortData,
+                            onChanged: (String? value) {
+                              Preferences().setSort = value!;
+                              getStorageItems();
+                            },
+                          ),
+                          RadioListTile<String>(
+                            title: const Text('From low to higher file size'),
+                            value: "sizeAscending",
+                            groupValue: Preferences().getSortData,
+                            onChanged: (String? value) {
+                              Preferences().setSort = value!;
+                              getStorageItems();
+                            },
+                          ),
+                        ],
+                      ),
+                      Container(
+                        height: 4,
+                        color: Colors.grey.shade800,
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox(),
+        ),
+      ),
+    );
+  }
+
   // Dialogs
   Widget expandMediaFileDialog(int index) {
     return Dialog(
@@ -1136,60 +1151,6 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     Navigator.of(context).pop(isValid);
                   },
                   child: const Text("Submit"),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget addFileDialog() {
-    return Dialog(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            color: Colors.grey.shade900,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Please select a method to pick a file:",
-                    style: Theme.of(context).textTheme.bodyText2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    await filePickService.getFilesWithFilter();
-                    Navigator.of(context).pop(true);
-                  },
-                  child: const Text("Add Media"),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    filePickService.getDir();
-                    Navigator.of(context).pop(true);
-                  },
-                  child: const Text("Dir Info"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
-                  },
-                  child: const Text("Cancel"),
                 ),
               ],
             ),

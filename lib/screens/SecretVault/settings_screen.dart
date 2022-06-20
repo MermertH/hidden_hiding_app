@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
@@ -18,7 +17,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     {
       "tag": "security",
       "leading": const Icon(Icons.security),
-      "title": const Text("Change secret pin and trigger combination"),
+      "title": const Text("Change trigger combination"),
+      "trailing": const SizedBox(),
+    },
+    {
+      "tag": "pin",
+      "leading": const Icon(Icons.password),
+      "title": const Text("Change secret pin"),
       "trailing": const SizedBox(),
     },
     {

@@ -118,6 +118,7 @@ class FilePickerService {
 
   // Multiple Files With Extension Filter
   Future<void> getFilesWithFilter() async {
+    bool absolutePathFailed = false;
     String absolutePath = "";
     var mediaFilesDirectory = Directory(Global().currentPath);
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -129,9 +130,18 @@ class FilePickerService {
       for (PlatformFile file in result.files) {
         PlatformFile fileData = file;
         absolutePath = (await LecleFlutterAbsolutePath.getAbsolutePath(
-            fileData.identifier!))!;
+                fileData.identifier!)
+            .onError((error, stackTrace) {
+          absolutePathFailed = true;
+          return error.toString();
+        }))!;
         debugPrint("absolute file path from uri: $absolutePath");
-        await deleteMedia(File(absolutePath));
+        if (absolutePathFailed) {
+          // do not delete from absolutePath
+          absolutePathFailed = false;
+        } else {
+          await deleteMedia(File(absolutePath));
+        }
         File modifiedFile = File(file.path!);
         modifiedFile = await moveFile(
             modifiedFile,
