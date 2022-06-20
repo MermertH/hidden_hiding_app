@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/settings_screen.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/vault_main_screen.dart';
+import 'package:hidden_hiding_app/screens/WordGame/game_screen.dart';
 import 'package:hidden_hiding_app/themes/dark.dart';
 
 void main() async {
@@ -24,10 +25,11 @@ class MyApp extends StatelessWidget {
       title: 'Hidden Hide App',
       debugShowCheckedModeBanner: false,
       theme: DarkTheme.get,
-      initialRoute: '/VaultMainScreen',
+      initialRoute: '/GameScreen',
       routes: {
         '/VaultMainScreen': (context) => const VaultMainScreen(),
         '/SettingsScreen': (context) => const SettingsScreen(),
+        '/GameScreen': (context) => const GameScreen(),
       },
     );
   }

@@ -13,26 +13,31 @@ class DarkTheme {
       ),
       textTheme: GoogleFonts.droidSansTextTheme(
         const TextTheme(
-            bodyText1: TextStyle(
-              fontSize: 12,
-              color: Colors.white,
-            ),
-            bodyText2: TextStyle(
-              fontSize: 15,
-              color: Colors.white,
-            ),
-            headline1: TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-            ),
-            button: TextStyle(
-              fontSize: 17,
-              color: Colors.white,
-            ),
-            headline6: TextStyle(
-              fontSize: 20,
-              color: Colors.white,
-            )),
+          bodyText1: TextStyle(
+            fontSize: 12,
+            color: Colors.white,
+          ),
+          bodyText2: TextStyle(
+            fontSize: 15,
+            color: Colors.white,
+          ),
+          headline1: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+          button: TextStyle(
+            fontSize: 17,
+            color: Colors.white,
+          ),
+          headline6: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
+          headlineLarge: TextStyle(
+            fontSize: 30,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
