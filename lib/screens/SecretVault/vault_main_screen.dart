@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
@@ -28,24 +27,10 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
 
   @override
   void initState() {
-    applyFlag();
+    Global().applyFlag();
     requestPermission();
     getStorageItems();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    removeFlag();
-    super.dispose();
-  }
-
-  applyFlag() async {
-    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-  }
-
-  removeFlag() async {
-    await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
   }
 
   Future<void> getInitDir() async {

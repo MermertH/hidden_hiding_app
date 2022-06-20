@@ -51,26 +51,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   @override
-  void initState() {
-    applyFlag();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    removeFlag();
-    super.dispose();
-  }
-
-  applyFlag() async {
-    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-  }
-
-  removeFlag() async {
-    await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

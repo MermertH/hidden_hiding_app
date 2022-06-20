@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'dart:math';
@@ -28,6 +29,14 @@ class Global {
       default:
         return "Not Found";
     }
+  }
+
+  applyFlag() async {
+    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+  }
+
+  removeFlag() async {
+    await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
   }
 
   List<StorageItem> applySelectedSort(List<StorageItem> list, String sortType) {
