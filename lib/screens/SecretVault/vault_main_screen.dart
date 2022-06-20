@@ -959,7 +959,9 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     ],
                   ),
                 )
-              : const SizedBox(),
+              : const SizedBox(
+                  width: double.maxFinite,
+                ),
         ),
       ),
     );
