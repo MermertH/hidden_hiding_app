@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
@@ -8,14 +9,15 @@ import 'package:hidden_hiding_app/screens/SecretVault/widgets/video_player_scree
 import 'package:permission_handler/permission_handler.dart';
 
 class VaultMainScreen extends StatefulWidget {
-  const VaultMainScreen({Key? key}) : super(key: key);
+  const VaultMainScreen({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<VaultMainScreen> createState() => _VaultMainScreenState();
 }
 
-class _VaultMainScreenState extends State<VaultMainScreen>
-    with WidgetsBindingObserver {
+class _VaultMainScreenState extends State<VaultMainScreen> {
   var filePickService = FilePickerService();
   var textKeyController = TextEditingController();
   var folderNameController = TextEditingController();
@@ -26,7 +28,7 @@ class _VaultMainScreenState extends State<VaultMainScreen>
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
+    applyFlag();
     requestPermission();
     getStorageItems();
     super.initState();
@@ -34,8 +36,16 @@ class _VaultMainScreenState extends State<VaultMainScreen>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    removeFlag();
     super.dispose();
+  }
+
+  applyFlag() async {
+    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+  }
+
+  removeFlag() async {
+    await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
   }
 
   Future<void> getInitDir() async {
@@ -100,17 +110,6 @@ class _VaultMainScreenState extends State<VaultMainScreen>
         }
       });
     }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.detached) return;
-
-    if (state == AppLifecycleState.paused) {
-      print("app is in the background"); // TODO hide app or close it
-    }
-    super.didChangeAppLifecycleState(state);
   }
 
   @override
