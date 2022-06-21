@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_button_shape.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_clipper.dart';
@@ -14,6 +15,26 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   var userInputController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  @override
+  dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,9 +122,11 @@ class _GameScreenState extends State<GameScreen> {
           ),
         ),
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -130,18 +153,15 @@ class _GameScreenState extends State<GameScreen> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 50,
-              child: Text(
-                "Enter your word here",
-                style: GoogleFonts.abel(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.black),
-              ),
+            Text(
+              "Enter your word here",
+              style: GoogleFonts.abel(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 32),
               child: TextField(
                 textAlign: TextAlign.center,
                 style: GoogleFonts.abel(
@@ -172,27 +192,27 @@ class _GameScreenState extends State<GameScreen> {
               children: [
                 Column(
                   children: [
-                    gameButtons(),
-                    gameButtons(),
+                    gameButtons(buttonValue: "A", buttonName: "LeftTop"),
+                    gameButtons(buttonValue: "C", buttonName: "LeftBottom"),
                   ],
                 ),
                 Column(
                   children: [
-                    gameButtons(),
-                    gameButtons(),
-                    gameButtons(),
+                    gameButtons(buttonValue: "D", buttonName: "Top"),
+                    gameButtons(buttonValue: "O", buttonName: "Middle"),
+                    gameButtons(buttonValue: "R", buttonName: "Bottom"),
                   ],
                 ),
                 Column(
                   children: [
-                    gameButtons(),
-                    gameButtons(),
+                    gameButtons(buttonValue: "E", buttonName: "RightTop"),
+                    gameButtons(buttonValue: "S", buttonName: "RightBottom"),
                   ],
                 ),
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 40),
+              padding: const EdgeInsets.only(top: 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -240,7 +260,8 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget gameButtons() {
+  Widget gameButtons(
+      {required String buttonValue, required String buttonName}) {
     return Padding(
       padding: const EdgeInsets.only(top: 25),
       child: Stack(
@@ -250,7 +271,7 @@ class _GameScreenState extends State<GameScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 35),
               child: Text(
-                "A",
+                buttonValue,
                 style: GoogleFonts.abel(
                     fontWeight: FontWeight.bold,
                     fontSize: 30,
@@ -262,6 +283,7 @@ class _GameScreenState extends State<GameScreen> {
             child: ClipPath(
               clipper: HexagonClipper(),
               child: Material(
+                elevation: 38,
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {},
