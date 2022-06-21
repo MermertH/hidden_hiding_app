@@ -283,7 +283,6 @@ class _GameScreenState extends State<GameScreen> {
             child: ClipPath(
               clipper: HexagonClipper(),
               child: Material(
-                elevation: 38,
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {},
