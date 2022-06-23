@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_button_shape.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_clipper.dart';
 
@@ -19,10 +20,12 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
+    Global().removeFlag();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    Global().getMiddleButtonChar();
   }
 
   @override
@@ -147,7 +150,11 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                         primary: Colors.orange[400],
                         onPrimary: Colors.black),
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        Global().getMiddleButtonChar();
+                      });
+                    },
                     child: const Text("New Game"),
                   ),
                 ],
@@ -199,7 +206,9 @@ class _GameScreenState extends State<GameScreen> {
                 Column(
                   children: [
                     gameButtons(buttonValue: "D", buttonName: "Top"),
-                    gameButtons(buttonValue: "O", buttonName: "Middle"),
+                    gameButtons(
+                        buttonValue: Global().middleButtonChar,
+                        buttonName: "Middle"),
                     gameButtons(buttonValue: "R", buttonName: "Bottom"),
                   ],
                 ),
@@ -268,14 +277,17 @@ class _GameScreenState extends State<GameScreen> {
         children: [
           CustomPaint(
             painter: HexagonButton(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 35),
-              child: Text(
-                buttonValue,
-                style: GoogleFonts.abel(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
-                    color: Colors.black),
+            child: SizedBox(
+              width: 100,
+              height: 100,
+              child: Center(
+                child: Text(
+                  buttonValue,
+                  style: GoogleFonts.abel(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30,
+                      color: Colors.black),
+                ),
               ),
             ),
           ),
@@ -285,7 +297,9 @@ class _GameScreenState extends State<GameScreen> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    setState(() {});
+                  },
                 ),
               ),
             ),

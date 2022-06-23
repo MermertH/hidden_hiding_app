@@ -12,10 +12,26 @@ class Global {
   factory Global() => _instance;
   Global._internal();
 
+// VARIABLES
+// hidden vault variables
   List<StorageItem> items = [];
   bool isOnce = true;
   String currentPath = "";
 
+// game screen variables
+  String middleButtonChar = "";
+
+// FUNCTIONS
+// game screen functions
+  void getMiddleButtonChar() {
+    List<String> vowels = [];
+    var rng = Random();
+    vowels.addAll(["a", "e", "i", "o", "u"]);
+    middleButtonChar =
+        vowels.elementAt(rng.nextInt(vowels.length)).toUpperCase();
+  }
+
+// hidden vault functions
   dynamic getFileInfo(List<String> fileData, String dataType) {
     switch (dataType) {
       case "name":
@@ -29,14 +45,6 @@ class Global {
       default:
         return "Not Found";
     }
-  }
-
-  applyFlag() async {
-    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-  }
-
-  removeFlag() async {
-    await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
   }
 
   List<StorageItem> applySelectedSort(List<StorageItem> list, String sortType) {
@@ -146,5 +154,14 @@ class Global {
     } else {
       return exportPath;
     }
+  }
+
+  // global functions
+  applyFlag() async {
+    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+  }
+
+  removeFlag() async {
+    await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
   }
 }
