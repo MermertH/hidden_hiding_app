@@ -256,7 +256,11 @@ class _GameScreenState extends State<GameScreen> {
                         shape: const CircleBorder(),
                         primary: Colors.orange[300],
                         onPrimary: Colors.black),
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        Global().selectedLetters.shuffle();
+                      });
+                    },
                     child: const Padding(
                       padding: EdgeInsets.all(16.0),
                       child: Icon(Icons.shuffle),
