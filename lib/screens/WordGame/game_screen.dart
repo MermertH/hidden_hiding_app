@@ -26,6 +26,7 @@ class _GameScreenState extends State<GameScreen> {
       DeviceOrientation.portraitDown,
     ]);
     Global().getMiddleButtonChar();
+    Global().getButtonCharsExceptMiddleButton();
   }
 
   @override
@@ -153,6 +154,7 @@ class _GameScreenState extends State<GameScreen> {
                     onPressed: () {
                       setState(() {
                         Global().getMiddleButtonChar();
+                        Global().getButtonCharsExceptMiddleButton();
                       });
                     },
                     child: const Text("New Game"),
@@ -199,23 +201,35 @@ class _GameScreenState extends State<GameScreen> {
               children: [
                 Column(
                   children: [
-                    gameButtons(buttonValue: "A", buttonName: "LeftTop"),
-                    gameButtons(buttonValue: "C", buttonName: "LeftBottom"),
+                    gameButtons(
+                        buttonValue: Global().selectedLetters[0],
+                        buttonName: "LeftTop"),
+                    gameButtons(
+                        buttonValue: Global().selectedLetters[1],
+                        buttonName: "LeftBottom"),
                   ],
                 ),
                 Column(
                   children: [
-                    gameButtons(buttonValue: "D", buttonName: "Top"),
+                    gameButtons(
+                        buttonValue: Global().selectedLetters[2],
+                        buttonName: "Top"),
                     gameButtons(
                         buttonValue: Global().middleButtonChar,
                         buttonName: "Middle"),
-                    gameButtons(buttonValue: "R", buttonName: "Bottom"),
+                    gameButtons(
+                        buttonValue: Global().selectedLetters[3],
+                        buttonName: "Bottom"),
                   ],
                 ),
                 Column(
                   children: [
-                    gameButtons(buttonValue: "E", buttonName: "RightTop"),
-                    gameButtons(buttonValue: "S", buttonName: "RightBottom"),
+                    gameButtons(
+                        buttonValue: Global().selectedLetters[4],
+                        buttonName: "RightTop"),
+                    gameButtons(
+                        buttonValue: Global().selectedLetters[5],
+                        buttonName: "RightBottom"),
                   ],
                 ),
               ],
@@ -282,7 +296,7 @@ class _GameScreenState extends State<GameScreen> {
               height: 100,
               child: Center(
                 child: Text(
-                  buttonValue,
+                  buttonValue.toUpperCase(),
                   style: GoogleFonts.abel(
                       fontWeight: FontWeight.bold,
                       fontSize: 30,

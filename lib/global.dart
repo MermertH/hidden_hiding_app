@@ -20,6 +20,7 @@ class Global {
 
 // game screen variables
   String middleButtonChar = "";
+  List<String> selectedLetters = [];
 
 // FUNCTIONS
 // game screen functions
@@ -27,8 +28,48 @@ class Global {
     List<String> vowels = [];
     var rng = Random();
     vowels.addAll(["a", "e", "i", "o", "u"]);
-    middleButtonChar =
-        vowels.elementAt(rng.nextInt(vowels.length)).toUpperCase();
+    middleButtonChar = vowels.elementAt(rng.nextInt(vowels.length));
+  }
+
+  void getButtonCharsExceptMiddleButton() {
+    selectedLetters.clear();
+    List<String> englishAlphabet = [];
+    var rng = Random();
+    int currentRngIndex = 0;
+    englishAlphabet.addAll([
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v",
+      "w",
+      "x",
+      "y",
+      "z"
+    ]);
+    englishAlphabet.remove(middleButtonChar);
+    for (int count = 0; count < 6; count++) {
+      currentRngIndex = rng.nextInt(englishAlphabet.length);
+      selectedLetters.add(englishAlphabet[currentRngIndex]);
+      englishAlphabet.removeAt(currentRngIndex);
+    }
   }
 
 // hidden vault functions
