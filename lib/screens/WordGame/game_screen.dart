@@ -186,7 +186,7 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 cursorColor: Colors.black,
                 cursorWidth: 3,
-                onSubmitted: (_) {},
+                readOnly: true,
                 controller: userInputController,
                 decoration: InputDecoration(
                   filled: true,
@@ -195,9 +195,9 @@ class _GameScreenState extends State<GameScreen> {
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                     borderSide: BorderSide(width: 3, color: Colors.amber[700]!),
                   ),
-                  enabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide(width: 3, color: Colors.black),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(width: 3, color: Colors.amber[700]!),
                   ),
                 ),
               ),
@@ -292,15 +292,7 @@ class _GameScreenState extends State<GameScreen> {
                         primary: Colors.orange[500],
                         onPrimary: Colors.black),
                     onPressed: () {
-                      setState(() {
-                        if (isMiddleButtonPressed) {
-                          acceptedWords.add(AcceptedWords(
-                              word: userInputController.text,
-                              score: userInputController.text.length));
-                          userInputController.clear();
-                          isMiddleButtonPressed = false;
-                        }
-                      });
+                      checkAndSubmitUserInput();
                     },
                     child: const Text("Submit"),
                   ),
@@ -378,5 +370,16 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
     );
+  }
+
+  void checkAndSubmitUserInput() {
+    if (isMiddleButtonPressed) {
+      acceptedWords.add(AcceptedWords(
+          word: userInputController.text,
+          score: userInputController.text.length));
+      userInputController.clear();
+      isMiddleButtonPressed = false;
+    }
+    setState(() {});
   }
 }
