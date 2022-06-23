@@ -6,6 +6,7 @@ import 'package:hidden_hiding_app/models/accepted_words.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_button_shape.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_clipper.dart';
+import 'package:hidden_hiding_app/screens/WordGame/widgets/pin_dialog.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({Key? key}) : super(key: key);
@@ -17,13 +18,19 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   var userInputController = TextEditingController();
   List<AcceptedWords> acceptedWords = [];
+  Map<String, int> buttonCombinationOrderList = {};
   bool isMiddleButtonPressed = false;
+  bool newGameTriggered = false;
+  bool deleteTriggered = false;
   int combinationOrderCount = 0;
 
   @override
   void initState() {
     super.initState();
     if (Preferences().getFirstTime) {
+      Global().isCombinationTriggered = true;
+      Preferences().setIsPasswordSetMode = true;
+      Global().statusMessage = "combinationSet";
       // TODO tutorial trigger
       Preferences().setFirstTime = true;
     }
@@ -59,6 +66,10 @@ class _GameScreenState extends State<GameScreen> {
               builder: (BuildContext context) {
                 return IconButton(
                   onPressed: () {
+                    setState(() {
+                      deleteTriggered = false;
+                      newGameTriggered = false;
+                    });
                     Scaffold.of(context).openEndDrawer();
                   },
                   icon: const Icon(
@@ -162,6 +173,7 @@ class _GameScreenState extends State<GameScreen> {
                     onPressed: () {
                       setState(() {
                         Global().gameOver = false;
+                        newGameTriggered = true;
                         Global().getMiddleButtonChar();
                         Global().getButtonCharsExceptMiddleButton();
                         userInputController.clear();
@@ -221,55 +233,41 @@ class _GameScreenState extends State<GameScreen> {
                 Column(
                   children: [
                     gameButtons(
-                        buttonValue: Global().selectedLetters[0],
-                        buttonName: "LeftTop",
-                        triggerOrder: Global().isCombinationTriggered()
-                            ? combinationOrderCount++
-                            : 0),
+                      buttonValue: Global().selectedLetters[0],
+                      buttonName: "LeftTop",
+                    ),
                     gameButtons(
-                        buttonValue: Global().selectedLetters[1],
-                        buttonName: "LeftBottom",
-                        triggerOrder: Global().isCombinationTriggered()
-                            ? combinationOrderCount++
-                            : 0),
+                      buttonValue: Global().selectedLetters[1],
+                      buttonName: "LeftBottom",
+                    ),
                   ],
                 ),
                 Column(
                   children: [
                     gameButtons(
-                        buttonValue: Global().selectedLetters[2],
-                        buttonName: "Top",
-                        triggerOrder: Global().isCombinationTriggered()
-                            ? combinationOrderCount++
-                            : 0),
+                      buttonValue: Global().selectedLetters[2],
+                      buttonName: "Top",
+                    ),
                     gameButtons(
-                        buttonValue: Global().middleButtonChar,
-                        buttonName: "Middle",
-                        triggerOrder: Global().isCombinationTriggered()
-                            ? combinationOrderCount++
-                            : 0),
+                      buttonValue: Global().middleButtonChar,
+                      buttonName: "Middle",
+                    ),
                     gameButtons(
-                        buttonValue: Global().selectedLetters[3],
-                        buttonName: "Bottom",
-                        triggerOrder: Global().isCombinationTriggered()
-                            ? combinationOrderCount++
-                            : 0),
+                      buttonValue: Global().selectedLetters[3],
+                      buttonName: "Bottom",
+                    ),
                   ],
                 ),
                 Column(
                   children: [
                     gameButtons(
-                        buttonValue: Global().selectedLetters[4],
-                        buttonName: "RightTop",
-                        triggerOrder: Global().isCombinationTriggered()
-                            ? combinationOrderCount++
-                            : 0),
+                      buttonValue: Global().selectedLetters[4],
+                      buttonName: "RightTop",
+                    ),
                     gameButtons(
-                        buttonValue: Global().selectedLetters[5],
-                        buttonName: "RightBottom",
-                        triggerOrder: Global().isCombinationTriggered()
-                            ? combinationOrderCount++
-                            : 0),
+                      buttonValue: Global().selectedLetters[5],
+                      buttonName: "RightBottom",
+                    ),
                   ],
                 ),
               ],
@@ -291,6 +289,19 @@ class _GameScreenState extends State<GameScreen> {
                     onPressed: () {
                       setState(() {
                         if (Global().gameOver == true) return;
+                        deleteTriggered = true;
+                        if (deleteTriggered && newGameTriggered) {
+                          Global().isCombinationTriggered = true;
+                        }
+                        if (Global().isCombinationTriggered) {
+                          setState(() {
+                            Global()
+                                .combinationButtons
+                                .updateAll((key, value) => false);
+                            buttonCombinationOrderList.clear();
+                            combinationOrderCount = 0;
+                          });
+                        }
                         if (userInputController.text.isNotEmpty) {
                           userInputController.text = userInputController.text
                               .substring(
@@ -300,7 +311,8 @@ class _GameScreenState extends State<GameScreen> {
                         }
                       });
                     },
-                    child: const Text("Delete"),
+                    child: Text(
+                        Global().isCombinationTriggered ? "Reset" : "Delete"),
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -310,6 +322,8 @@ class _GameScreenState extends State<GameScreen> {
                     onPressed: () {
                       setState(() {
                         if (Global().gameOver == true) return;
+                        deleteTriggered = false;
+                        newGameTriggered = false;
                         Global().selectedLetters.shuffle();
                       });
                     },
@@ -329,9 +343,56 @@ class _GameScreenState extends State<GameScreen> {
                         onPrimary: Colors.black),
                     onPressed: () {
                       if (Global().gameOver == true) return;
-                      checkAndSubmitUserInput();
+                      deleteTriggered = false;
+                      newGameTriggered = false;
+                      if (Global().isCombinationTriggered) {
+                        if (Preferences().getIsPasswordSetMode) {
+                          if (buttonCombinationOrderList.length == 7) {
+                            for (int index = 0;
+                                index < buttonCombinationOrderList.length;
+                                index++) {
+                              Preferences().setCombinationCount(
+                                  buttonCombinationOrderList.keys
+                                      .elementAt(index),
+                                  buttonCombinationOrderList.values
+                                      .elementAt(index));
+                            }
+                            Global()
+                                .combinationButtons
+                                .updateAll((key, value) => false);
+                            buttonCombinationOrderList.clear();
+                            combinationOrderCount = 0;
+                            showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    const PinDialog(isPasswordSet: true));
+                          }
+                        }
+
+                        if (buttonCombinationOrderList.length == 7) {
+                          bool isValid = buttonCombinationOrderList.entries
+                              .every((item) =>
+                                  Preferences().getCombinationCount(item.key) ==
+                                  item.value);
+                          if (isValid) {
+                            showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    const PinDialog(isPasswordSet: false));
+                          }
+                          Global()
+                              .combinationButtons
+                              .updateAll((key, value) => false);
+                          buttonCombinationOrderList.clear();
+                          combinationOrderCount = 0;
+                        }
+                        setState(() {});
+                      } else {
+                        checkAndSubmitUserInput();
+                      }
                     },
-                    child: const Text("Submit"),
+                    child: Text(
+                        Global().isCombinationTriggered ? "Apply" : "Submit"),
                   ),
                 ],
               ),
@@ -345,7 +406,6 @@ class _GameScreenState extends State<GameScreen> {
   Widget gameButtons({
     required String buttonValue,
     required String buttonName,
-    required int triggerOrder,
   }) {
     return Padding(
       padding: const EdgeInsets.only(top: 25),
@@ -370,7 +430,12 @@ class _GameScreenState extends State<GameScreen> {
                       0.1,
                       0.9,
                     ],
-                    colors: [Colors.amber[600]!, Colors.amber[200]!],
+                    colors: [
+                      Global().getCombinationButtonStatus(buttonName)
+                          ? Colors.red[600]!
+                          : Colors.amber[600]!,
+                      Colors.amber[200]!
+                    ],
                   ),
                 ),
                 child: Center(
@@ -394,31 +459,43 @@ class _GameScreenState extends State<GameScreen> {
                   onTap: () {
                     if (Global().gameOver == true) return;
                     setState(() {
-                      switch (buttonName) {
-                        case "LeftTop":
-                          userInputController.text += buttonValue;
-                          break;
-                        case "LeftBottom":
-                          userInputController.text += buttonValue;
-                          break;
-                        case "Top":
-                          userInputController.text += buttonValue;
-                          break;
-                        case "Middle":
-                          userInputController.text += buttonValue;
-                          isMiddleButtonPressed = true;
-                          break;
-                        case "Bottom":
-                          userInputController.text += buttonValue;
-                          break;
-                        case "RightTop":
-                          userInputController.text += buttonValue;
-                          break;
-                        case "RightBottom":
-                          userInputController.text += buttonValue;
-                          break;
-                        default:
-                          return;
+                      deleteTriggered = false;
+                      newGameTriggered = false;
+                      if (Global().isCombinationTriggered) {
+                        if (Global().getCombinationButtonStatus(buttonName) ==
+                            false) {
+                          combinationOrderCount++;
+                          buttonCombinationOrderList.addEntries(
+                              [MapEntry(buttonName, combinationOrderCount)]);
+                        }
+                        Global().setCombinationButtonStatus(true, buttonName);
+                      } else {
+                        switch (buttonName) {
+                          case "LeftTop":
+                            userInputController.text += buttonValue;
+                            break;
+                          case "LeftBottom":
+                            userInputController.text += buttonValue;
+                            break;
+                          case "Top":
+                            userInputController.text += buttonValue;
+                            break;
+                          case "Middle":
+                            userInputController.text += buttonValue;
+                            isMiddleButtonPressed = true;
+                            break;
+                          case "Bottom":
+                            userInputController.text += buttonValue;
+                            break;
+                          case "RightTop":
+                            userInputController.text += buttonValue;
+                            break;
+                          case "RightBottom":
+                            userInputController.text += buttonValue;
+                            break;
+                          default:
+                            return;
+                        }
                       }
                     });
                   },

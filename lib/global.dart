@@ -24,13 +24,31 @@ class Global {
   String middleButtonChar = "";
   List<String> selectedLetters = [];
   String statusMessage = "notSubmitted";
+  bool isCombinationTriggered = false;
   bool gameOver = false;
+  var combinationButtons = {
+    "LeftTop": false,
+    "LeftBottom": false,
+    "Top": false,
+    "Middle": false,
+    "Bottom": false,
+    "RightTop": false,
+    "RightBottom": false,
+  };
 
 // FUNCTIONS
 // game screen functions
 
-  bool isCombinationTriggered() {
-    return true;
+  void setCombinationButtonStatus(bool buttonStatus, String buttonName) {
+    combinationButtons[combinationButtons.entries
+        .firstWhere((button) => button.key == buttonName)
+        .key] = buttonStatus;
+  }
+
+  bool getCombinationButtonStatus(String buttonName) {
+    return combinationButtons[combinationButtons.entries
+        .firstWhere((button) => button.key == buttonName)
+        .key]!;
   }
 
   Future<bool> checkConnectivityState() async {
@@ -64,6 +82,8 @@ class Global {
         return "Game Over!";
       case "noConnection":
         return "No internet connection, please connect and try again";
+      case "combinationSet":
+        return "Please tap each hexagon button once to create your unique combination";
       default:
         return "An error occured";
     }

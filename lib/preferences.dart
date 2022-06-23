@@ -11,10 +11,21 @@ class Preferences {
 
   static final defaultSettings = {
     "firstTime": true,
+    "IsPasswordSetMode": false,
     "isExportPathSelected": false,
     "fileView": true,
     "sort": "A_Z",
     "exportPath": "none",
+  };
+
+  static final buttonCombinations = {
+    "LeftTop": 0,
+    "LeftBottom": 0,
+    "Top": 0,
+    "Middle": 0,
+    "Bottom": 0,
+    "RightTop": 0,
+    "RightBottom": 0,
   };
 
   static final extensionTypes = {
@@ -47,12 +58,24 @@ class Preferences {
   Future<bool>? setBool(String key, bool value) =>
       sharedPreferences?.setBool(key, value);
 
+// to get desired extension's status
   bool getExtensionsBool(String key) =>
       (sharedPreferences?.getBool(key) ?? (extensionTypes[key] as bool));
+
+// to Set combination or check if saved combination is same as user selection
+  int getCombinationCount(String key) =>
+      (sharedPreferences?.getInt(key) ?? (buttonCombinations[key] as int));
+  Future<bool>? setCombinationCount(String key, int value) =>
+      sharedPreferences?.setInt(key, value);
 
 // Works when app opened first time
   get getFirstTime => getBool('firstTime');
   set setFirstTime(bool firstTime) => setBool('firstTime', firstTime);
+
+// Works when app is in change password mode
+  get getIsPasswordSetMode => getBool('IsPasswordSetMode');
+  set setIsPasswordSetMode(bool isPasswordSetMode) =>
+      setBool('IsPasswordSetMode', isPasswordSetMode);
 
 // Export Path
   get getIsExportPathSelected => getBool('isExportPathSelected');
