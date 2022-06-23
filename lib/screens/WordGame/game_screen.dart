@@ -161,6 +161,7 @@ class _GameScreenState extends State<GameScreen> {
                         userInputController.clear();
                         isMiddleButtonPressed = false;
                         AcceptedWords.totalScore = 0;
+                        AcceptedWords.totalWordCount = 0;
                         acceptedWords.clear();
                         Global().statusMessage = "notSubmitted";
                       });
