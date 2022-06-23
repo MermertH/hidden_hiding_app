@@ -29,6 +29,10 @@ class Global {
 // FUNCTIONS
 // game screen functions
 
+  bool isCombinationTriggered() {
+    return true;
+  }
+
   Future<bool> checkConnectivityState() async {
     final ConnectivityResult result = await Connectivity().checkConnectivity();
     if (result == ConnectivityResult.wifi) {
@@ -45,23 +49,23 @@ class Global {
       case "notSubmitted":
         return "Enter your word here";
       case "noInputFound":
-        return "field cannot be blank!";
+        return "Field cannot be blank!";
       case "middleButtonNotPressed":
         return "The middle button must be pressed at least once!";
       case "wordNotFound":
-        return "submitted word not found";
+        return "Submitted word not found";
       case "sameWordWarning":
-        return "this word is already found";
+        return "This word is already found";
       case "waitingResponse":
-        return "checking word...";
+        return "Checking word...";
       case "rateLimitExceed":
-        return "too much request made frequently, please wait a bit and try again";
+        return "Too much request made frequently, please wait a bit and try again";
       case "gameLimitReached":
         return "Game Over!";
       case "noConnection":
-        return "no internet connection, please connect and try again";
+        return "No internet connection, please connect and try again";
       default:
-        return "an error occured";
+        return "An error occured";
     }
   }
 

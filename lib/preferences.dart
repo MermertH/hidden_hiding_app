@@ -10,6 +10,7 @@ class Preferences {
   }
 
   static final defaultSettings = {
+    "firstTime": true,
     "isExportPathSelected": false,
     "fileView": true,
     "sort": "A_Z",
@@ -48,6 +49,10 @@ class Preferences {
 
   bool getExtensionsBool(String key) =>
       (sharedPreferences?.getBool(key) ?? (extensionTypes[key] as bool));
+
+// Works when app opened first time
+  get getFirstTime => getBool('firstTime');
+  set setFirstTime(bool firstTime) => setBool('firstTime', firstTime);
 
 // Export Path
   get getIsExportPathSelected => getBool('isExportPathSelected');

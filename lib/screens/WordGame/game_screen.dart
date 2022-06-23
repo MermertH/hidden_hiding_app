@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/models/accepted_words.dart';
+import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_button_shape.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_clipper.dart';
 
@@ -17,10 +18,15 @@ class _GameScreenState extends State<GameScreen> {
   var userInputController = TextEditingController();
   List<AcceptedWords> acceptedWords = [];
   bool isMiddleButtonPressed = false;
+  int combinationOrderCount = 0;
 
   @override
   void initState() {
     super.initState();
+    if (Preferences().getFirstTime) {
+      // TODO tutorial trigger
+      Preferences().setFirstTime = true;
+    }
     Global().removeFlag();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -171,12 +177,16 @@ class _GameScreenState extends State<GameScreen> {
                 ],
               ),
             ),
-            Text(
-              Global().getStatusMessage(Global().statusMessage),
-              style: GoogleFonts.abel(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.black),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                Global().getStatusMessage(Global().statusMessage),
+                textAlign: TextAlign.center,
+                style: GoogleFonts.abel(
+                    fontWeight: FontWeight.bold,
+                    fontSize: Global().gameOver ? 35 : 24,
+                    color: Colors.black),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -212,33 +222,54 @@ class _GameScreenState extends State<GameScreen> {
                   children: [
                     gameButtons(
                         buttonValue: Global().selectedLetters[0],
-                        buttonName: "LeftTop"),
+                        buttonName: "LeftTop",
+                        triggerOrder: Global().isCombinationTriggered()
+                            ? combinationOrderCount++
+                            : 0),
                     gameButtons(
                         buttonValue: Global().selectedLetters[1],
-                        buttonName: "LeftBottom"),
+                        buttonName: "LeftBottom",
+                        triggerOrder: Global().isCombinationTriggered()
+                            ? combinationOrderCount++
+                            : 0),
                   ],
                 ),
                 Column(
                   children: [
                     gameButtons(
                         buttonValue: Global().selectedLetters[2],
-                        buttonName: "Top"),
+                        buttonName: "Top",
+                        triggerOrder: Global().isCombinationTriggered()
+                            ? combinationOrderCount++
+                            : 0),
                     gameButtons(
                         buttonValue: Global().middleButtonChar,
-                        buttonName: "Middle"),
+                        buttonName: "Middle",
+                        triggerOrder: Global().isCombinationTriggered()
+                            ? combinationOrderCount++
+                            : 0),
                     gameButtons(
                         buttonValue: Global().selectedLetters[3],
-                        buttonName: "Bottom"),
+                        buttonName: "Bottom",
+                        triggerOrder: Global().isCombinationTriggered()
+                            ? combinationOrderCount++
+                            : 0),
                   ],
                 ),
                 Column(
                   children: [
                     gameButtons(
                         buttonValue: Global().selectedLetters[4],
-                        buttonName: "RightTop"),
+                        buttonName: "RightTop",
+                        triggerOrder: Global().isCombinationTriggered()
+                            ? combinationOrderCount++
+                            : 0),
                     gameButtons(
                         buttonValue: Global().selectedLetters[5],
-                        buttonName: "RightBottom"),
+                        buttonName: "RightBottom",
+                        triggerOrder: Global().isCombinationTriggered()
+                            ? combinationOrderCount++
+                            : 0),
                   ],
                 ),
               ],
@@ -311,8 +342,11 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget gameButtons(
-      {required String buttonValue, required String buttonName}) {
+  Widget gameButtons({
+    required String buttonValue,
+    required String buttonName,
+    required int triggerOrder,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(top: 25),
       child: Stack(
@@ -351,34 +385,6 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
           ),
-          // if (buttonName == "Middle")
-          //   Positioned.fill(
-          //     child: ClipPath(
-          //       clipper: HexagonClipper(),
-          //       child: Container(
-          //         decoration: BoxDecoration(
-          //           gradient: LinearGradient(
-          //             begin: Alignment.topRight,
-          //             end: Alignment.bottomLeft,
-          //             colors: [
-          //               Colors.amber[200]!,
-          //               Colors.orange[700]!,
-          //               Colors.amber[200]!
-          //             ],
-          //           ),
-          //         ),
-          //         child: Center(
-          //           child: Text(
-          //             buttonValue.toUpperCase(),
-          //             style: GoogleFonts.abel(
-          //                 fontWeight: FontWeight.bold,
-          //                 fontSize: 30,
-          //                 color: Colors.black),
-          //           ),
-          //         ),
-          //       ),
-          //     ),
-          //   ),
           Positioned.fill(
             child: ClipPath(
               clipper: HexagonClipper(),
