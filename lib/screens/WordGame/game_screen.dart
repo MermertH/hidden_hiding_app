@@ -1,9 +1,9 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hidden_hiding_app/global.dart';
+import 'package:hidden_hiding_app/models/accepted_words.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_button_shape.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_clipper.dart';
 
@@ -16,6 +16,8 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   var userInputController = TextEditingController();
+  List<AcceptedWords> acceptedWords = [];
+  bool isMiddleButtonPressed = false;
 
   @override
   void initState() {
@@ -95,7 +97,7 @@ class _GameScreenState extends State<GameScreen> {
               ),
               ListView.builder(
                 shrinkWrap: true,
-                itemCount: 5,
+                itemCount: acceptedWords.length,
                 itemBuilder: (context, index) => Card(
                   color: Colors.amber[300],
                   child: ListTile(
@@ -104,7 +106,7 @@ class _GameScreenState extends State<GameScreen> {
                       color: Colors.red[300]!,
                     ),
                     title: Text(
-                      "Word",
+                      acceptedWords[index].word,
                       style: GoogleFonts.abel(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -112,7 +114,7 @@ class _GameScreenState extends State<GameScreen> {
                       ),
                     ),
                     trailing: Text(
-                      "Point: ${Random().nextInt(20) + 1}",
+                      "point: ${acceptedWords[index].score.toString()}",
                       style: GoogleFonts.abel(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -135,7 +137,7 @@ class _GameScreenState extends State<GameScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Score: 0",
+                    "Score: ${AcceptedWords.totalScore}",
                     style: GoogleFonts.abel(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
@@ -155,6 +157,10 @@ class _GameScreenState extends State<GameScreen> {
                       setState(() {
                         Global().getMiddleButtonChar();
                         Global().getButtonCharsExceptMiddleButton();
+                        userInputController.clear();
+                        isMiddleButtonPressed = false;
+                        AcceptedWords.totalScore = 0;
+                        acceptedWords.clear();
                       });
                     },
                     child: const Text("New Game"),
@@ -163,7 +169,7 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
             Text(
-              "Enter your word here",
+              "Enter your word here", //TODO change message according to the situaion
               style: GoogleFonts.abel(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -174,7 +180,7 @@ class _GameScreenState extends State<GameScreen> {
               child: TextField(
                 textAlign: TextAlign.center,
                 style: GoogleFonts.abel(
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
@@ -248,7 +254,17 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                         primary: Colors.orange[500],
                         onPrimary: Colors.black),
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        if (userInputController.text.isNotEmpty) {
+                          userInputController.text = userInputController.text
+                              .substring(
+                                  0, userInputController.text.length - 1);
+                          isMiddleButtonPressed = userInputController.text
+                              .contains(Global().middleButtonChar);
+                        }
+                      });
+                    },
                     child: const Text("Delete"),
                   ),
                   ElevatedButton(
@@ -275,7 +291,17 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                         primary: Colors.orange[500],
                         onPrimary: Colors.black),
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        if (isMiddleButtonPressed) {
+                          acceptedWords.add(AcceptedWords(
+                              word: userInputController.text,
+                              score: userInputController.text.length));
+                          userInputController.clear();
+                          isMiddleButtonPressed = false;
+                        }
+                      });
+                    },
                     child: const Text("Submit"),
                   ),
                 ],
@@ -316,7 +342,34 @@ class _GameScreenState extends State<GameScreen> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
-                    setState(() {});
+                    setState(() {
+                      switch (buttonName) {
+                        case "LeftTop":
+                          userInputController.text += buttonValue;
+                          break;
+                        case "LeftBottom":
+                          userInputController.text += buttonValue;
+                          break;
+                        case "Top":
+                          userInputController.text += buttonValue;
+                          break;
+                        case "Middle":
+                          userInputController.text += buttonValue;
+                          isMiddleButtonPressed = true;
+                          break;
+                        case "Bottom":
+                          userInputController.text += buttonValue;
+                          break;
+                        case "RightTop":
+                          userInputController.text += buttonValue;
+                          break;
+                        case "RightBottom":
+                          userInputController.text += buttonValue;
+                          break;
+                        default:
+                          return;
+                      }
+                    });
                   },
                 ),
               ),
