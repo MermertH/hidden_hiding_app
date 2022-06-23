@@ -47,6 +47,8 @@ dependencies:
   video_compress: ^3.1.0
   flutter_windowmanager: ^0.2.0
   flutter_secure_storage: ^5.0.2
+  http: ^0.13.4
+  connectivity_plus: ^2.3.5
 
 dev_dependencies:
   flutter_test:

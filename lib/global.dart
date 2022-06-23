@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:math';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
-import 'dart:math';
 import 'package:video_compress/video_compress.dart';
+import 'package:http/http.dart' as http;
 
 class Global {
   static final Global _instance = Global._internal();
@@ -21,14 +23,70 @@ class Global {
 // game screen variables
   String middleButtonChar = "";
   List<String> selectedLetters = [];
+  String statusMessage = "notSubmitted";
+  bool gameOver = false;
 
 // FUNCTIONS
 // game screen functions
+
+  Future<bool> checkConnectivityState() async {
+    final ConnectivityResult result = await Connectivity().checkConnectivity();
+    if (result == ConnectivityResult.wifi) {
+      return true;
+    } else if (result == ConnectivityResult.mobile) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  String getStatusMessage(String key) {
+    switch (key) {
+      case "notSubmitted":
+        return "Enter your word here";
+      case "noInputFound":
+        return "field cannot be blank!";
+      case "middleButtonNotPressed":
+        return "The middle button must be pressed at least once!";
+      case "wordNotFound":
+        return "submitted word not found";
+      case "sameWordWarning":
+        return "this word is already found";
+      case "waitingResponse":
+        return "checking word...";
+      case "rateLimitExceed":
+        return "too much request made frequently, please wait a bit and try again";
+      case "gameLimitReached":
+        return "Game Over!";
+      case "noConnection":
+        return "no internet connection, please connect and try again";
+      default:
+        return "an error occured";
+    }
+  }
+
   void getMiddleButtonChar() {
     List<String> vowels = [];
     var rng = Random();
     vowels.addAll(["a", "e", "i", "o", "u"]);
     middleButtonChar = vowels.elementAt(rng.nextInt(vowels.length));
+  }
+
+  Future<bool> wordExists({required word}) async {
+    final client = http.Client();
+    final res = await client.get(
+        Uri.parse("https://owlbot.info/api/v4/dictionary/$word"),
+        headers: {
+          'Authorization': 'Token be353ca47454bc2a0b9ec0cf699ac848ded01214'
+        });
+    if (res.statusCode == 200) {
+      return true;
+    } else if (res.statusCode == 429) {
+      Global().statusMessage = "rateLimitExceed";
+      return false;
+    } else {
+      return false;
+    }
   }
 
   void getButtonCharsExceptMiddleButton() {

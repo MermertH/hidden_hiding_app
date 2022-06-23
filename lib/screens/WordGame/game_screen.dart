@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -107,6 +106,7 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                     title: Text(
                       acceptedWords[index].word,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.abel(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -155,12 +155,14 @@ class _GameScreenState extends State<GameScreen> {
                         onPrimary: Colors.black),
                     onPressed: () {
                       setState(() {
+                        Global().gameOver = false;
                         Global().getMiddleButtonChar();
                         Global().getButtonCharsExceptMiddleButton();
                         userInputController.clear();
                         isMiddleButtonPressed = false;
                         AcceptedWords.totalScore = 0;
                         acceptedWords.clear();
+                        Global().statusMessage = "notSubmitted";
                       });
                     },
                     child: const Text("New Game"),
@@ -169,7 +171,7 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
             Text(
-              "Enter your word here", //TODO change message according to the situaion
+              Global().getStatusMessage(Global().statusMessage),
               style: GoogleFonts.abel(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -256,6 +258,7 @@ class _GameScreenState extends State<GameScreen> {
                         onPrimary: Colors.black),
                     onPressed: () {
                       setState(() {
+                        if (Global().gameOver == true) return;
                         if (userInputController.text.isNotEmpty) {
                           userInputController.text = userInputController.text
                               .substring(
@@ -274,6 +277,7 @@ class _GameScreenState extends State<GameScreen> {
                         onPrimary: Colors.black),
                     onPressed: () {
                       setState(() {
+                        if (Global().gameOver == true) return;
                         Global().selectedLetters.shuffle();
                       });
                     },
@@ -292,6 +296,7 @@ class _GameScreenState extends State<GameScreen> {
                         primary: Colors.orange[500],
                         onPrimary: Colors.black),
                     onPressed: () {
+                      if (Global().gameOver == true) return;
                       checkAndSubmitUserInput();
                     },
                     child: const Text("Submit"),
@@ -313,20 +318,66 @@ class _GameScreenState extends State<GameScreen> {
         children: [
           CustomPaint(
             painter: HexagonButton(),
-            child: SizedBox(
+            child: const SizedBox(
               width: 100,
               height: 100,
-              child: Center(
-                child: Text(
-                  buttonValue.toUpperCase(),
-                  style: GoogleFonts.abel(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30,
-                      color: Colors.black),
+            ),
+          ),
+          Positioned.fill(
+            child: ClipPath(
+              clipper: HexagonClipper(),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    stops: const [
+                      0.1,
+                      0.9,
+                    ],
+                    colors: [Colors.amber[600]!, Colors.amber[200]!],
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    buttonValue.toUpperCase(),
+                    style: GoogleFonts.abel(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30,
+                        color: Colors.black),
+                  ),
                 ),
               ),
             ),
           ),
+          // if (buttonName == "Middle")
+          //   Positioned.fill(
+          //     child: ClipPath(
+          //       clipper: HexagonClipper(),
+          //       child: Container(
+          //         decoration: BoxDecoration(
+          //           gradient: LinearGradient(
+          //             begin: Alignment.topRight,
+          //             end: Alignment.bottomLeft,
+          //             colors: [
+          //               Colors.amber[200]!,
+          //               Colors.orange[700]!,
+          //               Colors.amber[200]!
+          //             ],
+          //           ),
+          //         ),
+          //         child: Center(
+          //           child: Text(
+          //             buttonValue.toUpperCase(),
+          //             style: GoogleFonts.abel(
+          //                 fontWeight: FontWeight.bold,
+          //                 fontSize: 30,
+          //                 color: Colors.black),
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
           Positioned.fill(
             child: ClipPath(
               clipper: HexagonClipper(),
@@ -334,6 +385,7 @@ class _GameScreenState extends State<GameScreen> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
+                    if (Global().gameOver == true) return;
                     setState(() {
                       switch (buttonName) {
                         case "LeftTop":
@@ -372,14 +424,38 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  void checkAndSubmitUserInput() {
-    if (isMiddleButtonPressed) {
-      acceptedWords.add(AcceptedWords(
-          word: userInputController.text,
-          score: userInputController.text.length));
-      userInputController.clear();
-      isMiddleButtonPressed = false;
+  void checkAndSubmitUserInput() async {
+    if (userInputController.text.isEmpty) {
+      Global().statusMessage = "noInputFound";
+    } else if (acceptedWords
+        .any((acceptedWord) => acceptedWord.word == userInputController.text)) {
+      Global().statusMessage = "sameWordWarning";
+    } else if (!isMiddleButtonPressed) {
+      Global().statusMessage = "middleButtonNotPressed";
+    } else {
+      setState(() {
+        Global().statusMessage = "waitingResponse";
+      });
+      if (await Global().checkConnectivityState()) {
+        if (await Global().wordExists(word: userInputController.text)) {
+          acceptedWords.add(AcceptedWords(
+              word: userInputController.text,
+              score: userInputController.text.length));
+          isMiddleButtonPressed = false;
+          if (AcceptedWords.totalWordCount == 50) {
+            Global().statusMessage = "gameLimitReached";
+            Global().gameOver = true;
+          } else {
+            Global().statusMessage = "notSubmitted";
+          }
+        } else {
+          Global().statusMessage = "wordNotFound";
+        }
+      } else {
+        Global().statusMessage = "noConnection";
+      }
     }
+    userInputController.clear();
     setState(() {});
   }
 }
