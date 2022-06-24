@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/models/user_data.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/secret_words_dialog.dart';
 import 'package:hidden_hiding_app/services/storage_service.dart';
@@ -118,6 +119,7 @@ class _PinDialogState extends State<PinDialog> {
                     secretPin.split(",")[1] == digit2.text &&
                     secretPin.split(",")[2] == digit3.text &&
                     secretPin.split(",")[3] == digit4.text) {
+                  Global().isCombinationTriggered = false;
                   Navigator.of(context).pushNamed("/VaultMainScreen");
                 } else {
                   wrongPinCount++;

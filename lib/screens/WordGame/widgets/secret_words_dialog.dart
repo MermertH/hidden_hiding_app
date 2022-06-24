@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/models/user_data.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/WordGame/src/recovery_words.dart';
@@ -207,6 +208,7 @@ class _PinDialogState extends State<SecretWordsDialog> {
                                     recoveryFields[6].text &&
                                 recoveryKeys.split(",")[7] ==
                                     recoveryFields[7].text) {
+                              Global().isCombinationTriggered = false;
                               Navigator.of(context)
                                   .pushNamed("/VaultMainScreen");
                             } else {
