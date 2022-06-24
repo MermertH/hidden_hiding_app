@@ -32,7 +32,7 @@ class _GameScreenState extends State<GameScreen> {
       Preferences().setIsPasswordSetMode = true;
       Global().statusMessage = "combinationSet";
       // TODO tutorial trigger
-      Preferences().setFirstTime = true;
+      Preferences().setFirstTime = false;
     }
     Global().removeFlag();
     SystemChrome.setPreferredOrientations([

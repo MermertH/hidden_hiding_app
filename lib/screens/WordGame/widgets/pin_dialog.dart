@@ -149,6 +149,7 @@ class _PinDialogState extends State<PinDialog> {
         controller: controller,
         obscureText: true,
         autofocus: true,
+        maxLength: 1,
         cursorColor: Colors.black,
         cursorWidth: 3,
         textInputAction:
