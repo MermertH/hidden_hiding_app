@@ -49,36 +49,65 @@ class _PinDialogState extends State<SecretWordsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.amber[300],
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              widget.isPasswordSet
-                  ? "Please backup all of the given words in order to be able to recover your vault in case you forgot your combination or secret pin, if you lost it you cannot recover any data so be aware of that"
-                  : "Please enter your recovery keys respectively",
-              textAlign: TextAlign.center,
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                stops: const [
+                  0.1,
+                  0.9,
+                ],
+                colors: [Colors.amber[600]!, Colors.amber[200]!],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                widget.isPasswordSet
+                    ? "Please backup all of the given words in order to be able to recover your vault in case you forgot your combination or secret pin, if you lost it you cannot recover any data so be aware of that"
+                    : "Please enter your recovery keys respectively",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.abel(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
             ),
           ),
           if (widget.isPasswordSet)
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.amber[700]!,
-                  width: 2,
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.amber[700]!,
+                    width: 4,
+                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Wrap(
-                  children: List.generate(
-                      selectedRecoveryWords.length,
-                      (index) => Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(selectedRecoveryWords[index]),
-                          )),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Wrap(
+                    children: List.generate(
+                        selectedRecoveryWords.length,
+                        (index) => Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                selectedRecoveryWords[index],
+                                style: GoogleFonts.abel(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            )),
+                  ),
                 ),
               ),
             ),
@@ -129,52 +158,55 @@ class _PinDialogState extends State<SecretWordsDialog> {
                   },
                   child: const Text("Try Again"),
                 ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    textStyle: GoogleFonts.abel(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    primary: Colors.orange[500],
-                    onPrimary: Colors.black),
-                onPressed: () async {
-                  if (widget.isPasswordSet) {
-                    await encryptedStorage.writeSecureData(UserData(
-                        key: "recoveryKeys",
-                        value:
-                            "${selectedRecoveryWords[0]},${selectedRecoveryWords[1]},${selectedRecoveryWords[2]},${selectedRecoveryWords[3]},${selectedRecoveryWords[4]},${selectedRecoveryWords[5]},${selectedRecoveryWords[6]},${selectedRecoveryWords[7]}"));
-                    Navigator.of(context).pushNamed("/VaultMainScreen");
-                  } else {
-                    await encryptedStorage
-                        .readSecureData("recoveryKeys")
-                        .then((recoveryKeys) {
-                      if (recoveryKeys!.split(",")[0] ==
-                              recoveryFields[0].text &&
-                          recoveryKeys.split(",")[1] ==
-                              recoveryFields[1].text &&
-                          recoveryKeys.split(",")[2] ==
-                              recoveryFields[2].text &&
-                          recoveryKeys.split(",")[3] ==
-                              recoveryFields[3].text &&
-                          recoveryKeys.split(",")[4] ==
-                              recoveryFields[4].text &&
-                          recoveryKeys.split(",")[5] ==
-                              recoveryFields[5].text &&
-                          recoveryKeys.split(",")[6] ==
-                              recoveryFields[6].text &&
-                          recoveryKeys.split(",")[7] ==
-                              recoveryFields[7].text) {
-                        Navigator.of(context).pushNamed("/VaultMainScreen");
-                      } else {
-                        setState(() {
-                          isNotValid = true;
-                        });
-                      }
-                    });
-                  }
-                },
-                child: Text(widget.isPasswordSet ? "Understood" : "Recover"),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      textStyle: GoogleFonts.abel(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      primary: Colors.orange[500],
+                      onPrimary: Colors.black),
+                  onPressed: () async {
+                    if (widget.isPasswordSet) {
+                      await encryptedStorage.writeSecureData(UserData(
+                          key: "recoveryKeys",
+                          value:
+                              "${selectedRecoveryWords[0]},${selectedRecoveryWords[1]},${selectedRecoveryWords[2]},${selectedRecoveryWords[3]},${selectedRecoveryWords[4]},${selectedRecoveryWords[5]},${selectedRecoveryWords[6]},${selectedRecoveryWords[7]}"));
+                      Navigator.of(context).pushNamed("/VaultMainScreen");
+                    } else {
+                      await encryptedStorage
+                          .readSecureData("recoveryKeys")
+                          .then((recoveryKeys) {
+                        if (recoveryKeys!.split(",")[0] ==
+                                recoveryFields[0].text &&
+                            recoveryKeys.split(",")[1] ==
+                                recoveryFields[1].text &&
+                            recoveryKeys.split(",")[2] ==
+                                recoveryFields[2].text &&
+                            recoveryKeys.split(",")[3] ==
+                                recoveryFields[3].text &&
+                            recoveryKeys.split(",")[4] ==
+                                recoveryFields[4].text &&
+                            recoveryKeys.split(",")[5] ==
+                                recoveryFields[5].text &&
+                            recoveryKeys.split(",")[6] ==
+                                recoveryFields[6].text &&
+                            recoveryKeys.split(",")[7] ==
+                                recoveryFields[7].text) {
+                          Navigator.of(context).pushNamed("/VaultMainScreen");
+                        } else {
+                          setState(() {
+                            isNotValid = true;
+                          });
+                        }
+                      });
+                    }
+                  },
+                  child: Text(widget.isPasswordSet ? "Understood" : "Recover"),
+                ),
               ),
             ],
           ),
