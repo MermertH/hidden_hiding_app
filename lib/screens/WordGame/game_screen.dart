@@ -7,6 +7,7 @@ import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_button_shape.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_clipper.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/pin_dialog.dart';
+import 'package:hidden_hiding_app/screens/WordGame/widgets/secret_words_dialog.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({Key? key}) : super(key: key);
@@ -23,6 +24,7 @@ class _GameScreenState extends State<GameScreen> {
   bool newGameTriggered = false;
   bool deleteTriggered = false;
   int combinationOrderCount = 0;
+  int wrongPinCount = 0;
 
   @override
   void initState() {
@@ -66,6 +68,7 @@ class _GameScreenState extends State<GameScreen> {
             Global().combinationButtons.updateAll((key, value) => false);
             buttonCombinationOrderList.clear();
             combinationOrderCount = 0;
+            wrongPinCount = 0;
           });
         },
         child: Scaffold(
@@ -397,6 +400,18 @@ class _GameScreenState extends State<GameScreen> {
                                         isPasswordSet: false,
                                         isInVault: false,
                                       ));
+                            } else {
+                              wrongPinCount++;
+                              if (wrongPinCount == 3) {
+                                wrongPinCount = 0;
+                                showDialog(
+                                    context: context,
+                                    builder: (context) =>
+                                        const SecretWordsDialog(
+                                          isPasswordSet: false,
+                                          isRecoveryMode: true,
+                                        ));
+                              }
                             }
                             Global()
                                 .combinationButtons
