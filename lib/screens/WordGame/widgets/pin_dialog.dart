@@ -176,6 +176,7 @@ class _PinDialogState extends State<PinDialog> {
           constraints: const BoxConstraints(
             maxWidth: 50,
           ),
+          counter: const SizedBox.shrink(),
           filled: true,
           fillColor: const Color(0xFFF2F2F2),
           focusedBorder: OutlineInputBorder(
