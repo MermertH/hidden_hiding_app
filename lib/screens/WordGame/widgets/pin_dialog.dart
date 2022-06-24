@@ -6,9 +6,11 @@ import 'package:hidden_hiding_app/services/storage_service.dart';
 
 class PinDialog extends StatefulWidget {
   final bool isPasswordSet;
+  final bool isInVault;
   const PinDialog({
     Key? key,
     required this.isPasswordSet,
+    required this.isInVault,
   }) : super(key: key);
 
   @override
@@ -26,7 +28,7 @@ class _PinDialogState extends State<PinDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.amber[300],
+      backgroundColor: widget.isInVault ? null : Colors.amber[300],
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -34,14 +36,16 @@ class _PinDialogState extends State<PinDialog> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              widget.isPasswordSet
+              widget.isPasswordSet && !widget.isInVault
                   ? "Please enter four digits to create your secret pin"
-                  : "Please enter your secret pin",
+                  : widget.isInVault
+                      ? "Enter your new secret pin"
+                      : "Please enter your secret pin",
               textAlign: TextAlign.center,
               style: GoogleFonts.abel(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: widget.isInVault ? Colors.white : Colors.black,
               ),
             ),
           ),
@@ -62,6 +66,7 @@ class _PinDialogState extends State<PinDialog> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                interactionButtons("Cancel"),
                 interactionButtons("Clear"),
                 interactionButtons("Submit"),
               ],
@@ -80,10 +85,13 @@ class _PinDialogState extends State<PinDialog> {
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
-          primary: Colors.orange[500],
-          onPrimary: Colors.black),
+          primary: widget.isInVault ? Colors.grey[600] : Colors.orange[500],
+          onPrimary: widget.isInVault ? Colors.white : Colors.black),
       onPressed: () async {
         switch (buttonName) {
+          case "Cancel":
+            Navigator.of(context).pop();
+            break;
           case "Clear":
             digit1.clear();
             digit2.clear();
@@ -159,10 +167,14 @@ class _PinDialogState extends State<PinDialog> {
           filled: true,
           fillColor: const Color(0xFFF2F2F2),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 2, color: Colors.amber[700]!),
+            borderSide: BorderSide(
+                width: 2,
+                color: widget.isInVault ? Colors.grey : Colors.amber[700]!),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 2, color: Colors.amber[700]!),
+            borderSide: BorderSide(
+                width: 2,
+                color: widget.isInVault ? Colors.grey : Colors.amber[700]!),
           ),
         ),
       ),

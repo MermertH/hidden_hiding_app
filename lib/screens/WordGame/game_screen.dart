@@ -364,8 +364,10 @@ class _GameScreenState extends State<GameScreen> {
                             combinationOrderCount = 0;
                             showDialog(
                                 context: context,
-                                builder: (context) =>
-                                    const PinDialog(isPasswordSet: true));
+                                builder: (context) => const PinDialog(
+                                      isPasswordSet: true,
+                                      isInVault: false,
+                                    ));
                           }
                         }
 
@@ -377,8 +379,10 @@ class _GameScreenState extends State<GameScreen> {
                           if (isValid) {
                             showDialog(
                                 context: context,
-                                builder: (context) =>
-                                    const PinDialog(isPasswordSet: false));
+                                builder: (context) => const PinDialog(
+                                      isPasswordSet: false,
+                                      isInVault: false,
+                                    ));
                           }
                           Global()
                               .combinationButtons

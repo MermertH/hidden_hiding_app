@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
+import 'package:hidden_hiding_app/screens/WordGame/widgets/pin_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -30,6 +31,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       "tag": "export",
       "leading": const Icon(Icons.import_export),
       "title": const Text("Change export location"),
+      "trailing": const SizedBox(),
+    },
+    {
+      "tag": "gameScreen",
+      "leading": const Icon(Icons.abc),
+      "title": const Text("Return to the game"),
       "trailing": const SizedBox(),
     },
     {
@@ -106,7 +113,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Preferences().setIsExportPathSelected = false;
         }
         break;
-      case "security":
+      case "pin":
+        showDialog(
+            context: context,
+            builder: (context) => const PinDialog(
+                  isPasswordSet: true,
+                  isInVault: true,
+                ));
+        break;
+      case "gameScreen":
+        Navigator.of(context).pushNamed("/GameScreen");
         break;
       default:
         return;
