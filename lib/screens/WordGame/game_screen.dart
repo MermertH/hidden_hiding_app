@@ -125,31 +125,33 @@ class _GameScreenState extends State<GameScreen> {
                   width: double.maxFinite,
                   color: Colors.amber[800],
                 ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: acceptedWords.length,
-                  itemBuilder: (context, index) => Card(
-                    color: Colors.amber[300],
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.star,
-                        color: Colors.red[300]!,
-                      ),
-                      title: Text(
-                        acceptedWords[index].word,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.abel(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: acceptedWords.length,
+                    itemBuilder: (context, index) => Card(
+                      color: Colors.amber[300],
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.star,
+                          color: Colors.red[300]!,
                         ),
-                      ),
-                      trailing: Text(
-                        "point: ${acceptedWords[index].score.toString()}",
-                        style: GoogleFonts.abel(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                        title: Text(
+                          acceptedWords[index].word,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.abel(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        trailing: Text(
+                          "point: ${acceptedWords[index].score.toString()}",
+                          style: GoogleFonts.abel(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),
