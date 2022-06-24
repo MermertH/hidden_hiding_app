@@ -143,9 +143,8 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
               }
             },
             child: const Padding(
-              padding: EdgeInsets.only(right: 25),
-              child: Icon(Icons.filter),
-            ),
+                padding: EdgeInsets.only(right: 25),
+                child: Icon(Icons.filter_alt)),
           ),
           GestureDetector(
             onTap: () {

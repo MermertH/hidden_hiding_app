@@ -4,6 +4,7 @@ import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/widgets/set_combination_dialog.dart';
+import 'package:hidden_hiding_app/screens/WordGame/game_screen.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/pin_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -129,7 +130,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         break;
       case "gameScreen":
-        Navigator.of(context).pushNamed("/GameScreen");
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const GameScreen()),
+          (Route<dynamic> route) => false,
+        );
         break;
       default:
         return;

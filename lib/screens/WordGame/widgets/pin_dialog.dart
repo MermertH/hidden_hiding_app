@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/models/user_data.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/vault_main_screen.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/secret_words_dialog.dart';
 import 'package:hidden_hiding_app/services/storage_service.dart';
 
@@ -105,12 +106,16 @@ class _PinDialogState extends State<PinDialog> {
                   key: "secretPin",
                   value:
                       "${digit1.text},${digit2.text},${digit3.text},${digit4.text}"));
-              showDialog(
-                  context: context,
-                  builder: (context) => SecretWordsDialog(
-                        isPasswordSet: widget.isPasswordSet,
-                        isRecoveryMode: false,
-                      ));
+              if (!widget.isInVault) {
+                showDialog(
+                    context: context,
+                    builder: (context) => SecretWordsDialog(
+                          isPasswordSet: widget.isPasswordSet,
+                          isRecoveryMode: false,
+                        ));
+              } else {
+                Navigator.of(context).pop();
+              }
             } else {
               await encryptedStorage
                   .readSecureData("secretPin")
@@ -120,7 +125,11 @@ class _PinDialogState extends State<PinDialog> {
                     secretPin.split(",")[2] == digit3.text &&
                     secretPin.split(",")[3] == digit4.text) {
                   Global().isCombinationTriggered = false;
-                  Navigator.of(context).pushNamed("/VaultMainScreen");
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => const VaultMainScreen()),
+                    (Route<dynamic> route) => false,
+                  );
                 } else {
                   wrongPinCount++;
                   if (wrongPinCount == 3) {

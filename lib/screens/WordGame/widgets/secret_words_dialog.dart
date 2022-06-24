@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/models/user_data.dart';
 import 'package:hidden_hiding_app/preferences.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/vault_main_screen.dart';
 import 'package:hidden_hiding_app/screens/WordGame/src/recovery_words.dart';
 import 'package:hidden_hiding_app/services/storage_service.dart';
 
@@ -144,11 +145,16 @@ class _PinDialogState extends State<SecretWordsDialog> {
                   ),
                 ),
               if (isNotValid)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text(
                     "keys are not correct! Please try again",
                     textAlign: TextAlign.center,
+                    style: GoogleFonts.abel(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               Row(
@@ -187,7 +193,11 @@ class _PinDialogState extends State<SecretWordsDialog> {
                               value:
                                   "${selectedRecoveryWords[0]},${selectedRecoveryWords[1]},${selectedRecoveryWords[2]},${selectedRecoveryWords[3]},${selectedRecoveryWords[4]},${selectedRecoveryWords[5]},${selectedRecoveryWords[6]},${selectedRecoveryWords[7]}"));
                           Preferences().setIsPasswordSetMode = false;
-                          Navigator.of(context).pushNamed("/VaultMainScreen");
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => const VaultMainScreen()),
+                            (Route<dynamic> route) => false,
+                          );
                         } else {
                           await encryptedStorage
                               .readSecureData("recoveryKeys")
@@ -209,8 +219,13 @@ class _PinDialogState extends State<SecretWordsDialog> {
                                 recoveryKeys.split(",")[7] ==
                                     recoveryFields[7].text) {
                               Global().isCombinationTriggered = false;
-                              Navigator.of(context)
-                                  .pushNamed("/VaultMainScreen");
+                              Preferences().setIsPasswordSetMode = true;
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const VaultMainScreen()),
+                                (Route<dynamic> route) => false,
+                              );
                             } else {
                               setState(() {
                                 isNotValid = true;
