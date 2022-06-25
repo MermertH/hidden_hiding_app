@@ -146,7 +146,7 @@ class _PinDialogState extends State<SecretWordsDialog> {
                 ),
               if (isNotValid)
                 Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
                     "keys are not correct! Please try again",
                     textAlign: TextAlign.center,

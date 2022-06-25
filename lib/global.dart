@@ -68,8 +68,6 @@ class Global {
         return "Enter your word here";
       case "noInputFound":
         return "Field cannot be blank!";
-      case "middleButtonNotPressed":
-        return "The middle button must be pressed at least once!";
       case "wordNotFound":
         return "Submitted word not found";
       case "sameWordWarning":

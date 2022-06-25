@@ -17,24 +17,128 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  // Variables
   var userInputController = TextEditingController();
   List<AcceptedWords> acceptedWords = [];
   Map<String, int> buttonCombinationOrderList = {};
-  bool isMiddleButtonPressed = false;
   bool newGameTriggered = false;
   bool deleteTriggered = false;
   int combinationOrderCount = 0;
   int wrongPinCount = 0;
 
+  // tutorial widgets
+  List<Widget> tutorialWidgets = [
+    Align(
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [
+                Colors.amber[200]!,
+                Colors.amber[500]!,
+                Colors.amber[200]!,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Welcome to Word Bender",
+                  style: GoogleFonts.abel(
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "This tutorial aims to give you all of the information you need in order to use the app accordingly",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+    Align(
+      alignment: const Alignment(0, -0.3),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Colors.amber[200]!,
+                    Colors.amber[500]!,
+                    Colors.amber[200]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "By tapping these hexagon buttons, user tries to create a meaningful word",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -50,
+            left: 30,
+            child: Transform.rotate(
+              angle: -90,
+              child: const Icon(
+                Icons.arrow_back_outlined,
+                size: 60,
+              ),
+            ),
+          )
+        ],
+      ),
+    )
+  ];
+  int tutorialWidgetIndex = 0;
+
   @override
   void initState() {
     super.initState();
+    Preferences().setFirstTime = true;
     if (Preferences().getFirstTime) {
       Global().isCombinationTriggered = true;
       Preferences().setIsPasswordSetMode = true;
       Global().statusMessage = "combinationSet";
-      // TODO tutorial trigger
-      Preferences().setFirstTime = false;
     }
     Global().removeFlag();
     SystemChrome.setPreferredOrientations([
@@ -59,382 +163,425 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            Global().isCombinationTriggered = false;
-            newGameTriggered = false;
-            deleteTriggered = false;
-            Global().combinationButtons.updateAll((key, value) => false);
-            buttonCombinationOrderList.clear();
-            combinationOrderCount = 0;
-            wrongPinCount = 0;
-          });
-        },
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.amber[100],
-          appBar: AppBar(
-            actions: [
-              Builder(
-                builder: (BuildContext context) {
-                  return IconButton(
-                    onPressed: () {
-                      setState(() {
-                        deleteTriggered = false;
-                        newGameTriggered = false;
-                      });
-                      Scaffold.of(context).openEndDrawer();
+      child: Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                Global().isCombinationTriggered = false;
+                newGameTriggered = false;
+                deleteTriggered = false;
+                Global().combinationButtons.updateAll((key, value) => false);
+                buttonCombinationOrderList.clear();
+                combinationOrderCount = 0;
+                wrongPinCount = 0;
+              });
+            },
+            child: Scaffold(
+              resizeToAvoidBottomInset: false,
+              backgroundColor: Colors.amber[100],
+              appBar: AppBar(
+                actions: [
+                  Builder(
+                    builder: (BuildContext context) {
+                      return IconButton(
+                        onPressed: () {
+                          setState(() {
+                            deleteTriggered = false;
+                            newGameTriggered = false;
+                          });
+                          Scaffold.of(context).openEndDrawer();
+                        },
+                        icon: const Icon(
+                          Icons.list,
+                          size: 30,
+                          color: Colors.black,
+                        ),
+                        tooltip: MaterialLocalizations.of(context)
+                            .openAppDrawerTooltip,
+                      );
                     },
-                    icon: const Icon(
-                      Icons.list,
-                      size: 30,
-                      color: Colors.black,
-                    ),
-                    tooltip:
-                        MaterialLocalizations.of(context).openAppDrawerTooltip,
-                  );
-                },
+                  ),
+                ],
+                backgroundColor: Colors.amber[500],
+                title: const Text("Word Bender"),
+                centerTitle: true,
+                titleTextStyle: GoogleFonts.abel(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
               ),
-            ],
-            backgroundColor: Colors.amber[500],
-            title: const Text("Find&Score"),
-            centerTitle: true,
-            titleTextStyle: GoogleFonts.abel(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          endDrawer: Drawer(
-            backgroundColor: Colors.amber[100],
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Found Words List",
-                  style: GoogleFonts.abel(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                Container(
-                  height: 4,
-                  width: double.maxFinite,
-                  color: Colors.amber[800],
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: acceptedWords.length,
-                    itemBuilder: (context, index) => Card(
-                      color: Colors.amber[300],
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.star,
-                          color: Colors.red[300]!,
-                        ),
-                        title: Text(
-                          acceptedWords[index].word,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.abel(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        trailing: Text(
-                          "point: ${acceptedWords[index].score.toString()}",
-                          style: GoogleFonts.abel(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              endDrawer: Drawer(
+                backgroundColor: Colors.amber[100],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "Score: ${AcceptedWords.totalScore}",
+                      "Found Words List",
                       style: GoogleFonts.abel(
                         fontSize: 25,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          textStyle: GoogleFonts.abel(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                    Container(
+                      height: 4,
+                      width: double.maxFinite,
+                      color: Colors.amber[800],
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: acceptedWords.length,
+                        itemBuilder: (context, index) => Card(
+                          color: Colors.amber[300],
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.star,
+                              color: Colors.red[300]!,
+                            ),
+                            title: Text(
+                              acceptedWords[index].word,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.abel(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            trailing: Text(
+                              "point: ${acceptedWords[index].score.toString()}",
+                              style: GoogleFonts.abel(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
                           ),
-                          primary: Colors.orange[400],
-                          onPrimary: Colors.black),
-                      onPressed: () {
-                        setState(() {
-                          Global().gameOver = false;
-                          newGameTriggered = true;
-                          Global().getMiddleButtonChar();
-                          Global().getButtonCharsExceptMiddleButton();
-                          userInputController.clear();
-                          isMiddleButtonPressed = false;
-                          AcceptedWords.totalScore = 0;
-                          AcceptedWords.totalWordCount = 0;
-                          acceptedWords.clear();
-                          Global().statusMessage = "notSubmitted";
-                        });
-                      },
-                      child: const Text("New Game"),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(
-                  Global().getStatusMessage(Global().statusMessage),
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Global().gameOver ? 35 : 24,
-                      color: Colors.black),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: TextField(
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                  cursorColor: Colors.black,
-                  cursorWidth: 3,
-                  readOnly: true,
-                  controller: userInputController,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: const Color(0xFFF2F2F2),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      borderSide:
-                          BorderSide(width: 3, color: Colors.amber[700]!),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      borderSide:
-                          BorderSide(width: 3, color: Colors.amber[700]!),
-                    ),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              body: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Column(
-                    children: [
-                      gameButtons(
-                        buttonValue: Global().selectedLetters[0],
-                        buttonName: "LeftTop",
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Score: ${AcceptedWords.totalScore}",
+                          style: GoogleFonts.abel(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              textStyle: GoogleFonts.abel(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                              primary: Colors.orange[400],
+                              onPrimary: Colors.black),
+                          onPressed: () {
+                            setState(() {
+                              Global().gameOver = false;
+                              newGameTriggered = true;
+                              Global().getMiddleButtonChar();
+                              Global().getButtonCharsExceptMiddleButton();
+                              userInputController.clear();
+
+                              AcceptedWords.totalScore = 0;
+                              AcceptedWords.totalWordCount = 0;
+                              acceptedWords.clear();
+                              Global().statusMessage = "notSubmitted";
+                            });
+                          },
+                          child: const Text("New Game"),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      Global().getStatusMessage(Global().statusMessage),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.abel(
+                          fontWeight: FontWeight.bold,
+                          fontSize: Global().gameOver ? 35 : 24,
+                          color: Colors.black),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: TextField(
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.abel(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
-                      gameButtons(
-                        buttonValue: Global().selectedLetters[1],
-                        buttonName: "LeftBottom",
+                      cursorColor: Colors.black,
+                      cursorWidth: 3,
+                      readOnly: true,
+                      controller: userInputController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color(0xFFF2F2F2),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
+                          borderSide:
+                              BorderSide(width: 3, color: Colors.amber[700]!),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
+                          borderSide:
+                              BorderSide(width: 3, color: Colors.amber[700]!),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          gameButtons(
+                            buttonValue: Global().selectedLetters[0],
+                            buttonName: "LeftTop",
+                          ),
+                          gameButtons(
+                            buttonValue: Global().selectedLetters[1],
+                            buttonName: "LeftBottom",
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          gameButtons(
+                            buttonValue: Global().selectedLetters[2],
+                            buttonName: "Top",
+                          ),
+                          gameButtons(
+                            buttonValue: Global().middleButtonChar,
+                            buttonName: "Middle",
+                          ),
+                          gameButtons(
+                            buttonValue: Global().selectedLetters[3],
+                            buttonName: "Bottom",
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          gameButtons(
+                            buttonValue: Global().selectedLetters[4],
+                            buttonName: "RightTop",
+                          ),
+                          gameButtons(
+                            buttonValue: Global().selectedLetters[5],
+                            buttonName: "RightBottom",
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Column(
-                    children: [
-                      gameButtons(
-                        buttonValue: Global().selectedLetters[2],
-                        buttonName: "Top",
-                      ),
-                      gameButtons(
-                        buttonValue: Global().middleButtonChar,
-                        buttonName: "Middle",
-                      ),
-                      gameButtons(
-                        buttonValue: Global().selectedLetters[3],
-                        buttonName: "Bottom",
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      gameButtons(
-                        buttonValue: Global().selectedLetters[4],
-                        buttonName: "RightTop",
-                      ),
-                      gameButtons(
-                        buttonValue: Global().selectedLetters[5],
-                        buttonName: "RightBottom",
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              textStyle: GoogleFonts.abel(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                              primary: Colors.orange[500],
+                              onPrimary: Colors.black),
+                          onPressed: () {
+                            setState(() {
+                              if (Global().gameOver == true) return;
+                              deleteTriggered = true;
+                              if (deleteTriggered && newGameTriggered) {
+                                Global().isCombinationTriggered = true;
+                              }
+                              if (Global().isCombinationTriggered) {
+                                setState(() {
+                                  Global()
+                                      .combinationButtons
+                                      .updateAll((key, value) => false);
+                                  buttonCombinationOrderList.clear();
+                                  combinationOrderCount = 0;
+                                });
+                              }
+                              if (userInputController.text.isNotEmpty) {
+                                userInputController.text =
+                                    userInputController.text.substring(
+                                        0, userInputController.text.length - 1);
+                              }
+                            });
+                          },
+                          child: Text(Global().isCombinationTriggered
+                              ? "Reset"
+                              : "Delete"),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder(),
+                              primary: Colors.orange[300],
+                              onPrimary: Colors.black),
+                          onPressed: () {
+                            setState(() {
+                              if (Global().gameOver == true) return;
+                              deleteTriggered = false;
+                              newGameTriggered = false;
+                              Global().selectedLetters.shuffle();
+                            });
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Icon(Icons.shuffle),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              textStyle: GoogleFonts.abel(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                              primary: Colors.orange[500],
+                              onPrimary: Colors.black),
+                          onPressed: () {
+                            if (Global().gameOver == true) return;
+                            deleteTriggered = false;
+                            newGameTriggered = false;
+                            if (Global().isCombinationTriggered) {
+                              if (Preferences().getIsPasswordSetMode) {
+                                if (buttonCombinationOrderList.length == 7) {
+                                  for (int index = 0;
+                                      index < buttonCombinationOrderList.length;
+                                      index++) {
+                                    Preferences().setCombinationCount(
+                                        buttonCombinationOrderList.keys
+                                            .elementAt(index),
+                                        buttonCombinationOrderList.values
+                                            .elementAt(index));
+                                  }
+                                  Global()
+                                      .combinationButtons
+                                      .updateAll((key, value) => false);
+                                  buttonCombinationOrderList.clear();
+                                  combinationOrderCount = 0;
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => const PinDialog(
+                                            isPasswordSet: true,
+                                            isInVault: false,
+                                          ));
+                                }
+                              }
+
+                              if (buttonCombinationOrderList.length == 7) {
+                                bool isValid = buttonCombinationOrderList
+                                    .entries
+                                    .every((item) =>
+                                        Preferences()
+                                            .getCombinationCount(item.key) ==
+                                        item.value);
+                                if (isValid) {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => const PinDialog(
+                                            isPasswordSet: false,
+                                            isInVault: false,
+                                          ));
+                                } else {
+                                  wrongPinCount++;
+                                  if (wrongPinCount == 3) {
+                                    wrongPinCount = 0;
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            const SecretWordsDialog(
+                                              isPasswordSet: false,
+                                              isRecoveryMode: true,
+                                            ));
+                                  }
+                                }
+                                Global()
+                                    .combinationButtons
+                                    .updateAll((key, value) => false);
+                                buttonCombinationOrderList.clear();
+                                combinationOrderCount = 0;
+                              }
+                              setState(() {});
+                            } else {
+                              checkAndSubmitUserInput();
+                            }
+                          },
+                          child: Text(Global().isCombinationTriggered
+                              ? "Apply"
+                              : "Submit"),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            ),
+          ),
+          if (Preferences().getFirstTime)
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (tutorialWidgetIndex < tutorialWidgets.length) {
+                    tutorialWidgetIndex++;
+                  } else {
+                    tutorialWidgetIndex = 0;
+                    Preferences().setFirstTime = false;
+                  }
+                });
+              },
+              child: Container(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                color: Colors.black.withOpacity(0.3),
+                child: Stack(
                   children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          textStyle: GoogleFonts.abel(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          primary: Colors.orange[500],
-                          onPrimary: Colors.black),
-                      onPressed: () {
-                        setState(() {
-                          if (Global().gameOver == true) return;
-                          deleteTriggered = true;
-                          if (deleteTriggered && newGameTriggered) {
-                            Global().isCombinationTriggered = true;
-                          }
-                          if (Global().isCombinationTriggered) {
-                            setState(() {
-                              Global()
-                                  .combinationButtons
-                                  .updateAll((key, value) => false);
-                              buttonCombinationOrderList.clear();
-                              combinationOrderCount = 0;
-                            });
-                          }
-                          if (userInputController.text.isNotEmpty) {
-                            userInputController.text = userInputController.text
-                                .substring(
-                                    0, userInputController.text.length - 1);
-                            isMiddleButtonPressed = userInputController.text
-                                .contains(Global().middleButtonChar);
-                          }
-                        });
-                      },
+                    tutorialWidgets[tutorialWidgetIndex],
+                    Align(
+                      alignment: Alignment.bottomCenter,
                       child: Text(
-                          Global().isCombinationTriggered ? "Reset" : "Delete"),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          primary: Colors.orange[300],
-                          onPrimary: Colors.black),
-                      onPressed: () {
-                        setState(() {
-                          if (Global().gameOver == true) return;
-                          deleteTriggered = false;
-                          newGameTriggered = false;
-                          Global().selectedLetters.shuffle();
-                        });
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Icon(Icons.shuffle),
+                        "Press anywhere to continue",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.abel(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          decoration: TextDecoration.none,
+                        ),
                       ),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          textStyle: GoogleFonts.abel(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          primary: Colors.orange[500],
-                          onPrimary: Colors.black),
-                      onPressed: () {
-                        if (Global().gameOver == true) return;
-                        deleteTriggered = false;
-                        newGameTriggered = false;
-                        if (Global().isCombinationTriggered) {
-                          if (Preferences().getIsPasswordSetMode) {
-                            if (buttonCombinationOrderList.length == 7) {
-                              for (int index = 0;
-                                  index < buttonCombinationOrderList.length;
-                                  index++) {
-                                Preferences().setCombinationCount(
-                                    buttonCombinationOrderList.keys
-                                        .elementAt(index),
-                                    buttonCombinationOrderList.values
-                                        .elementAt(index));
-                              }
-                              Global()
-                                  .combinationButtons
-                                  .updateAll((key, value) => false);
-                              buttonCombinationOrderList.clear();
-                              combinationOrderCount = 0;
-                              showDialog(
-                                  context: context,
-                                  builder: (context) => const PinDialog(
-                                        isPasswordSet: true,
-                                        isInVault: false,
-                                      ));
-                            }
-                          }
-
-                          if (buttonCombinationOrderList.length == 7) {
-                            bool isValid = buttonCombinationOrderList.entries
-                                .every((item) =>
-                                    Preferences()
-                                        .getCombinationCount(item.key) ==
-                                    item.value);
-                            if (isValid) {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) => const PinDialog(
-                                        isPasswordSet: false,
-                                        isInVault: false,
-                                      ));
-                            } else {
-                              wrongPinCount++;
-                              if (wrongPinCount == 3) {
-                                wrongPinCount = 0;
-                                showDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        const SecretWordsDialog(
-                                          isPasswordSet: false,
-                                          isRecoveryMode: true,
-                                        ));
-                              }
-                            }
-                            Global()
-                                .combinationButtons
-                                .updateAll((key, value) => false);
-                            buttonCombinationOrderList.clear();
-                            combinationOrderCount = 0;
-                          }
-                          setState(() {});
-                        } else {
-                          checkAndSubmitUserInput();
-                        }
-                      },
-                      child: Text(
-                          Global().isCombinationTriggered ? "Apply" : "Submit"),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -518,7 +665,6 @@ class _GameScreenState extends State<GameScreen> {
                             break;
                           case "Middle":
                             userInputController.text += buttonValue;
-                            isMiddleButtonPressed = true;
                             break;
                           case "Bottom":
                             userInputController.text += buttonValue;
@@ -550,8 +696,6 @@ class _GameScreenState extends State<GameScreen> {
     } else if (acceptedWords
         .any((acceptedWord) => acceptedWord.word == userInputController.text)) {
       Global().statusMessage = "sameWordWarning";
-    } else if (!isMiddleButtonPressed) {
-      Global().statusMessage = "middleButtonNotPressed";
     } else {
       setState(() {
         Global().statusMessage = "waitingResponse";
@@ -561,7 +705,7 @@ class _GameScreenState extends State<GameScreen> {
           acceptedWords.add(AcceptedWords(
               word: userInputController.text,
               score: userInputController.text.length));
-          isMiddleButtonPressed = false;
+
           if (AcceptedWords.totalWordCount == 50) {
             Global().statusMessage = "gameLimitReached";
             Global().gameOver = true;
