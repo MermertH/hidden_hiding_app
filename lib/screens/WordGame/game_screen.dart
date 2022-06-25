@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,6 +30,7 @@ class _GameScreenState extends State<GameScreen> {
 
   // tutorial widgets
   List<Widget> tutorialWidgets = [
+    // introduction
     Align(
       alignment: Alignment.center,
       child: Padding(
@@ -79,6 +82,7 @@ class _GameScreenState extends State<GameScreen> {
         ),
       ),
     ),
+    // game buttons
     Align(
       alignment: const Alignment(0, -0.3),
       child: Stack(
@@ -118,7 +122,7 @@ class _GameScreenState extends State<GameScreen> {
             bottom: -50,
             left: 30,
             child: Transform.rotate(
-              angle: -90,
+              angle: -pi / 1.5,
               child: const Icon(
                 Icons.arrow_back_outlined,
                 size: 60,
@@ -127,7 +131,116 @@ class _GameScreenState extends State<GameScreen> {
           )
         ],
       ),
-    )
+    ),
+    // interact buttons
+    Align(
+      alignment: const Alignment(0, 0.6),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Colors.amber[200]!,
+                    Colors.amber[500]!,
+                    Colors.amber[200]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "In game mode, users can delete, shuffle button letters and submit their words with these buttons whereas in combination mode, reset button resets combination, shuffle works same and apply checks your combination",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const Positioned(
+            bottom: -50,
+            left: 60,
+            child: Icon(
+              Icons.arrow_downward,
+              size: 60,
+            ),
+          ),
+          const Positioned(
+            bottom: -50,
+            left: 188,
+            child: Icon(
+              Icons.arrow_downward,
+              size: 60,
+            ),
+          ),
+          const Positioned(
+            bottom: -50,
+            right: 60,
+            child: Icon(
+              Icons.arrow_downward,
+              size: 60,
+            ),
+          ),
+        ],
+      ),
+    ),
+    Align(
+      alignment: const Alignment(0, -1),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 128, top: 8, left: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Colors.amber[200]!,
+                    Colors.amber[500]!,
+                    Colors.amber[200]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "User can see found words and each of their score by tapping this list",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const Positioned(
+            top: 0,
+            right: 45,
+            child: Icon(
+              Icons.arrow_forward,
+              size: 60,
+            ),
+          ),
+        ],
+      ),
+    ),
   ];
   int tutorialWidgetIndex = 0;
 
@@ -560,20 +673,24 @@ class _GameScreenState extends State<GameScreen> {
               child: Container(
                 width: double.maxFinite,
                 height: double.maxFinite,
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withOpacity(0.2),
                 child: Stack(
                   children: [
                     tutorialWidgets[tutorialWidgetIndex],
                     Align(
                       alignment: Alignment.bottomCenter,
-                      child: Text(
-                        "Press anywhere to continue",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.abel(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          decoration: TextDecoration.none,
+                      child: Container(
+                        color: Colors.black.withOpacity(0.4),
+                        width: double.maxFinite,
+                        child: Text(
+                          "Press anywhere to continue",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.abel(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            decoration: TextDecoration.none,
+                          ),
                         ),
                       ),
                     ),
