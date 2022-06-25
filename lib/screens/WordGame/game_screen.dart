@@ -109,7 +109,7 @@ class _GameScreenState extends State<GameScreen> {
                   "By tapping these hexagon buttons, user tries to create a meaningful word",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.abel(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                     decoration: TextDecoration.none,
@@ -159,7 +159,7 @@ class _GameScreenState extends State<GameScreen> {
                   "In game mode, users can delete, shuffle button letters and submit their words with these buttons whereas in combination mode, reset button resets combination, shuffle works same and apply checks your combination",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.abel(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                     decoration: TextDecoration.none,
@@ -221,7 +221,7 @@ class _GameScreenState extends State<GameScreen> {
                   "User can see found words and each of their score by tapping this list",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.abel(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                     decoration: TextDecoration.none,
@@ -240,6 +240,104 @@ class _GameScreenState extends State<GameScreen> {
           ),
         ],
       ),
+    ),
+    Align(
+      alignment: const Alignment(0, -1),
+      child: Stack(
+        alignment: AlignmentDirectional.bottomCenter,
+        clipBehavior: Clip.none,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 64, top: 8, left: 8),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Colors.amber[200]!,
+                    Colors.amber[500]!,
+                    Colors.amber[200]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Here a status message will be shown for each situation",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const Positioned(
+            bottom: -60,
+            child: Icon(
+              Icons.arrow_downward,
+              size: 60,
+            ),
+          ),
+        ],
+      ),
+    ),
+    Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Align(
+            alignment: Alignment.center,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Colors.amber[200]!,
+                    Colors.amber[500]!,
+                    Colors.amber[200]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "By pressing new game button, user can reset the game. Also, by tapping new game and delete button respectively, user can trigger combination mode",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const Align(
+          alignment: Alignment(0.75, -0.68),
+          child: Icon(
+            Icons.arrow_upward,
+            size: 60,
+          ),
+        ),
+        const Align(
+          alignment: Alignment(-0.7, 0.8),
+          child: Icon(
+            Icons.arrow_downward,
+            size: 60,
+          ),
+        ),
+      ],
     ),
   ];
   int tutorialWidgetIndex = 0;
