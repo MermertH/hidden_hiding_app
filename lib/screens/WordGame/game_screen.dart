@@ -545,7 +545,6 @@ class _GameScreenState extends State<GameScreen> {
       Preferences().setIsPasswordSetMode = true;
       Timer(const Duration(seconds: 3), () {
         safeToSkipTutorial = true;
-        print("safe to skip tutorial: $safeToSkipTutorial");
         setState(() {});
       });
     }
@@ -653,9 +652,26 @@ class _GameScreenState extends State<GameScreen> {
                         itemBuilder: (context, index) => Card(
                           color: Colors.amber[300],
                           child: ListTile(
-                            leading: Icon(
-                              Icons.star,
-                              color: Colors.red[300]!,
+                            leading: Stack(
+                              alignment: AlignmentDirectional.center,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.red[300]!,
+                                  size: 40,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                      (acceptedWords[index].order + 1)
+                                          .toString(),
+                                      style: GoogleFonts.abel(
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                ),
+                              ],
                             ),
                             title: Text(
                               acceptedWords[index].word,
