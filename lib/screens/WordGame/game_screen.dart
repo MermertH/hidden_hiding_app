@@ -433,6 +433,54 @@ class _GameScreenState extends State<GameScreen> {
                 isPasswordSet: true, isInVault: false, isTutorial: true)),
       ],
     ),
+    // recovery
+    Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Align(
+            alignment: const Alignment(0, -0.9),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Colors.amber[200]!,
+                    Colors.amber[500]!,
+                    Colors.amber[200]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "After pin, 8 recovery keys will be given in case user forget combination or secret pin. If user fails to apply combination or enter pin three times, these recovery keys will be asked to user. If user enters the keys correctly, user will enter hidden vault. Also, combination and pin will be reset",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const Align(
+          alignment: Alignment(0, -0.25),
+          child: Icon(
+            Icons.arrow_downward,
+            size: 60,
+          ),
+        ),
+        const SecretWordsDialog(
+            isPasswordSet: true, isRecoveryMode: false, isTutorial: true),
+      ],
+    ),
   ];
   int tutorialWidgetIndex = 0;
 
@@ -827,6 +875,7 @@ class _GameScreenState extends State<GameScreen> {
                                             const SecretWordsDialog(
                                               isPasswordSet: false,
                                               isRecoveryMode: true,
+                                              isTutorial: false,
                                             ));
                                   }
                                 }

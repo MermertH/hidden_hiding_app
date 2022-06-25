@@ -144,6 +144,7 @@ class _PinDialogState extends State<PinDialog> {
                           builder: (context) => SecretWordsDialog(
                                 isPasswordSet: widget.isPasswordSet,
                                 isRecoveryMode: false,
+                                isTutorial: false,
                               ));
                     } else {
                       Navigator.of(context).pop();
@@ -171,6 +172,7 @@ class _PinDialogState extends State<PinDialog> {
                               builder: (context) => const SecretWordsDialog(
                                     isPasswordSet: false,
                                     isRecoveryMode: true,
+                                    isTutorial: false,
                                   ));
                         }
                       }

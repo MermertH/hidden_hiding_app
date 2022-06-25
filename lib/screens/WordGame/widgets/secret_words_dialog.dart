@@ -11,10 +11,12 @@ import 'package:hidden_hiding_app/services/storage_service.dart';
 class SecretWordsDialog extends StatefulWidget {
   final bool isPasswordSet;
   final bool isRecoveryMode;
+  final bool isTutorial;
   const SecretWordsDialog({
     Key? key,
     required this.isPasswordSet,
     required this.isRecoveryMode,
+    required this.isTutorial,
   }) : super(key: key);
 
   @override
@@ -52,6 +54,7 @@ class _PinDialogState extends State<SecretWordsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      alignment: widget.isTutorial ? const Alignment(0, 0.9) : Alignment.center,
       backgroundColor: Colors.amber[300],
       child: RawScrollbar(
         thumbColor: Colors.deepOrange,
@@ -178,62 +181,95 @@ class _PinDialogState extends State<SecretWordsDialog> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          textStyle: GoogleFonts.abel(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          primary: Colors.orange[500],
-                          onPrimary: Colors.black),
-                      onPressed: () async {
-                        if (widget.isPasswordSet) {
-                          await encryptedStorage.writeSecureData(UserData(
-                              key: "recoveryKeys",
-                              value:
-                                  "${selectedRecoveryWords[0]},${selectedRecoveryWords[1]},${selectedRecoveryWords[2]},${selectedRecoveryWords[3]},${selectedRecoveryWords[4]},${selectedRecoveryWords[5]},${selectedRecoveryWords[6]},${selectedRecoveryWords[7]}"));
-                          Preferences().setIsPasswordSetMode = false;
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                                builder: (context) => const VaultMainScreen()),
-                            (Route<dynamic> route) => false,
-                          );
-                        } else {
-                          await encryptedStorage
-                              .readSecureData("recoveryKeys")
-                              .then((recoveryKeys) {
-                            if (recoveryKeys!.split(",")[0] ==
-                                    recoveryFields[0].text &&
-                                recoveryKeys.split(",")[1] ==
-                                    recoveryFields[1].text &&
-                                recoveryKeys.split(",")[2] ==
-                                    recoveryFields[2].text &&
-                                recoveryKeys.split(",")[3] ==
-                                    recoveryFields[3].text &&
-                                recoveryKeys.split(",")[4] ==
-                                    recoveryFields[4].text &&
-                                recoveryKeys.split(",")[5] ==
-                                    recoveryFields[5].text &&
-                                recoveryKeys.split(",")[6] ==
-                                    recoveryFields[6].text &&
-                                recoveryKeys.split(",")[7] ==
-                                    recoveryFields[7].text) {
-                              Global().isCombinationTriggered = false;
-                              Preferences().setIsPasswordSetMode = true;
-                              Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const VaultMainScreen()),
-                                (Route<dynamic> route) => false,
+                      style: ButtonStyle(
+                        textStyle: MaterialStateProperty.resolveWith<TextStyle>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.disabled)) {
+                              return GoogleFonts.abel(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
                               );
-                            } else {
-                              setState(() {
-                                isNotValid = true;
-                              });
                             }
-                          });
-                        }
-                      },
+                            return GoogleFonts.abel(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            );
+                          },
+                        ),
+                        foregroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            var color = Colors.black;
+                            if (states.contains(MaterialState.disabled)) {
+                              return color;
+                            }
+                            return color;
+                          },
+                        ),
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            var color = Colors.orange[500];
+                            if (states.contains(MaterialState.disabled)) {
+                              return color!;
+                            }
+                            return color!;
+                          },
+                        ),
+                      ),
+                      onPressed: !widget.isTutorial
+                          ? () async {
+                              if (widget.isPasswordSet) {
+                                await encryptedStorage.writeSecureData(UserData(
+                                    key: "recoveryKeys",
+                                    value:
+                                        "${selectedRecoveryWords[0]},${selectedRecoveryWords[1]},${selectedRecoveryWords[2]},${selectedRecoveryWords[3]},${selectedRecoveryWords[4]},${selectedRecoveryWords[5]},${selectedRecoveryWords[6]},${selectedRecoveryWords[7]}"));
+                                Preferences().setIsPasswordSetMode = false;
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const VaultMainScreen()),
+                                  (Route<dynamic> route) => false,
+                                );
+                              } else {
+                                await encryptedStorage
+                                    .readSecureData("recoveryKeys")
+                                    .then((recoveryKeys) {
+                                  if (recoveryKeys!.split(",")[0] ==
+                                          recoveryFields[0].text.trim() &&
+                                      recoveryKeys.split(",")[1] ==
+                                          recoveryFields[1].text.trim() &&
+                                      recoveryKeys.split(",")[2] ==
+                                          recoveryFields[2].text.trim() &&
+                                      recoveryKeys.split(",")[3] ==
+                                          recoveryFields[3].text.trim() &&
+                                      recoveryKeys.split(",")[4] ==
+                                          recoveryFields[4].text.trim() &&
+                                      recoveryKeys.split(",")[5] ==
+                                          recoveryFields[5].text.trim() &&
+                                      recoveryKeys.split(",")[6] ==
+                                          recoveryFields[6].text.trim() &&
+                                      recoveryKeys.split(",")[7] ==
+                                          recoveryFields[7].text.trim()) {
+                                    Global().isCombinationTriggered = false;
+                                    Preferences().setIsPasswordSetMode = true;
+                                    Navigator.of(context).pushAndRemoveUntil(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const VaultMainScreen()),
+                                      (Route<dynamic> route) => false,
+                                    );
+                                  } else {
+                                    setState(() {
+                                      isNotValid = true;
+                                    });
+                                  }
+                                });
+                              }
+                            }
+                          : null,
                       child:
                           Text(widget.isPasswordSet ? "Understood" : "Recover"),
                     ),
