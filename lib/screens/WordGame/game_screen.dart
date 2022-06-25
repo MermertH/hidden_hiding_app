@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _GameScreenState extends State<GameScreen> {
   Map<String, int> buttonCombinationOrderList = {};
   bool newGameTriggered = false;
   bool deleteTriggered = false;
+  bool safeToSkipTutorial = false;
   int combinationOrderCount = 0;
   int wrongPinCount = 0;
 
@@ -481,17 +483,73 @@ class _GameScreenState extends State<GameScreen> {
             isPasswordSet: true, isRecoveryMode: false, isTutorial: true),
       ],
     ),
+    Align(
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [
+                Colors.amber[200]!,
+                Colors.amber[500]!,
+                Colors.amber[200]!,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Thanks for using Word Bender",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "The tutorial has been ended. you may use the app as you wish",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
   ];
   int tutorialWidgetIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    Preferences().setFirstTime = true;
     if (Preferences().getFirstTime) {
       Global().isCombinationTriggered = true;
       Preferences().setIsPasswordSetMode = true;
       Global().statusMessage = "combinationSet";
+      Timer(const Duration(seconds: 3), () {
+        safeToSkipTutorial = true;
+        print("safe to skip tutorial: $safeToSkipTutorial");
+        setState(() {});
+      });
     }
     Global().removeFlag();
     SystemChrome.setPreferredOrientations([
@@ -520,15 +578,17 @@ class _GameScreenState extends State<GameScreen> {
         children: [
           GestureDetector(
             onTap: () {
-              setState(() {
-                Global().isCombinationTriggered = false;
-                newGameTriggered = false;
-                deleteTriggered = false;
-                Global().combinationButtons.updateAll((key, value) => false);
-                buttonCombinationOrderList.clear();
-                combinationOrderCount = 0;
-                wrongPinCount = 0;
-              });
+              if (!Preferences().getIsPasswordSetMode) {
+                setState(() {
+                  Global().isCombinationTriggered = false;
+                  newGameTriggered = false;
+                  deleteTriggered = false;
+                  Global().combinationButtons.updateAll((key, value) => false);
+                  buttonCombinationOrderList.clear();
+                  combinationOrderCount = 0;
+                  wrongPinCount = 0;
+                });
+              }
             },
             child: Scaffold(
               resizeToAvoidBottomInset: false,
@@ -904,45 +964,62 @@ class _GameScreenState extends State<GameScreen> {
           if (Preferences().getFirstTime)
             GestureDetector(
               onTap: () async {
-                if (tutorialWidgetIndex < tutorialWidgets.length) {
-                  tutorialWidgetIndex++;
-                  if (tutorialWidgetIndex == 7) {
-                    Global()
-                        .combinationButtons
-                        .updateAll((key, value) => false);
-                  }
-                  setState(() {});
-                  if (tutorialWidgetIndex == 6) {
-                    while (tutorialWidgetIndex == 6) {
-                      List<String> comButNames =
-                          Global().combinationButtons.keys.toList();
-                      var rng = Random();
-                      int rngIndex = 0;
-                      await Future.delayed(const Duration(seconds: 1));
-                      for (int index = 0;
-                          index < Global().combinationButtons.length;
-                          index++) {
-                        if (tutorialWidgetIndex != 6) break;
-                        rngIndex = rng.nextInt(comButNames.length);
-                        if (Global().getCombinationButtonStatus(
-                                comButNames[rngIndex]) ==
-                            false) {
-                          Global().setCombinationButtonStatus(
-                              true, comButNames[rngIndex]);
-                          comButNames.remove(comButNames[rngIndex]);
-                        }
-                        setState(() {});
-                        await Future.delayed(const Duration(seconds: 1));
-                      }
+                if (safeToSkipTutorial) {
+                  if (tutorialWidgetIndex < tutorialWidgets.length - 1) {
+                    tutorialWidgetIndex++;
+                    if (tutorialWidgetIndex == 7) {
                       Global()
                           .combinationButtons
                           .updateAll((key, value) => false);
-                      setState(() {});
                     }
+                    setState(() {
+                      safeToSkipTutorial = false;
+                    });
+                    if (tutorialWidgetIndex == 6) {
+                      while (tutorialWidgetIndex == 6) {
+                        List<String> comButNames =
+                            Global().combinationButtons.keys.toList();
+                        var rng = Random();
+                        int rngIndex = 0;
+                        await Future.delayed(const Duration(seconds: 1));
+                        for (int index = 0;
+                            index < Global().combinationButtons.length;
+                            index++) {
+                          if (tutorialWidgetIndex != 6) break;
+                          rngIndex = rng.nextInt(comButNames.length);
+                          if (Global().getCombinationButtonStatus(
+                                  comButNames[rngIndex]) ==
+                              false) {
+                            Global().setCombinationButtonStatus(
+                                true, comButNames[rngIndex]);
+                            comButNames.remove(comButNames[rngIndex]);
+                          }
+
+                          setState(() {});
+                          await Future.delayed(const Duration(seconds: 1));
+                        }
+                        Global()
+                            .combinationButtons
+                            .updateAll((key, value) => false);
+                        setState(() {
+                          safeToSkipTutorial = true;
+                        });
+                      }
+                    }
+                    if (tutorialWidgetIndex != 6) {
+                      Timer(const Duration(seconds: 3), () {
+                        setState(() {
+                          safeToSkipTutorial = true;
+                        });
+                        debugPrint(
+                            "safe to skip tutorial: $safeToSkipTutorial");
+                      });
+                    }
+                  } else {
+                    tutorialWidgetIndex = 0;
+                    Preferences().setFirstTime = false;
+                    setState(() {});
                   }
-                } else {
-                  tutorialWidgetIndex = 0;
-                  Preferences().setFirstTime = false;
                 }
               },
               child: Container(
@@ -958,7 +1035,9 @@ class _GameScreenState extends State<GameScreen> {
                         color: Colors.black.withOpacity(0.4),
                         width: double.maxFinite,
                         child: Text(
-                          "Press anywhere to continue",
+                          safeToSkipTutorial
+                              ? "Press anywhere to continue"
+                              : "Wait a bit before continue",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.abel(
                             fontSize: 20,

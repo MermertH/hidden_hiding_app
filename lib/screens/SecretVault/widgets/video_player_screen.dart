@@ -60,7 +60,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   children: [
                     Chewie(controller: chewieController),
                     Positioned(
-                      top: 10,
+                      top: 15,
                       left: 0,
                       child: GestureDetector(
                         onTap: () => Navigator.of(context).pop(),
