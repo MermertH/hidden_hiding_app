@@ -226,7 +226,10 @@ class _PinDialogState extends State<SecretWordsDialog> {
                                     key: "recoveryKeys",
                                     value:
                                         "${selectedRecoveryWords[0]},${selectedRecoveryWords[1]},${selectedRecoveryWords[2]},${selectedRecoveryWords[3]},${selectedRecoveryWords[4]},${selectedRecoveryWords[5]},${selectedRecoveryWords[6]},${selectedRecoveryWords[7]}"));
-                                Preferences().setIsPasswordSetMode = false;
+                                setState(() {
+                                  Preferences().setIsPasswordSetMode = false;
+                                  Global().statusMessage = "notSubmitted";
+                                });
                                 Navigator.of(context).pushAndRemoveUntil(
                                   MaterialPageRoute(
                                       builder: (context) =>
@@ -253,8 +256,10 @@ class _PinDialogState extends State<SecretWordsDialog> {
                                           recoveryFields[6].text.trim() &&
                                       recoveryKeys.split(",")[7] ==
                                           recoveryFields[7].text.trim()) {
-                                    Global().isCombinationTriggered = false;
-                                    Preferences().setIsPasswordSetMode = true;
+                                    setState(() {
+                                      Global().isCombinationTriggered = false;
+                                      Preferences().setIsPasswordSetMode = true;
+                                    });
                                     Navigator.of(context).pushAndRemoveUntil(
                                       MaterialPageRoute(
                                           builder: (context) =>

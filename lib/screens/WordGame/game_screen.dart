@@ -520,7 +520,7 @@ class _GameScreenState extends State<GameScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "The tutorial has been ended. you may use the app as you wish",
+                  "The tutorial has been ended. After setting your combination and pin, you may use the app as you wish",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.abel(
                     fontSize: 25,
@@ -542,14 +542,16 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     if (Preferences().getFirstTime) {
-      Global().isCombinationTriggered = true;
       Preferences().setIsPasswordSetMode = true;
-      Global().statusMessage = "combinationSet";
       Timer(const Duration(seconds: 3), () {
         safeToSkipTutorial = true;
         print("safe to skip tutorial: $safeToSkipTutorial");
         setState(() {});
       });
+    }
+    if (Preferences().getIsPasswordSetMode) {
+      Global().isCombinationTriggered = true;
+      Global().statusMessage = "combinationSet";
     }
     Global().removeFlag();
     SystemChrome.setPreferredOrientations([
@@ -706,18 +708,20 @@ class _GameScreenState extends State<GameScreen> {
                               primary: Colors.orange[400],
                               onPrimary: Colors.black),
                           onPressed: () {
-                            setState(() {
-                              Global().gameOver = false;
-                              newGameTriggered = true;
-                              Global().getMiddleButtonChar();
-                              Global().getButtonCharsExceptMiddleButton();
-                              userInputController.clear();
+                            if (!Preferences().getIsPasswordSetMode) {
+                              setState(() {
+                                Global().gameOver = false;
+                                newGameTriggered = true;
+                                Global().getMiddleButtonChar();
+                                Global().getButtonCharsExceptMiddleButton();
+                                userInputController.clear();
 
-                              AcceptedWords.totalScore = 0;
-                              AcceptedWords.totalWordCount = 0;
-                              acceptedWords.clear();
-                              Global().statusMessage = "notSubmitted";
-                            });
+                                AcceptedWords.totalScore = 0;
+                                AcceptedWords.totalWordCount = 0;
+                                acceptedWords.clear();
+                                Global().statusMessage = "notSubmitted";
+                              });
+                            }
                           },
                           child: const Text("New Game"),
                         ),

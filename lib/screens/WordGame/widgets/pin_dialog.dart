@@ -134,20 +134,25 @@ class _PinDialogState extends State<PinDialog> {
                   break;
                 case "Submit":
                   if (widget.isPasswordSet) {
-                    await encryptedStorage.writeSecureData(UserData(
-                        key: "secretPin",
-                        value:
-                            "${digit1.text},${digit2.text},${digit3.text},${digit4.text}"));
-                    if (!widget.isInVault) {
-                      showDialog(
-                          context: context,
-                          builder: (context) => SecretWordsDialog(
-                                isPasswordSet: widget.isPasswordSet,
-                                isRecoveryMode: false,
-                                isTutorial: false,
-                              ));
-                    } else {
-                      Navigator.of(context).pop();
+                    if (digit1.text.isNotEmpty &&
+                        digit2.text.isNotEmpty &&
+                        digit3.text.isNotEmpty &&
+                        digit4.text.isNotEmpty) {
+                      await encryptedStorage.writeSecureData(UserData(
+                          key: "secretPin",
+                          value:
+                              "${digit1.text},${digit2.text},${digit3.text},${digit4.text}"));
+                      if (!widget.isInVault) {
+                        showDialog(
+                            context: context,
+                            builder: (context) => SecretWordsDialog(
+                                  isPasswordSet: widget.isPasswordSet,
+                                  isRecoveryMode: false,
+                                  isTutorial: false,
+                                ));
+                      } else {
+                        Navigator.of(context).pop();
+                      }
                     }
                   } else {
                     await encryptedStorage
