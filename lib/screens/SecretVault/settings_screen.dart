@@ -121,6 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             builder: (context) => const PinDialog(
                   isPasswordSet: true,
                   isInVault: true,
+                  isTutorial: false,
                 ));
         break;
       case "security":

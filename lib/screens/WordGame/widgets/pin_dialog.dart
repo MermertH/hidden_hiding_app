@@ -9,10 +9,12 @@ import 'package:hidden_hiding_app/services/storage_service.dart';
 class PinDialog extends StatefulWidget {
   final bool isPasswordSet;
   final bool isInVault;
+  final bool isTutorial;
   const PinDialog({
     Key? key,
     required this.isPasswordSet,
     required this.isInVault,
+    required this.isTutorial,
   }) : super(key: key);
 
   @override
@@ -81,74 +83,105 @@ class _PinDialogState extends State<PinDialog> {
 
   Widget interactionButtons(String buttonName) {
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-          textStyle: GoogleFonts.abel(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-          primary: widget.isInVault ? Colors.grey[600] : Colors.orange[500],
-          onPrimary: widget.isInVault ? Colors.white : Colors.black),
-      onPressed: () async {
-        switch (buttonName) {
-          case "Cancel":
-            Navigator.of(context).pop();
-            break;
-          case "Clear":
-            digit1.clear();
-            digit2.clear();
-            digit3.clear();
-            digit4.clear();
-            break;
-          case "Submit":
-            if (widget.isPasswordSet) {
-              await encryptedStorage.writeSecureData(UserData(
-                  key: "secretPin",
-                  value:
-                      "${digit1.text},${digit2.text},${digit3.text},${digit4.text}"));
-              if (!widget.isInVault) {
-                showDialog(
-                    context: context,
-                    builder: (context) => SecretWordsDialog(
-                          isPasswordSet: widget.isPasswordSet,
-                          isRecoveryMode: false,
-                        ));
-              } else {
-                Navigator.of(context).pop();
-              }
-            } else {
-              await encryptedStorage
-                  .readSecureData("secretPin")
-                  .then((secretPin) {
-                if (secretPin!.split(",")[0] == digit1.text &&
-                    secretPin.split(",")[1] == digit2.text &&
-                    secretPin.split(",")[2] == digit3.text &&
-                    secretPin.split(",")[3] == digit4.text) {
-                  Global().isCombinationTriggered = false;
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => const VaultMainScreen()),
-                    (Route<dynamic> route) => false,
-                  );
-                } else {
-                  wrongPinCount++;
-                  if (wrongPinCount == 3) {
-                    wrongPinCount = 0;
-                    showDialog(
-                        context: context,
-                        builder: (context) => const SecretWordsDialog(
-                              isPasswordSet: false,
-                              isRecoveryMode: true,
-                            ));
-                  }
-                }
-              });
+      style: ButtonStyle(
+        textStyle: MaterialStateProperty.resolveWith<TextStyle>(
+          (Set<MaterialState> states) {
+            if (states.contains(MaterialState.disabled)) {
+              return GoogleFonts.abel(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              );
             }
-            break;
-          default:
-            return;
-        }
-      },
+            return GoogleFonts.abel(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            );
+          },
+        ),
+        foregroundColor: MaterialStateProperty.resolveWith<Color>(
+          (Set<MaterialState> states) {
+            var color = widget.isInVault ? Colors.white : Colors.black;
+            if (states.contains(MaterialState.disabled)) {
+              return color;
+            }
+            return color;
+          },
+        ),
+        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+          (Set<MaterialState> states) {
+            var color =
+                widget.isInVault ? Colors.grey[600] : Colors.orange[500];
+            if (states.contains(MaterialState.disabled)) {
+              return color!;
+            }
+            return color!;
+          },
+        ),
+      ),
+      onPressed: !widget.isTutorial
+          ? () async {
+              switch (buttonName) {
+                case "Cancel":
+                  Navigator.of(context).pop();
+                  break;
+                case "Clear":
+                  digit1.clear();
+                  digit2.clear();
+                  digit3.clear();
+                  digit4.clear();
+                  break;
+                case "Submit":
+                  if (widget.isPasswordSet) {
+                    await encryptedStorage.writeSecureData(UserData(
+                        key: "secretPin",
+                        value:
+                            "${digit1.text},${digit2.text},${digit3.text},${digit4.text}"));
+                    if (!widget.isInVault) {
+                      showDialog(
+                          context: context,
+                          builder: (context) => SecretWordsDialog(
+                                isPasswordSet: widget.isPasswordSet,
+                                isRecoveryMode: false,
+                              ));
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  } else {
+                    await encryptedStorage
+                        .readSecureData("secretPin")
+                        .then((secretPin) {
+                      if (secretPin!.split(",")[0] == digit1.text &&
+                          secretPin.split(",")[1] == digit2.text &&
+                          secretPin.split(",")[2] == digit3.text &&
+                          secretPin.split(",")[3] == digit4.text) {
+                        Global().isCombinationTriggered = false;
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => const VaultMainScreen()),
+                          (Route<dynamic> route) => false,
+                        );
+                      } else {
+                        wrongPinCount++;
+                        if (wrongPinCount == 3) {
+                          wrongPinCount = 0;
+                          showDialog(
+                              context: context,
+                              builder: (context) => const SecretWordsDialog(
+                                    isPasswordSet: false,
+                                    isRecoveryMode: true,
+                                  ));
+                        }
+                      }
+                    });
+                  }
+                  break;
+                default:
+                  return;
+              }
+            }
+          : null,
       child: Text(buttonName),
     );
   }
@@ -160,6 +193,7 @@ class _PinDialogState extends State<PinDialog> {
         controller: controller,
         obscureText: true,
         autofocus: true,
+        readOnly: widget.isTutorial,
         maxLength: 1,
         cursorColor: Colors.black,
         cursorWidth: 3,

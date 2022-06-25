@@ -195,6 +195,7 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
     ),
+    // accepted words list
     Align(
       alignment: const Alignment(0, -1),
       child: Stack(
@@ -241,6 +242,7 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
     ),
+    // status message
     Align(
       alignment: const Alignment(0, -1),
       child: Stack(
@@ -287,6 +289,7 @@ class _GameScreenState extends State<GameScreen> {
         ],
       ),
     ),
+    // trigger combination
     Stack(
       clipBehavior: Clip.none,
       children: [
@@ -337,6 +340,97 @@ class _GameScreenState extends State<GameScreen> {
             size: 60,
           ),
         ),
+      ],
+    ),
+    // combination system
+    Align(
+      alignment: const Alignment(0, -0.7),
+      child: Stack(
+        alignment: AlignmentDirectional.bottomCenter,
+        clipBehavior: Clip.none,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Colors.amber[200]!,
+                    Colors.amber[500]!,
+                    Colors.amber[200]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "After entering combination mode, user will create unique combination by tapping hexagon buttons in order, then apply to save if if they are sure. If not, user can reset the process by tapping reset",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+    // pin
+    Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      clipBehavior: Clip.none,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Align(
+            alignment: const Alignment(0, -0.7),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Colors.amber[200]!,
+                    Colors.amber[500]!,
+                    Colors.amber[200]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "After applying, user will be asked to set a 4 digit secret pin as well",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.abel(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const Align(
+          alignment: Alignment(0, -0.45),
+          child: Icon(
+            Icons.arrow_downward,
+            size: 60,
+          ),
+        ),
+        const Align(
+            alignment: Alignment(0, 0.2),
+            child: PinDialog(
+                isPasswordSet: true, isInVault: false, isTutorial: true)),
       ],
     ),
   ];
@@ -703,6 +797,7 @@ class _GameScreenState extends State<GameScreen> {
                                       builder: (context) => const PinDialog(
                                             isPasswordSet: true,
                                             isInVault: false,
+                                            isTutorial: false,
                                           ));
                                 }
                               }
@@ -720,6 +815,7 @@ class _GameScreenState extends State<GameScreen> {
                                       builder: (context) => const PinDialog(
                                             isPasswordSet: false,
                                             isInVault: false,
+                                            isTutorial: false,
                                           ));
                                 } else {
                                   wrongPinCount++;
@@ -758,15 +854,47 @@ class _GameScreenState extends State<GameScreen> {
           ),
           if (Preferences().getFirstTime)
             GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (tutorialWidgetIndex < tutorialWidgets.length) {
-                    tutorialWidgetIndex++;
-                  } else {
-                    tutorialWidgetIndex = 0;
-                    Preferences().setFirstTime = false;
+              onTap: () async {
+                if (tutorialWidgetIndex < tutorialWidgets.length) {
+                  tutorialWidgetIndex++;
+                  if (tutorialWidgetIndex == 7) {
+                    Global()
+                        .combinationButtons
+                        .updateAll((key, value) => false);
                   }
-                });
+                  setState(() {});
+                  if (tutorialWidgetIndex == 6) {
+                    while (tutorialWidgetIndex == 6) {
+                      List<String> comButNames =
+                          Global().combinationButtons.keys.toList();
+                      var rng = Random();
+                      int rngIndex = 0;
+                      await Future.delayed(const Duration(seconds: 1));
+                      for (int index = 0;
+                          index < Global().combinationButtons.length;
+                          index++) {
+                        if (tutorialWidgetIndex != 6) break;
+                        rngIndex = rng.nextInt(comButNames.length);
+                        if (Global().getCombinationButtonStatus(
+                                comButNames[rngIndex]) ==
+                            false) {
+                          Global().setCombinationButtonStatus(
+                              true, comButNames[rngIndex]);
+                          comButNames.remove(comButNames[rngIndex]);
+                        }
+                        setState(() {});
+                        await Future.delayed(const Duration(seconds: 1));
+                      }
+                      Global()
+                          .combinationButtons
+                          .updateAll((key, value) => false);
+                      setState(() {});
+                    }
+                  }
+                } else {
+                  tutorialWidgetIndex = 0;
+                  Preferences().setFirstTime = false;
+                }
               },
               child: Container(
                 width: double.maxFinite,
@@ -921,7 +1049,7 @@ class _GameScreenState extends State<GameScreen> {
               word: userInputController.text,
               score: userInputController.text.length));
 
-          if (AcceptedWords.totalWordCount == 50) {
+          if (AcceptedWords.totalWordCount == 25) {
             Global().statusMessage = "gameLimitReached";
             Global().gameOver = true;
           } else {
