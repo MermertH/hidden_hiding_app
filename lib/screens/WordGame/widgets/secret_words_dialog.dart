@@ -228,6 +228,7 @@ class _PinDialogState extends State<SecretWordsDialog> {
                                         "${selectedRecoveryWords[0]},${selectedRecoveryWords[1]},${selectedRecoveryWords[2]},${selectedRecoveryWords[3]},${selectedRecoveryWords[4]},${selectedRecoveryWords[5]},${selectedRecoveryWords[6]},${selectedRecoveryWords[7]}"));
                                 setState(() {
                                   Preferences().setIsPasswordSetMode = false;
+                                  Global().isCombinationTriggered = false;
                                   Global().statusMessage = "notSubmitted";
                                 });
                                 Navigator.of(context).pushAndRemoveUntil(

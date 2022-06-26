@@ -182,7 +182,7 @@ class _GameScreenState extends State<GameScreen> {
           ),
           const Positioned(
             bottom: -50,
-            left: 188,
+            left: 180,
             child: Icon(
               Icons.arrow_downward,
               size: 60,
@@ -478,13 +478,6 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ),
-          ),
-        ),
-        const Align(
-          alignment: Alignment(0, -0.25),
-          child: Icon(
-            Icons.arrow_downward,
-            size: 60,
           ),
         ),
         const SecretWordsDialog(
