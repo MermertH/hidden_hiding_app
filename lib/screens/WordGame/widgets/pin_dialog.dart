@@ -23,11 +23,29 @@ class PinDialog extends StatefulWidget {
 
 class _PinDialogState extends State<PinDialog> {
   var encryptedStorage = StorageService();
-  var digit1 = TextEditingController();
-  var digit2 = TextEditingController();
-  var digit3 = TextEditingController();
-  var digit4 = TextEditingController();
+  List<FocusNode> inputFocus = [
+    FocusNode(),
+    FocusNode(),
+    FocusNode(),
+    FocusNode(),
+  ];
+
+  List<TextEditingController> digits = [
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
+
   int wrongPinCount = 0;
+
+  @override
+  void dispose() {
+    for (var focus in inputFocus) {
+      focus.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +76,10 @@ class _PinDialogState extends State<PinDialog> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                pinInputFields(digit1, "digit1"),
-                pinInputFields(digit2, "digit2"),
-                pinInputFields(digit3, "digit3"),
-                pinInputFields(digit4, "digit4"),
+                pinInputFields(digits[0], 0),
+                pinInputFields(digits[1], 1),
+                pinInputFields(digits[2], 2),
+                pinInputFields(digits[3], 3),
               ],
             ),
           ),
@@ -127,21 +145,20 @@ class _PinDialogState extends State<PinDialog> {
                   Navigator.of(context).pop();
                   break;
                 case "Clear":
-                  digit1.clear();
-                  digit2.clear();
-                  digit3.clear();
-                  digit4.clear();
+                  for (var controller in digits) {
+                    controller.clear();
+                  }
                   break;
                 case "Submit":
                   if (widget.isPasswordSet) {
-                    if (digit1.text.isNotEmpty &&
-                        digit2.text.isNotEmpty &&
-                        digit3.text.isNotEmpty &&
-                        digit4.text.isNotEmpty) {
+                    if (digits[0].text.isNotEmpty &&
+                        digits[1].text.isNotEmpty &&
+                        digits[2].text.isNotEmpty &&
+                        digits[3].text.isNotEmpty) {
                       await encryptedStorage.writeSecureData(UserData(
                           key: "secretPin",
                           value:
-                              "${digit1.text},${digit2.text},${digit3.text},${digit4.text}"));
+                              "${digits[0].text},${digits[1].text},${digits[2].text},${digits[3].text}"));
                       if (!widget.isInVault) {
                         showDialog(
                             context: context,
@@ -158,10 +175,10 @@ class _PinDialogState extends State<PinDialog> {
                     await encryptedStorage
                         .readSecureData("secretPin")
                         .then((secretPin) {
-                      if (secretPin!.split(",")[0] == digit1.text &&
-                          secretPin.split(",")[1] == digit2.text &&
-                          secretPin.split(",")[2] == digit3.text &&
-                          secretPin.split(",")[3] == digit4.text) {
+                      if (secretPin!.split(",")[0] == digits[0].text &&
+                          secretPin.split(",")[1] == digits[1].text &&
+                          secretPin.split(",")[2] == digits[2].text &&
+                          secretPin.split(",")[3] == digits[3].text) {
                         Global().isCombinationTriggered = false;
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
@@ -193,19 +210,25 @@ class _PinDialogState extends State<PinDialog> {
     );
   }
 
-  Widget pinInputFields(TextEditingController controller, String fieldName) {
+  Widget pinInputFields(TextEditingController controller, int fieldIndex) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: TextField(
         controller: controller,
         obscureText: true,
+        focusNode: inputFocus[fieldIndex],
         autofocus: true,
         readOnly: widget.isTutorial,
         maxLength: 1,
         cursorColor: Colors.black,
         cursorWidth: 3,
-        textInputAction:
-            fieldName == "digit4" ? TextInputAction.done : TextInputAction.next,
+        onChanged: (_) {
+          if (fieldIndex + 1 < inputFocus.length) {
+            setState(() {
+              inputFocus[fieldIndex + 1].requestFocus();
+            });
+          }
+        },
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         style: GoogleFonts.abel(
