@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/models/accepted_words.dart';
 import 'package:hidden_hiding_app/preferences.dart';
@@ -53,12 +51,13 @@ class _GameScreenState extends State<GameScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: const [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "Welcome to Word Bender",
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 35,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -67,11 +66,12 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "This tutorial aims to give you all of the information you need in order to use the app accordingly",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -105,12 +105,13 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "By tapping these hexagon buttons, user tries to create a meaningful word",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -155,12 +156,13 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "In game mode, users can delete, shuffle button letters and submit their words with these buttons whereas in combination mode, reset button resets combination, shuffle works same and apply checks your combination",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -218,12 +220,13 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "User can see found words and each of their score by tapping this list",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -266,12 +269,13 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "Here a status message will be shown for each situation",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -312,12 +316,13 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "By pressing new game button, user can reset the game. Also, by tapping new game and delete button respectively, user can trigger combination mode",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -366,12 +371,13 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "After entering combination mode, user will create unique combination by tapping hexagon buttons in order, then apply to save if if they are sure. If not, user can reset the process by tapping reset",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -406,12 +412,13 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "After applying, user will be asked to set a 4 digit secret pin as well",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -456,12 +463,13 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "After pin, 8 recovery keys will be given in case user forget combination or secret pin. If user fails to apply combination or enter pin three times, these recovery keys will be asked to user. If user enters the keys correctly, user will enter hidden vault. Also, combination and pin will be reset",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -503,13 +511,14 @@ class _GameScreenState extends State<GameScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: const [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "Thanks for using Word Bender",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 35,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -518,11 +527,12 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "The tutorial has been ended. After setting your combination and pin, you may use the app as you wish",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.abel(
+                  style: TextStyle(
+                    fontFamily: "Abel",
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -620,7 +630,8 @@ class _GameScreenState extends State<GameScreen> {
                 backgroundColor: Colors.amber[500],
                 title: const Text("Word Bender"),
                 centerTitle: true,
-                titleTextStyle: GoogleFonts.abel(
+                titleTextStyle: const TextStyle(
+                  fontFamily: "Abel",
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -632,9 +643,10 @@ class _GameScreenState extends State<GameScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    const Text(
                       "Found Words List",
-                      style: GoogleFonts.abel(
+                      style: TextStyle(
+                        fontFamily: "Abel",
                         fontSize: 25,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -665,7 +677,8 @@ class _GameScreenState extends State<GameScreen> {
                                   child: Text(
                                       (acceptedWords[index].order + 1)
                                           .toString(),
-                                      style: GoogleFonts.abel(
+                                      style: const TextStyle(
+                                        fontFamily: "Abel",
                                         fontSize: 16,
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
@@ -676,7 +689,8 @@ class _GameScreenState extends State<GameScreen> {
                             title: Text(
                               acceptedWords[index].word,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.abel(
+                              style: const TextStyle(
+                                fontFamily: "Abel",
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
@@ -684,7 +698,8 @@ class _GameScreenState extends State<GameScreen> {
                             ),
                             trailing: Text(
                               "point: ${acceptedWords[index].score.toString()}",
-                              style: GoogleFonts.abel(
+                              style: const TextStyle(
+                                fontFamily: "Abel",
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
@@ -708,7 +723,8 @@ class _GameScreenState extends State<GameScreen> {
                       children: [
                         Text(
                           "Score: ${AcceptedWords.totalScore}",
-                          style: GoogleFonts.abel(
+                          style: const TextStyle(
+                            fontFamily: "Abel",
                             fontSize: 25,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -716,7 +732,8 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              textStyle: GoogleFonts.abel(
+                              textStyle: const TextStyle(
+                                fontFamily: "Abel",
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
@@ -749,9 +766,9 @@ class _GameScreenState extends State<GameScreen> {
                     child: Text(
                       Global().getStatusMessage(Global().statusMessage),
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.abel(
+                      style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: Global().gameOver ? 35 : 24,
+                          fontSize: Global().gameOver ? 30 : 20,
                           color: Colors.black),
                     ),
                   ),
@@ -759,7 +776,8 @@ class _GameScreenState extends State<GameScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 32),
                     child: TextField(
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.abel(
+                      style: const TextStyle(
+                        fontFamily: "Abel",
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -838,7 +856,8 @@ class _GameScreenState extends State<GameScreen> {
                       children: [
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              textStyle: GoogleFonts.abel(
+                              textStyle: const TextStyle(
+                                fontFamily: "Abel",
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
@@ -892,7 +911,8 @@ class _GameScreenState extends State<GameScreen> {
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              textStyle: GoogleFonts.abel(
+                              textStyle: const TextStyle(
+                                fontFamily: "Abel",
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
@@ -1059,7 +1079,8 @@ class _GameScreenState extends State<GameScreen> {
                               ? "Press anywhere to continue"
                               : "Wait a bit before continue",
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.abel(
+                          style: const TextStyle(
+                            fontFamily: "Abel",
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -1115,7 +1136,8 @@ class _GameScreenState extends State<GameScreen> {
                 child: Center(
                   child: Text(
                     buttonValue.toUpperCase(),
-                    style: GoogleFonts.abel(
+                    style: const TextStyle(
+                        fontFamily: "Abel",
                         fontWeight: FontWeight.bold,
                         fontSize: 30,
                         color: Colors.black),
