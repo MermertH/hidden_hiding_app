@@ -38,6 +38,7 @@ class _PinDialogState extends State<PinDialog> {
   ];
 
   int wrongPinCount = 0;
+  bool isNotValid = false;
 
   @override
   void dispose() {
@@ -83,6 +84,19 @@ class _PinDialogState extends State<PinDialog> {
               ],
             ),
           ),
+          if (isNotValid)
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                "Pins are incorrect, Please try again!",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.abel(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: widget.isInVault ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: Row(
@@ -147,6 +161,10 @@ class _PinDialogState extends State<PinDialog> {
                 case "Clear":
                   for (var controller in digits) {
                     controller.clear();
+                    setState(() {
+                      inputFocus[0].requestFocus();
+                      isNotValid = false;
+                    });
                   }
                   break;
                 case "Submit":
@@ -186,6 +204,9 @@ class _PinDialogState extends State<PinDialog> {
                           (Route<dynamic> route) => false,
                         );
                       } else {
+                        setState(() {
+                          isNotValid = true;
+                        });
                         wrongPinCount++;
                         if (wrongPinCount == 3) {
                           wrongPinCount = 0;
