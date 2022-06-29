@@ -315,7 +315,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                       ),
                 title: Text(
                   Global().getFileInfo(Global().items[index].value, "name"),
-                  style: Theme.of(context).textTheme.headline1,
+                  style: Theme.of(context).textTheme.bodyText2,
                 ),
                 subtitle: Global().items[index].key.statSync().type ==
                         FileSystemEntityType.file
@@ -449,7 +449,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .bodyText1,
+                                              .bodyText2,
                                         ),
                                       ),
                                       Flexible(
@@ -523,7 +523,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .headline1,
+                                              .bodyText2,
                                         ),
                                       ),
                                       Flexible(
