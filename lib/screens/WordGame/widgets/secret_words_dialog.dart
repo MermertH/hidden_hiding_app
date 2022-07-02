@@ -52,6 +52,15 @@ class _PinDialogState extends State<SecretWordsDialog> {
   }
 
   @override
+  void dispose() {
+    dialogController.dispose();
+    for (var controller in recoveryFields) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Dialog(
       alignment: widget.isTutorial ? const Alignment(0, 0.9) : Alignment.center,

@@ -38,6 +38,16 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    textKeyController.dispose();
+    folderNameController.dispose();
+    filterController.dispose();
+    fileController.dispose();
+    listController.dispose();
+    super.dispose();
+  }
+
   Future<void> getInitDir() async {
     if (Global().isOnce) {
       var initDir = await filePickService.createNFolder();
@@ -577,7 +587,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                                       textAlign: TextAlign.center,
                                       overflow: TextOverflow.ellipsis,
                                       style:
-                                          Theme.of(context).textTheme.headline1,
+                                          Theme.of(context).textTheme.bodyText2,
                                     ),
                                   ),
                                   Flexible(

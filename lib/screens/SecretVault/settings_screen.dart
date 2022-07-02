@@ -118,6 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case "pin":
         showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (context) => const PinDialog(
                   isPasswordSet: true,
                   isInVault: true,
@@ -126,6 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         break;
       case "security":
         showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (context) => const SetCombinationDialog());
 

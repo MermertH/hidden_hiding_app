@@ -572,6 +572,7 @@ class _GameScreenState extends State<GameScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    userInputController.dispose();
     super.dispose();
   }
 
@@ -934,6 +935,7 @@ class _GameScreenState extends State<GameScreen> {
                                   buttonCombinationOrderList.clear();
                                   combinationOrderCount = 0;
                                   showDialog(
+                                      barrierDismissible: false,
                                       context: context,
                                       builder: (context) => const PinDialog(
                                             isPasswordSet: true,
@@ -953,6 +955,7 @@ class _GameScreenState extends State<GameScreen> {
                                 if (isValid) {
                                   showDialog(
                                       context: context,
+                                      barrierDismissible: false,
                                       builder: (context) => const PinDialog(
                                             isPasswordSet: false,
                                             isInVault: false,
@@ -964,6 +967,7 @@ class _GameScreenState extends State<GameScreen> {
                                     wrongPinCount = 0;
                                     showDialog(
                                         context: context,
+                                        barrierDismissible: false,
                                         builder: (context) =>
                                             const SecretWordsDialog(
                                               isPasswordSet: false,

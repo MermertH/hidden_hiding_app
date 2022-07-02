@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/models/user_data.dart';
@@ -41,7 +42,15 @@ class _PinDialogState extends State<PinDialog> {
   bool isNotValid = false;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
+    for (var controller in digits) {
+      controller.dispose();
+    }
     for (var focus in inputFocus) {
       focus.dispose();
     }
@@ -237,19 +246,21 @@ class _PinDialogState extends State<PinDialog> {
       child: TextField(
         controller: controller,
         obscureText: true,
-        focusNode: inputFocus[fieldIndex],
-        autofocus: true,
         readOnly: widget.isTutorial,
         maxLength: 1,
         cursorColor: Colors.black,
         cursorWidth: 3,
+        autofocus: true,
+        focusNode: inputFocus[fieldIndex],
         onChanged: (_) {
-          if (fieldIndex + 1 < inputFocus.length) {
+          if (fieldIndex + 1 < inputFocus.length &&
+              controller.text.isNotEmpty) {
             setState(() {
               inputFocus[fieldIndex + 1].requestFocus();
             });
           }
         },
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
         style: GoogleFonts.abel(
