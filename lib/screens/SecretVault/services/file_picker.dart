@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:hidden_hiding_app/file_moving.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:lecle_flutter_absolute_path/lecle_flutter_absolute_path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 class FilePickerService {
   // Get App Hidden File Location
@@ -117,7 +119,7 @@ class FilePickerService {
   }
 
   // Multiple Files With Extension Filter
-  Future<void> getFilesWithFilter() async {
+  Future<void> getFilesWithFilter(BuildContext context) async {
     bool absolutePathFailed = false;
     String absolutePath = "";
     var mediaFilesDirectory = Directory(Global().currentPath);
@@ -125,6 +127,14 @@ class FilePickerService {
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: ['jpg', 'png', 'gif', 'mp4'],
+      onFileLoading: (p0) {
+        var fileStatus = Provider.of<FileMoving>(context, listen: false);
+        if (p0 == FilePickerStatus.picking) {
+          fileStatus.isFileMoving(true);
+        } else {
+          fileStatus.isFileMoving(false);
+        }
+      },
     );
     if (result != null) {
       for (PlatformFile file in result.files) {

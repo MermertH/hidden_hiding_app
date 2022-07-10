@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:hidden_hiding_app/file_moving.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/widgets/file_moving_dialog.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/widgets/video_player_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class VaultMainScreen extends StatefulWidget {
   const VaultMainScreen({
@@ -29,6 +32,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   bool isFilterMode = false;
   bool isFlexible = false;
   bool isDefaultPath = true;
+  double animationHeight = 0;
 
   @override
   void initState() {
@@ -112,8 +116,11 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
     }
   }
 
+  // vault screen
+
   @override
   Widget build(BuildContext context) {
+    var fileStatus = Provider.of<FileMoving>(context, listen: true);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -171,13 +178,18 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
       ),
       floatingActionButton: addMedia(),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Flexible(
-              flex: isFlexible ? 1 : 0,
-              child: filterArea(),
+            Column(
+              children: [
+                Flexible(
+                  flex: isFlexible ? 1 : 0,
+                  child: filterArea(),
+                ),
+                Preferences().getViewStyle ? fileViewStyle() : listViewStyle(),
+              ],
             ),
-            Preferences().getViewStyle ? fileViewStyle() : listViewStyle(),
+            if (fileStatus.moving) const FileMovingDialog(),
           ],
         ),
       ),
@@ -704,7 +716,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     heroTag: "addButton",
                     onPressed: () async {
                       await filePickService
-                          .getFilesWithFilter()
+                          .getFilesWithFilter(context)
                           .then((_) => getStorageItems());
                     },
                     child: const Icon(
