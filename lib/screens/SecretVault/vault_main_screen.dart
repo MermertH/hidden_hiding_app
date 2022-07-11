@@ -128,6 +128,9 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
             ? null
             : IconButton(
                 onPressed: () async {
+                  if (fileStatus.moving) {
+                    return;
+                  }
                   Global().currentPath =
                       Directory(Global().currentPath).parent.path;
                   isDefaultPath = Global().currentPath ==
@@ -143,6 +146,9 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
         actions: [
           GestureDetector(
             onTap: () async {
+              if (fileStatus.moving) {
+                return;
+              }
               setState(() {
                 isFilterMode = !isFilterMode;
               });
@@ -165,6 +171,9 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
           ),
           GestureDetector(
             onTap: () {
+              if (fileStatus.moving) {
+                return;
+              }
               Navigator.of(context)
                   .pushNamed("/SettingsScreen")
                   .then((value) => setState(() {}));
@@ -189,6 +198,12 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                 Preferences().getViewStyle ? fileViewStyle() : listViewStyle(),
               ],
             ),
+            if (fileStatus.moving)
+              Container(
+                color: Colors.transparent,
+                width: double.maxFinite,
+                height: double.maxFinite,
+              ),
             if (fileStatus.moving) const FileMovingDialog(),
           ],
         ),
@@ -638,6 +653,7 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
   // Floating action button
 
   StatefulBuilder addMedia() {
+    var fileStatus = Provider.of<FileMoving>(context, listen: true);
     return StatefulBuilder(
       builder: (context, setState) {
         return Stack(
@@ -674,6 +690,9 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     backgroundColor: Colors.greenAccent[700],
                     heroTag: "createFolderButton",
                     onPressed: () {
+                      if (fileStatus.moving) {
+                        return;
+                      }
                       setState(() {
                         showDialog(
                                 context: context,
@@ -715,6 +734,9 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     backgroundColor: Colors.yellow,
                     heroTag: "addButton",
                     onPressed: () async {
+                      if (fileStatus.moving) {
+                        return;
+                      }
                       await filePickService
                           .getFilesWithFilter(context)
                           .then((_) => getStorageItems());
@@ -745,6 +767,9 @@ class _VaultMainScreenState extends State<VaultMainScreen> {
                     size: 26,
                   ),
                   onPressed: () {
+                    if (fileStatus.moving) {
+                      return;
+                    }
                     setState(() {
                       _isExpanded = !_isExpanded;
                       _islabelVisible = false;
