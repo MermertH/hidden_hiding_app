@@ -35,7 +35,7 @@ class _FileMovingDialogState extends State<FileMovingDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(24.0),
             child: Text(
               'Media is being moved...',
               textAlign: TextAlign.center,
@@ -46,7 +46,7 @@ class _FileMovingDialogState extends State<FileMovingDialog> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(24.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
