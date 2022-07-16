@@ -2,6 +2,8 @@
 
 My Graduation project.
 
+An application that has a hidden vault behind a word finding game.
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
