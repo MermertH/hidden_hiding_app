@@ -27,10 +27,15 @@ class MyApp extends StatelessWidget {
       title: 'Hidden Hide App',
       debugShowCheckedModeBanner: false,
       theme: DarkTheme.get,
-      initialRoute: '/VaultMainScreen',
+      initialRoute:
+          '/GameScreen', //TODO REMINDER! change it back to game screen after finished debugging!
       routes: {
-        '/VaultMainScreen': (context) => ChangeNotifierProvider(
-            create: (_) => FileMoving(), child: const VaultMainScreen()),
+        '/VaultMainScreen': (context) => ChangeNotifierProvider<FileMoving>(
+              create: (context) => FileMoving(),
+              builder: (context, child) {
+                return const VaultMainScreen();
+              },
+            ),
         '/SettingsScreen': (context) => const SettingsScreen(),
         '/GameScreen': (context) => const GameScreen(),
       },

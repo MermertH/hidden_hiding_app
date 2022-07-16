@@ -1,12 +1,14 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hidden_hiding_app/file_moving.dart';
 import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/models/user_data.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/vault_main_screen.dart';
 import 'package:hidden_hiding_app/screens/WordGame/src/recovery_words.dart';
 import 'package:hidden_hiding_app/services/storage_service.dart';
+import 'package:provider/provider.dart';
 
 class SecretWordsDialog extends StatefulWidget {
   final bool isPasswordSet;
@@ -242,8 +244,14 @@ class _PinDialogState extends State<SecretWordsDialog> {
                                 });
                                 Navigator.of(context).pushAndRemoveUntil(
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          const VaultMainScreen()),
+                                    builder: (context) =>
+                                        ChangeNotifierProvider<FileMoving>(
+                                      create: (context) => FileMoving(),
+                                      builder: (context, child) {
+                                        return const VaultMainScreen();
+                                      },
+                                    ),
+                                  ),
                                   (Route<dynamic> route) => false,
                                 );
                               } else {
@@ -272,8 +280,14 @@ class _PinDialogState extends State<SecretWordsDialog> {
                                     });
                                     Navigator.of(context).pushAndRemoveUntil(
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              const VaultMainScreen()),
+                                        builder: (context) =>
+                                            ChangeNotifierProvider<FileMoving>(
+                                          create: (context) => FileMoving(),
+                                          builder: (context, child) {
+                                            return const VaultMainScreen();
+                                          },
+                                        ),
+                                      ),
                                       (Route<dynamic> route) => false,
                                     );
                                   } else {
