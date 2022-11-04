@@ -23,7 +23,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         chewieController = ChewieController(
             videoPlayerController: _controller,
-            looping: false,
+            looping: true,
             aspectRatio: _controller.value.aspectRatio,
             errorBuilder: (context, errorMessage) {
               return Center(
