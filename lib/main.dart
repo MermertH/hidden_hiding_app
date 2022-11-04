@@ -24,11 +24,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Hidden Hide App',
+      title: 'World Bender',
       debugShowCheckedModeBanner: false,
       theme: DarkTheme.get,
-      initialRoute:
-          '/GameScreen', //TODO REMINDER! change it back to game screen after finished debugging!
+      initialRoute: '/GameScreen',
       routes: {
         '/VaultMainScreen': (context) => ChangeNotifierProvider<FileMoving>(
               create: (context) => FileMoving(),
