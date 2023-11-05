@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hidden_hiding_app/file_moving.dart';
-import 'package:hidden_hiding_app/global.dart';
+import 'package:hidden_hiding_app/controller/game_controller.dart';
 import 'package:hidden_hiding_app/models/user_data.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/vault_main_screen.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/secret_words_dialog.dart';
 import 'package:hidden_hiding_app/services/storage_service.dart';
-import 'package:provider/provider.dart';
 
 class PinDialog extends StatefulWidget {
   final bool isPasswordSet;
@@ -25,6 +24,7 @@ class PinDialog extends StatefulWidget {
 }
 
 class _PinDialogState extends State<PinDialog> {
+  final GameController _gameCont = Get.find();
   var encryptedStorage = StorageService();
   List<FocusNode> inputFocus = [
     FocusNode(),
@@ -189,13 +189,13 @@ class _PinDialogState extends State<PinDialog> {
                           value:
                               "${digits[0].text},${digits[1].text},${digits[2].text},${digits[3].text}"));
                       if (!widget.isInVault) {
-                        showDialog(
-                            context: context,
-                            builder: (context) => SecretWordsDialog(
-                                  isPasswordSet: widget.isPasswordSet,
-                                  isRecoveryMode: false,
-                                  isTutorial: false,
-                                ));
+                        Get.dialog(
+                            SecretWordsDialog(
+                              isPasswordSet: widget.isPasswordSet,
+                              isRecoveryMode: false,
+                              isTutorial: false,
+                            ),
+                            barrierDismissible: false);
                       } else {
                         Navigator.of(context).pop();
                       }
@@ -208,19 +208,8 @@ class _PinDialogState extends State<PinDialog> {
                           secretPin.split(",")[1] == digits[1].text &&
                           secretPin.split(",")[2] == digits[2].text &&
                           secretPin.split(",")[3] == digits[3].text) {
-                        Global().isCombinationTriggered = false;
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ChangeNotifierProvider<FileMoving>(
-                              create: (context) => FileMoving(),
-                              builder: (context, child) {
-                                return const VaultMainScreen();
-                              },
-                            ),
-                          ),
-                          (Route<dynamic> route) => false,
-                        );
+                        _gameCont.setIsCombinationTriggered = false;
+                        Get.offAll(() => const VaultMainScreen());
                       } else {
                         setState(() {
                           isNotValid = true;
@@ -228,13 +217,14 @@ class _PinDialogState extends State<PinDialog> {
                         wrongPinCount++;
                         if (wrongPinCount == 3) {
                           wrongPinCount = 0;
-                          showDialog(
-                              context: context,
-                              builder: (context) => const SecretWordsDialog(
-                                    isPasswordSet: false,
-                                    isRecoveryMode: true,
-                                    isTutorial: false,
-                                  ));
+                          Get.dialog(
+                            const SecretWordsDialog(
+                              isPasswordSet: false,
+                              isRecoveryMode: true,
+                              isTutorial: false,
+                            ),
+                            barrierDismissible: false,
+                          );
                         }
                       }
                     });

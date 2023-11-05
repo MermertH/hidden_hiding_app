@@ -1,22 +1,21 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:hidden_hiding_app/file_moving.dart';
-import 'package:hidden_hiding_app/global.dart';
+import 'package:get/get.dart';
+import 'package:hidden_hiding_app/controller/secret_vault_controller.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/models/storage_item.dart';
 import 'package:lecle_flutter_absolute_path/lecle_flutter_absolute_path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 
 class FilePickerService {
   // Get App Hidden File Location
-  Future<String> get _localPath async {
+  static Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
 
   // Create Media Folder in App Location
-  Future<Directory> createNFolder() async {
+  static Future<Directory> createNFolder() async {
     const folderName = "MediaFiles";
     final path = Directory("${await _localPath}/$folderName");
     if ((await path.exists())) {
@@ -32,7 +31,7 @@ class FilePickerService {
   }
 
   // Create Folder In Given Path
-  Future<void> createFolderInGivenPath(
+  static Future<void> createFolderInGivenPath(
       String folderName, String currentPath, BuildContext context) async {
     final path = Directory("$currentPath/$folderName");
     if ((await path.exists())) {
@@ -49,19 +48,20 @@ class FilePickerService {
   }
 
   // Create file
-  Future<void> addNewFileToGivenPath(String root, String pathFile) async {
+  static Future<void> addNewFileToGivenPath(
+      String root, String pathFile) async {
     final path = "$root/$pathFile";
     File(path).create(recursive: true);
   }
 
   // Add file to the MediaFolder location
-  Future<File> joinFilePaths(String root, String pathFile) async {
+  static Future<File> joinFilePaths(String root, String pathFile) async {
     final path = "$root/$pathFile";
     return File(path).create(recursive: true);
   }
 
   // Move file to the app location
-  Future<File> moveFile(File sourceFile, String newPath) async {
+  static Future<File> moveFile(File sourceFile, String newPath) async {
     try {
       final newFile = await sourceFile.copy(newPath);
       await sourceFile.delete();
@@ -73,7 +73,7 @@ class FilePickerService {
   }
 
   // Rename File
-  Future<FileSystemEntity> renameFileOrFolder(
+  static Future<FileSystemEntity> renameFileOrFolder(
       FileSystemEntity media, String newFileName) async {
     var path = media.path;
     var lastSeparator = path.lastIndexOf(Platform.pathSeparator);
@@ -84,7 +84,7 @@ class FilePickerService {
   }
 
   // Delete file from Gallery
-  Future<void> deleteMedia(FileSystemEntity media) async {
+  static Future<void> deleteMedia(FileSystemEntity media) async {
     try {
       if (await media.exists()) {
         debugPrint("entered delete function");
@@ -100,7 +100,7 @@ class FilePickerService {
   }
 
   // Delete files from app location
-  Future<void> deleteFilesFormApp() async {
+  static Future<void> deleteFilesFormApp() async {
     var mediaFilesDirectory = await createNFolder();
     var appMediaFilesList =
         mediaFilesDirectory.listSync(recursive: true, followLinks: false);
@@ -119,20 +119,20 @@ class FilePickerService {
   }
 
   // Multiple Files With Extension Filter
-  Future<void> getFilesWithFilter(BuildContext context) async {
+  static Future<void> getFilesWithFilter() async {
     bool absolutePathFailed = false;
     String absolutePath = "";
-    var mediaFilesDirectory = Directory(Global().currentPath);
+    var mediaFilesDirectory =
+        Directory(Get.find<SecretVaultController>().getCurrentPath);
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: ['jpg', 'png', 'gif', 'mp4'],
       onFileLoading: (p0) {
-        var fileStatus = Provider.of<FileMoving>(context, listen: false);
         if (p0 == FilePickerStatus.picking) {
-          fileStatus.isFileMoving(true);
+          Get.find<SecretVaultController>().setIsFileMoving = true;
         } else {
-          fileStatus.isFileMoving(false);
+          Get.find<SecretVaultController>().setIsFileMoving = false;
         }
       },
     );
@@ -140,7 +140,7 @@ class FilePickerService {
       for (PlatformFile file in result.files) {
         PlatformFile fileData = file;
         absolutePath = (await LecleFlutterAbsolutePath.getAbsolutePath(
-                fileData.identifier!)
+                uri: fileData.identifier!)
             .onError((error, stackTrace) {
           absolutePathFailed = true;
           return error.toString();
@@ -167,15 +167,16 @@ class FilePickerService {
   }
 
   // Get Dir Media items
-  Future<void> getDir() async {
+  static Future<void> getDir() async {
     List<FileSystemEntity> _folders;
-    final directory = Directory(Global().currentPath);
+    final directory =
+        Directory(Get.find<SecretVaultController>().getCurrentPath);
     _folders = directory.listSync(recursive: true, followLinks: false);
     debugPrint("$_folders");
   }
 
   // Get Media to show in UI
-  Future<List<StorageItem>> getDirMedia(Directory pathDirectory) async {
+  static Future<List<StorageItem>> getDirMedia(Directory pathDirectory) async {
     List<FileSystemEntity> folders = [];
     debugPrint("current path directory to be listed: ${pathDirectory.path}");
     final directory = pathDirectory;

@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:hidden_hiding_app/global.dart';
+import 'package:get/get.dart';
+import 'package:hidden_hiding_app/controller/secret_vault_controller.dart';
 import 'package:hidden_hiding_app/preferences.dart';
-import 'package:hidden_hiding_app/screens/SecretVault/services/file_picker.dart';
-import 'package:hidden_hiding_app/screens/SecretVault/widgets/set_combination_dialog.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/widgets/dialogs/delete_all_data_dialog.dart';
+import 'package:hidden_hiding_app/screens/SecretVault/widgets/dialogs/set_combination_dialog.dart';
 import 'package:hidden_hiding_app/screens/WordGame/game_screen.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/pin_dialog.dart';
 
@@ -15,7 +15,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  var filePickService = FilePickerService();
+  final SecretVaultController _vaultCont = Get.find();
   List<Map<String, dynamic>> buttons = [
     {
       "tag": "security",
@@ -55,15 +55,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     },
   ];
 
-  void getStorageItems() async {
-    Global().items =
-        await filePickService.getDirMedia(Directory(Global().currentPath));
-    Global().items = Global().applyExtensionFilter(Global().items);
-    Global().items =
-        Global().applySelectedSort(Global().items, Preferences().getSortData);
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,12 +92,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void buttonFunctions(String tag) async {
     switch (tag) {
       case "delete":
-        showDialog(
-                context: context, builder: (context) => deleteAllDataDialog())
-            .then((value) => value ? getStorageItems() : false);
+        Get.dialog(
+          const DeleteAllDataDialog(),
+        );
         break;
       case "export":
-        var selectedPath = await Global().getDirectoryToExportMediaFile();
+        var selectedPath = await _vaultCont.getDirectoryToExportMediaFile();
         Preferences().setExportPath = selectedPath;
         debugPrint("set export path worked, selected path: $selectedPath");
         if (Preferences().getExportPath != "none") {
@@ -116,81 +107,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
         break;
       case "pin":
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const PinDialog(
-                  isPasswordSet: true,
-                  isInVault: true,
-                  isTutorial: false,
-                ));
-        break;
-      case "security":
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) => const SetCombinationDialog());
+        Get.dialog(
+          const PinDialog(
+            isPasswordSet: true,
+            isInVault: true,
+            isTutorial: false,
+          ),
+          barrierDismissible: false,
+        );
 
         break;
-      case "gameScreen":
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const GameScreen()),
-          (Route<dynamic> route) => false,
+      case "security":
+        Get.dialog(
+          const SetCombinationDialog(),
+          barrierDismissible: false,
         );
+        break;
+      case "gameScreen":
+        Get.offAll(() => const GameScreen());
         break;
       default:
         return;
     }
-  }
-
-  Widget deleteAllDataDialog() {
-    return Dialog(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            color: Colors.grey.shade900,
-            child: Wrap(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Are you sure you want to delete all data? This cannot be undone.",
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyText2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    await filePickService.deleteFilesFormApp();
-                    Navigator.of(context).pop(true);
-                  },
-                  child: Text("ACCEPT",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyText2!
-                          .copyWith(color: Colors.red)),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(false);
-                  },
-                  child: const Text("Cancel"),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

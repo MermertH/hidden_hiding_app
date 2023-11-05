@@ -5,7 +5,6 @@ class LightTheme {
   static ThemeData get get {
     return ThemeData.light().copyWith(
       brightness: Brightness.light,
-      backgroundColor: const Color(0xFFFFFFFA),
       scaffoldBackgroundColor: const Color(0xFFFFFFFA),
       appBarTheme: AppBarTheme(
         centerTitle: true,
@@ -20,8 +19,8 @@ class LightTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          onPrimary: Colors.white,
-          primary: Colors.blue,
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.blue,
         ),
       ),
       textTheme: GoogleFonts.openSansTextTheme(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hidden_hiding_app/global.dart';
+import 'package:hidden_hiding_app/controller/game_controller.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_button_shape.dart';
 import 'package:hidden_hiding_app/screens/WordGame/widgets/hexagon_clipper.dart';
@@ -13,6 +14,7 @@ class SetCombinationDialog extends StatefulWidget {
 }
 
 class _SetCombinationDialogState extends State<SetCombinationDialog> {
+  final GameController _gameCont = Get.find();
   Map<String, int> buttonCombinationOrderList = {};
   int tempData = 0;
   int combinationOrderCount = 0;
@@ -87,17 +89,15 @@ class _SetCombinationDialogState extends State<SetCombinationDialog> {
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
                       textStyle: GoogleFonts.abel(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey,
                       ),
-                      primary: Colors.grey,
-                      onPrimary: Colors.white),
+                      backgroundColor: Colors.grey),
                   onPressed: () {
-                    Global()
-                        .combinationButtons
-                        .updateAll((key, value) => false);
+                    _gameCont.resetCombinationButtons();
                     buttonCombinationOrderList.clear();
                     combinationOrderCount = 0;
                     Navigator.of(context).pop();
@@ -106,18 +106,16 @@ class _SetCombinationDialogState extends State<SetCombinationDialog> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
                       textStyle: GoogleFonts.abel(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey,
                       ),
-                      primary: Colors.grey,
-                      onPrimary: Colors.white),
+                      backgroundColor: Colors.grey),
                   onPressed: () {
                     setState(() {
-                      Global()
-                          .combinationButtons
-                          .updateAll((key, value) => false);
+                      _gameCont.resetCombinationButtons();
                       buttonCombinationOrderList.clear();
                       combinationOrderCount = 0;
                     });
@@ -126,13 +124,13 @@ class _SetCombinationDialogState extends State<SetCombinationDialog> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
                       textStyle: GoogleFonts.abel(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey,
                       ),
-                      primary: Colors.grey,
-                      onPrimary: Colors.white),
+                      backgroundColor: Colors.grey),
                   onPressed: () {
                     if (buttonCombinationOrderList.length == 7) {
                       for (int index = 0;
@@ -142,9 +140,7 @@ class _SetCombinationDialogState extends State<SetCombinationDialog> {
                             buttonCombinationOrderList.keys.elementAt(index),
                             buttonCombinationOrderList.values.elementAt(index));
                       }
-                      Global()
-                          .combinationButtons
-                          .updateAll((key, value) => false);
+                      _gameCont.resetCombinationButtons();
                       buttonCombinationOrderList.clear();
                       combinationOrderCount = 0;
                       Navigator.of(context).pop();
@@ -178,35 +174,38 @@ class _SetCombinationDialogState extends State<SetCombinationDialog> {
           Positioned.fill(
             child: ClipPath(
               clipper: HexagonClipper(),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                    stops: const [
-                      0.1,
-                      0.9,
-                    ],
-                    colors: [
-                      Global().getCombinationButtonStatus(buttonName)
-                          ? Colors.green[600]!
-                          : Colors.white,
-                      Colors.grey[200]!
-                    ],
+              child: Obx(
+                () => Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      stops: const [
+                        0.1,
+                        0.9,
+                      ],
+                      colors: [
+                        _gameCont.getCombinationButtonStatus(buttonName).value
+                            ? Colors.green[600]!
+                            : Colors.white,
+                        Colors.grey[200]!
+                      ],
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: Text(
-                    Global().getCombinationButtonStatus(buttonName)
-                        ? buttonCombinationOrderList.entries
-                            .firstWhere((element) => element.key == buttonName)
-                            .value
-                            .toString()
-                        : buttonValue,
-                    style: GoogleFonts.abel(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
-                        color: Colors.black),
+                  child: Center(
+                    child: Text(
+                      _gameCont.getCombinationButtonStatus(buttonName).value
+                          ? buttonCombinationOrderList.entries
+                              .firstWhere(
+                                  (element) => element.key == buttonName)
+                              .value
+                              .toString()
+                          : buttonValue,
+                      style: GoogleFonts.abel(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                          color: Colors.black),
+                    ),
                   ),
                 ),
               ),
@@ -219,13 +218,15 @@ class _SetCombinationDialogState extends State<SetCombinationDialog> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
-                    if (Global().getCombinationButtonStatus(buttonName) ==
+                    if (_gameCont
+                            .getCombinationButtonStatus(buttonName)
+                            .value ==
                         false) {
                       combinationOrderCount++;
                       buttonCombinationOrderList.addEntries(
                           [MapEntry(buttonName, combinationOrderCount)]);
                     }
-                    Global().setCombinationButtonStatus(true, buttonName);
+                    _gameCont.setCombinationButtonStatus(true, buttonName);
                     setState(() {});
                   },
                 ),

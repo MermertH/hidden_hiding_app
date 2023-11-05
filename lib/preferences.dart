@@ -28,14 +28,6 @@ class Preferences {
     "RightBottom": 0,
   };
 
-  static final extensionTypes = {
-    "any": true,
-    "jpg": false,
-    "png": false,
-    "gif": false,
-    "mp4": false,
-  };
-
   static final sortTypes = {
     "A_Z": "A_Z",
     "Z_A": "Z_A",
@@ -58,10 +50,6 @@ class Preferences {
   Future<bool>? setBool(String key, bool value) =>
       sharedPreferences?.setBool(key, value);
 
-// to get desired extension's status
-  bool getExtensionsBool(String key) =>
-      (sharedPreferences?.getBool(key) ?? (extensionTypes[key] as bool));
-
 // to Set combination or check if saved combination is same as user selection
   int getCombinationCount(String key) =>
       (sharedPreferences?.getInt(key) ?? (buttonCombinations[key] as int));
@@ -69,7 +57,7 @@ class Preferences {
       sharedPreferences?.setInt(key, value);
 
 // Works when app opened first time
-  get getFirstTime => getBool('firstTime');
+  bool get getFirstTime => getBool('firstTime');
   set setFirstTime(bool firstTime) => setBool('firstTime', firstTime);
 
 // Works when app is in change password mode
@@ -93,37 +81,4 @@ class Preferences {
   get getSort => getString('sort');
   get getSortData => sortTypes[getSort];
   set setSort(String sort) => setString('sort', sort);
-
-// Extension Filter
-  set setExtensionType(int index) {
-    setBool(
-        extensionTypes.keys.toList().elementAt(index),
-        extensionTypes.values.toList()[index] =
-            !getExtensionsBool(extensionTypes.keys.toList().elementAt(index)));
-  }
-
-  set setExtensionTypeAny(bool isAny) {
-    setBool(extensionTypes.keys.toList().elementAt(0), isAny);
-  }
-
-  set setCheckExtensionTypeExceptAny(bool isAny) {
-    // if no filter selected then make 'any' filter true
-    bool checkResult = false;
-    for (int index = 1; index < extensionTypes.length; index++) {
-      checkResult =
-          getExtensionsBool(extensionTypes.keys.toList().elementAt(index));
-      if (checkResult) {
-        break;
-      }
-    }
-    if (!checkResult) {
-      setBool(extensionTypes.keys.toList().elementAt(0), isAny);
-    }
-  }
-
-  set setExtensionTypeExceptAny(bool isAny) {
-    for (int index = 1; index < extensionTypes.length; index++) {
-      setBool(extensionTypes.keys.toList().elementAt(index), isAny);
-    }
-  }
 }

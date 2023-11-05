@@ -1,14 +1,14 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hidden_hiding_app/file_moving.dart';
-import 'package:hidden_hiding_app/global.dart';
 import 'package:hidden_hiding_app/models/user_data.dart';
 import 'package:hidden_hiding_app/preferences.dart';
 import 'package:hidden_hiding_app/screens/SecretVault/vault_main_screen.dart';
 import 'package:hidden_hiding_app/screens/WordGame/src/recovery_words.dart';
 import 'package:hidden_hiding_app/services/storage_service.dart';
-import 'package:provider/provider.dart';
+
+import '../../../controller/game_controller.dart';
 
 class SecretWordsDialog extends StatefulWidget {
   final bool isPasswordSet;
@@ -26,6 +26,7 @@ class SecretWordsDialog extends StatefulWidget {
 }
 
 class _PinDialogState extends State<SecretWordsDialog> {
+  final GameController _gameCont = Get.find();
   var encryptedStorage = StorageService();
   var dialogController = ScrollController();
   List<String> selectedRecoveryWords = [];
@@ -45,7 +46,7 @@ class _PinDialogState extends State<SecretWordsDialog> {
   @override
   void initState() {
     for (int itemIndex = 0; itemIndex < 8; itemIndex++) {
-      List<String> list = nouns;
+      List<String> list = SecretWords.nouns;
       int rngIndex = rng.nextInt(list.length);
       selectedRecoveryWords.add(list[rngIndex]);
       list.removeAt(rngIndex);
@@ -177,13 +178,13 @@ class _PinDialogState extends State<SecretWordsDialog> {
                   if (widget.isRecoveryMode)
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          backgroundColor: Colors.orange[500],
                           textStyle: GoogleFonts.abel(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
-                          ),
-                          primary: Colors.orange[500],
-                          onPrimary: Colors.black),
+                          )),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -237,23 +238,10 @@ class _PinDialogState extends State<SecretWordsDialog> {
                                     key: "recoveryKeys",
                                     value:
                                         "${selectedRecoveryWords[0]},${selectedRecoveryWords[1]},${selectedRecoveryWords[2]},${selectedRecoveryWords[3]},${selectedRecoveryWords[4]},${selectedRecoveryWords[5]},${selectedRecoveryWords[6]},${selectedRecoveryWords[7]}"));
-                                setState(() {
-                                  Preferences().setIsPasswordSetMode = false;
-                                  Global().isCombinationTriggered = false;
-                                  Global().statusMessage = "notSubmitted";
-                                });
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ChangeNotifierProvider<FileMoving>(
-                                      create: (context) => FileMoving(),
-                                      builder: (context, child) {
-                                        return const VaultMainScreen();
-                                      },
-                                    ),
-                                  ),
-                                  (Route<dynamic> route) => false,
-                                );
+                                Preferences().setIsPasswordSetMode = false;
+                                _gameCont.setIsCombinationTriggered = false;
+                                _gameCont.setStatusMessage("notSubmitted");
+                                Get.offAll(() => const VaultMainScreen());
                               } else {
                                 await encryptedStorage
                                     .readSecureData("recoveryKeys")
@@ -274,22 +262,9 @@ class _PinDialogState extends State<SecretWordsDialog> {
                                           recoveryFields[6].text.trim() &&
                                       recoveryKeys.split(",")[7] ==
                                           recoveryFields[7].text.trim()) {
-                                    setState(() {
-                                      Global().isCombinationTriggered = false;
-                                      Preferences().setIsPasswordSetMode = true;
-                                    });
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ChangeNotifierProvider<FileMoving>(
-                                          create: (context) => FileMoving(),
-                                          builder: (context, child) {
-                                            return const VaultMainScreen();
-                                          },
-                                        ),
-                                      ),
-                                      (Route<dynamic> route) => false,
-                                    );
+                                    _gameCont.setIsCombinationTriggered = false;
+                                    Preferences().setIsPasswordSetMode = true;
+                                    Get.offAll(() => const VaultMainScreen());
                                   } else {
                                     setState(() {
                                       isNotValid = true;

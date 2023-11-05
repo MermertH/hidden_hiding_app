@@ -7,29 +7,29 @@ class DarkTheme {
       brightness: Brightness.dark,
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          onPrimary: Colors.white,
-          primary: Colors.black,
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.black,
         ),
       ),
       textTheme: GoogleFonts.droidSansTextTheme(
         const TextTheme(
-          bodyText1: TextStyle(
+          bodyLarge: TextStyle(
             fontSize: 12,
             color: Colors.white,
           ),
-          bodyText2: TextStyle(
+          bodyMedium: TextStyle(
             fontSize: 15,
             color: Colors.white,
           ),
-          headline1: TextStyle(
+          displayLarge: TextStyle(
             fontSize: 16,
             color: Colors.white,
           ),
-          button: TextStyle(
+          labelLarge: TextStyle(
             fontSize: 17,
             color: Colors.white,
           ),
-          headline6: TextStyle(
+          titleLarge: TextStyle(
             fontSize: 20,
             color: Colors.white,
           ),
