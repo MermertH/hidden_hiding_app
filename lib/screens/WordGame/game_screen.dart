@@ -272,7 +272,7 @@ class _GameScreenState extends State<GameScreen> {
                               buttonName: "Top",
                             ),
                             GameButton(
-                              buttonValue: _gameCont.getMiddleButtonChar,
+                              buttonValue: _gameCont.getMiddleButtonChar.value,
                               buttonName: "Middle",
                             ),
                             GameButton(

@@ -14,7 +14,7 @@ class GameController extends GetxController {
   final userInputController = TextEditingController();
   final List<AcceptedWords> acceptedWords = [];
   final Map<String, int> buttonCombinationOrderList = {};
-  final List<String> selectedLetters = [];
+  final RxList<String> selectedLetters = <String>[].obs;
   bool _isNewGameTriggered = false;
   bool _isDeleteTriggered = false;
   final _isCombinationTriggered = false.obs;
@@ -23,7 +23,7 @@ class GameController extends GetxController {
   int _combinationOrderCount = 0;
   int _wrongPinCount = 0;
   int _tutorialWidgetIndex = 0;
-  String _middleButtonChar = "";
+  final _middleButtonChar = "".obs;
   final _statusMessage = "None".obs;
   final _isAppOpenedFirstTime = false.obs;
   final Map<String, RxBool> _combinationButtons = {
@@ -45,7 +45,7 @@ class GameController extends GetxController {
   int get getCombinationOrderCount => _combinationOrderCount;
   int get getWrongPinCount => _wrongPinCount;
   int get getTutorialWidgetIndex => _tutorialWidgetIndex;
-  String get getMiddleButtonChar => _middleButtonChar;
+  RxString get getMiddleButtonChar => _middleButtonChar;
   RxString get getStatusMessage => _statusMessage;
   RxBool get getIsAppOpenedFirstTime => _isAppOpenedFirstTime;
   Map<String, RxBool> get getCombinationButtons => _combinationButtons;
@@ -61,7 +61,7 @@ class GameController extends GetxController {
   set setCombinationOrderCount(int count) => _combinationOrderCount = count;
   set setWrongPinCount(int count) => _wrongPinCount = count;
   set setTutorialWidgetIndex(int count) => _tutorialWidgetIndex = count;
-  set setMiddleButtonCharValue(String msg) => _middleButtonChar = msg;
+  set setMiddleButtonCharValue(String msg) => _middleButtonChar.value = msg;
   set setStatusMessageValue(String msg) => _statusMessage.value = msg;
   set setIsAppOpenedFirstTime(bool value) =>
       _isAppOpenedFirstTime.value = value;
@@ -183,7 +183,7 @@ class GameController extends GetxController {
       "y",
       "z"
     ]);
-    englishAlphabet.remove(getMiddleButtonChar);
+    englishAlphabet.remove(getMiddleButtonChar.value);
     for (int count = 0; count < 6; count++) {
       currentRngIndex = rng.nextInt(englishAlphabet.length);
       selectedLetters.add(englishAlphabet[currentRngIndex]);

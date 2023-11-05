@@ -68,14 +68,19 @@ class FileViewUI extends StatelessWidget {
                       }
                     },
                     onLongPress: () async {
-                      if (_vaultCont.items[index].key.statSync().type ==
-                          FileSystemEntityType.directory) {
-                        Get.dialog(
-                          ExportOrDeleteMediaDialog(
-                            index: index,
-                          ),
-                        );
-                      }
+                      // if (_vaultCont.items[index].key.statSync().type ==
+                      //     FileSystemEntityType.directory) {
+                      //   Get.dialog(
+                      //     ExportOrDeleteMediaDialog(
+                      //       index: index,
+                      //     ),
+                      //   );
+                      // }
+                      Get.dialog(
+                        ExportOrDeleteMediaDialog(
+                          index: index,
+                        ),
+                      );
                     },
                     child: _vaultCont.items[index].key.statSync().type !=
                             FileSystemEntityType.directory

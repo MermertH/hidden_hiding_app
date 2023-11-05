@@ -28,13 +28,13 @@ class SecretVaultController extends GetxController {
   final _fileView = true.obs;
   final _currentSort = "".obs;
   late AndroidDeviceInfo android;
-  final extensionTypes = {
+  final RxMap<String, RxBool> extensionTypes = {
     "any": true.obs,
     "jpg": false.obs,
     "png": false.obs,
     "gif": false.obs,
     "mp4": false.obs,
-  };
+  }.obs;
 
   double animationHeight = 0;
   var textKeyController = TextEditingController();
@@ -111,7 +111,7 @@ class SecretVaultController extends GetxController {
       setExtensionTypeExceptAny(false);
     }
     setSavedExtensionChoices();
-    print(extensionTypes);
+    extensionTypes.refresh();
     await getStorageItems();
   }
 

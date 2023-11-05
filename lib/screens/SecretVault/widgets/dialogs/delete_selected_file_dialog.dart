@@ -15,6 +15,7 @@ class DeleteSelectedFileDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SecretVaultController _vaultCont = Get.find();
     return Dialog(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -43,14 +44,13 @@ class DeleteSelectedFileDialog extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () async {
                     await FilePickerService.deleteMedia(
-                        Get.find<SecretVaultController>()
-                                    .items[index]
-                                    .key
-                                    .statSync()
-                                    .type ==
-                                FileSystemEntityType.file
-                            ? File(path)
-                            : Directory(path));
+                            _vaultCont.items[index].key.statSync().type ==
+                                    FileSystemEntityType.file
+                                ? File(path)
+                                : Directory(path))
+                        .then(
+                      (_) => _vaultCont.getStorageItems(),
+                    );
                     Get.back();
                     if (Get.isOverlaysOpen) Get.back();
                   },

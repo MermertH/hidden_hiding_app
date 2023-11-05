@@ -64,7 +64,7 @@ class ExportOrDeleteMediaDialog extends StatelessWidget {
                                       .split("/")
                                       .last))
                               .path,
-                        );
+                        ).then((value) => _vaultCont.getStorageItems());
                         debugPrint("move the file to selected path worked");
                       } else {
                         ScaffoldMessenger.of(context)
